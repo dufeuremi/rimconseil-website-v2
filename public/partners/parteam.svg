@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 100">
+  <g fill="#626262">
+    <circle cx="50" cy="50" r="30" fill="#eeeeee" stroke="#626262" stroke-width="2"/>
+    <path d="M40 35 L40 65 M50 35 L50 65 M60 35 L60 65 M35 50 L65 50" stroke="#626262" stroke-width="3"/>
+    <text x="90" y="60" font-family="Arial" font-size="18" font-weight="bold">parteam</text>
+  </g>
+</svg> 

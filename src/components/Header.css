@@ -1,0 +1,357 @@
+.header {
+  background-color: var(--color-white);
+  border-bottom: 1px solid var(--color-quaternary);
+  padding: 1rem 0;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+}
+
+.header-logo .title-1 {
+  margin: 0;
+  font-size: 1.75rem;
+  color: var(--color-primary);
+}
+
+/* Burger Menu */
+.burger-menu {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  z-index: 1002;
+  color: var(--color-tertiary);
+  transition: all 0.3s ease-in-out;
+  position: relative;
+  width: 24px;
+  height: 24px;
+}
+
+.burger-menu:hover {
+  color: var(--color-primary);
+  transform: scale(1.1);
+}
+
+.menu-icon {
+  width: 24px;
+  height: 24px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.menu-icon.hidden {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.menu-icon.close {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.menu-icon.close.visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+.burger-menu.active {
+  position: fixed;
+  top: 1.5rem;
+  right: 2rem;
+}
+
+/* Menu Popup */
+.menu-popup {
+  position: fixed;
+  top: 0;
+  right: -100%;
+  width: 300px;
+  height: 100vh;
+  background-color: var(--color-white);
+  transition: all 0.3s ease-in-out;
+  z-index: 1001;
+  padding: 5rem 2rem 2rem;
+  overflow-y: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.menu-popup::-webkit-scrollbar {
+  display: none;
+}
+
+.menu-popup.active {
+  right: 0;
+}
+
+/* Blur effect container */
+.menu-popup-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  background-color: rgba(255, 255, 255, 0.2);
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease-in-out;
+  z-index: 1000;
+}
+
+.menu-popup.active + .menu-popup-backdrop {
+  opacity: 1;
+  visibility: visible;
+}
+
+.popup-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  position: relative;
+  z-index: 1002;
+}
+
+.popup-nav .link {
+  color: var(--color-secondary);
+  font-size: 1rem;
+  font-weight: 500;
+  text-decoration: none;
+  margin: 0;
+  padding: 0.75rem 0;
+  text-align: left;
+  transition: color 0.3s ease;
+  display: block;
+  width: 100%;
+}
+
+.popup-nav .link:hover {
+  color: var(--color-primary);
+}
+
+.popup-nav .submenu {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-left: 1rem;
+}
+
+.popup-nav .submenu .link {
+  color: var(--color-tertiary);
+  font-size: 0.9375rem;
+  font-style: italic;
+}
+
+.popup-nav .cta-button {
+  margin-top: 1.5rem;
+  padding: 0.75rem 1.5rem;
+  background: linear-gradient(45deg, var(--color-primary) 0%, var(--color-primaryLight) 100%);
+  color: var(--color-white);
+  border: none;
+  font-weight: 500;
+  cursor: pointer;
+  text-decoration: none;
+  text-align: center;
+  transition: all 0.3s ease-in-out;
+  border-radius: 4px;
+  display: block;
+  width: 100%;
+}
+
+.popup-nav .cta-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  background: linear-gradient(45deg, var(--color-primaryLight) 0%, var(--color-primary) 100%);
+}
+
+.header-nav {
+  display: flex;
+  gap: 2rem;
+  align-items: center;
+}
+
+.header-nav .link {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+@media (max-width: 768px) {
+  .header-content {
+    flex-direction: row;
+    gap: 1rem;
+  }
+
+  .header-nav {
+    gap: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .header-nav {
+    gap: 1rem;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .menu-popup {
+    width: 100%;
+  }
+
+  .header-logo .title-1 {
+    font-size: 1.5rem;
+  }
+}
+
+.dropdown {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.dropdown-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  background: none;
+  border: none;
+  padding: 0.5rem 0;
+  color: var(--color-secondary);
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  text-align: left;
+  transition: color 0.3s ease;
+}
+
+.dropdown-toggle:hover {
+  color: var(--color-primary);
+}
+
+.dropdown-arrow {
+  width: 18px;
+  height: 18px;
+  transition: transform 0.3s ease;
+  color: var(--color-secondary);
+}
+
+.dropdown-arrow.open {
+  transform: rotate(-180deg);
+}
+
+.submenu {
+  display: flex;
+  flex-direction: column;
+  margin-left: 1rem;
+  height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.submenu.open {
+  height: auto;
+  opacity: 1;
+}
+
+.submenu .link {
+  color: var(--color-tertiary);
+  font-size: 0.9375rem;
+  font-style: italic;
+  padding: 0.25rem 0;
+}
+
+.header-controls {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.eco-info {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.leaf-icon {
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+  color: var(--color-primary);
+  transition: all 0.3s ease;
+}
+
+.leaf-icon:hover {
+  transform: scale(1.1);
+}
+
+.eco-tooltip {
+  position: absolute;
+  top: calc(100% + 1rem);
+  right: -1rem;
+  width: 240px;
+  background-color: var(--color-white);
+  padding: 1rem;
+  border-radius: 0;
+  border: 1px solid var(--color-quaternary);
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+  z-index: 1003;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.eco-info:hover .eco-tooltip {
+  opacity: 1;
+  visibility: visible;
+}
+
+.eco-tooltip::before {
+  content: '';
+  position: absolute;
+  top: -6px;
+  right: 2rem;
+  width: 10px;
+  height: 10px;
+  background-color: var(--color-white);
+  border-left: 1px solid var(--color-quaternary);
+  border-top: 1px solid var(--color-quaternary);
+  transform: rotate(45deg);
+}
+
+.tooltip-icon {
+  width: 18px;
+  height: 18px;
+  margin-bottom: 0.75rem;
+  color: var(--color-primary);
+  align-self: flex-start;
+}
+
+.eco-tooltip p {
+  margin: 0;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  color: var(--color-secondary);
+  font-style: italic;
+} 

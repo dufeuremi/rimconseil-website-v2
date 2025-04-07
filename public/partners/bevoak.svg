@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 100">
+  <g fill="#888888">
+    <rect x="20" y="30" width="60" height="40" fill="#f5f5f5" stroke="#888888" stroke-width="2"/>
+    <path d="M40 30 L40 70" stroke="#888888" stroke-width="2"/>
+    <text x="90" y="60" font-family="Arial" font-size="20" font-weight="bold">Bevoak</text>
+  </g>
+</svg> 

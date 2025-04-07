@@ -1,0 +1,13 @@
+<svg width="300" height="300" viewBox="0 0 300 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Tronc -->
+  <path d="M180 300C180 300 170 250 170 200C170 150 180 120 180 120" stroke="#A08679" stroke-width="10" stroke-linecap="round"/>
+  
+  <!-- Feuillage -->
+  <circle cx="200" cy="140" r="70" fill="#9AB973" />
+  <circle cx="240" cy="100" r="50" fill="#2E8B57" />
+  <circle cx="180" cy="80" r="55" fill="#3CB371" />
+  <circle cx="150" cy="120" r="40" fill="#77AFFE" opacity="0.3" />
+  <circle cx="240" cy="160" r="45" fill="#3CB371" />
+  <circle cx="210" cy="180" r="50" fill="#9AB973" />
+  <circle cx="150" cy="170" r="30" fill="#2E8B57" />
+</svg> 

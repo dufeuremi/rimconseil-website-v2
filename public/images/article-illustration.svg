@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="800" height="600" viewBox="0 0 800 600" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background Shape -->
+  <path d="M0 0h800v600H0z" fill="#F8FAFC"/>
+  
+  <!-- Abstract Shapes -->
+  <circle cx="400" cy="300" r="150" fill="#D9E2EC" opacity="0.5"/>
+  <path d="M500 200c50 50-50 150-100 100s50-150 100-100z" fill="#77AFFE" opacity="0.7"/>
+  <path d="M300 400c-30-30 30-90 60-60s-30 90-60 60z" fill="#2C77E3" opacity="0.6"/>
+  
+  <!-- Stars -->
+  <path d="M600 100l10 30 30 10-30 10-10 30-10-30-30-10 30-10z" fill="#2C77E3"/>
+  <path d="M200 450l8 24 24 8-24 8-8 24-8-24-24-8 24-8z" fill="#77AFFE"/>
+  <path d="M700 350l6 18 18 6-18 6-6 18-6-18-18-6 18-6z" fill="#D9E2EC"/>
+  
+  <!-- Decorative Lines -->
+  <path d="M100 200c100 0 200 100 300 100s200-100 300-100" stroke="#2C77E3" stroke-width="2" fill="none" opacity="0.3"/>
+  <path d="M100 250c100 0 200 100 300 100s200-100 300-100" stroke="#77AFFE" stroke-width="2" fill="none" opacity="0.2"/>
+</svg> 

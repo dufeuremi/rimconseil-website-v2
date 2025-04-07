@@ -1,0 +1,134 @@
+.page-settings {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.page-settings-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.header-left h1 {
+  margin: 0;
+  line-height: 1;
+}
+
+.back-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem;
+  color: var(--color-text);
+  transition: transform 0.2s ease;
+  line-height: 1;
+}
+
+.back-button:hover {
+  transform: translateX(-4px);
+}
+
+.back-button svg {
+  width: 24px;
+  height: 24px;
+  margin-top: 2px;
+}
+
+.publish-button {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.5rem !important;
+  font-weight: 500 !important;
+}
+
+.publish-button svg {
+  width: 16px;
+  height: 16px;
+}
+
+.settings-section {
+  display: grid;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.section-title {
+  font-size: 2rem;
+  font-weight: 500;
+  color: var(--color-secondary);
+  margin-bottom: 1.5rem;
+}
+
+.content-section {
+  margin-top: 3rem;
+}
+
+.editor-toolbar {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin: 1rem 0;
+  padding: 1rem;
+  background-color: var(--background-secondary);
+  border-radius: 4px;
+}
+
+.editor-toolbar button {
+  padding: 0.5rem 1rem;
+}
+
+textarea {
+  min-height: 300px;
+  margin-top: 1rem;
+}
+
+.add-block-button {
+  margin: 1.5rem 0;
+  display: flex;
+  justify-content: center;
+}
+
+.add-block-button button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: var(--color-primary);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.25rem;
+  transition: all 0.2s ease;
+  font-weight: 500;
+}
+
+.add-block-button button:hover {
+  background-color: var(--color-secondary);
+}
+
+.add-block-button svg {
+  margin-right: 0.25rem;
+}
+
+.blocks-container {
+  margin-top: 1.5rem;
+}
+
+.blocks-container .content-block:first-child {
+  margin-top: 0;
+}
+
+.blocks-container .content-block:last-child {
+  margin-bottom: 0;
+} 

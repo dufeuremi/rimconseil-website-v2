@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 100">
+  <g>
+    <circle cx="45" cy="50" r="25" fill="none" stroke="#333333" stroke-width="2"/>
+    <ellipse cx="45" cy="50" rx="35" ry="15" fill="none" stroke="#333333" stroke-width="1.5" transform="rotate(45 45 50)"/>
+    <ellipse cx="45" cy="50" rx="35" ry="15" fill="none" stroke="#333333" stroke-width="1.5" transform="rotate(-45 45 50)"/>
+    <text x="45" y="55" font-family="Arial" font-size="16" font-weight="bold" text-anchor="middle">B</text>
+    <text x="100" y="55" font-family="Arial" font-size="18" font-weight="bold">locnet</text>
+  </g>
+</svg> 

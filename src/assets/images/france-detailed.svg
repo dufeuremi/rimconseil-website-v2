@@ -1,0 +1,62 @@
+<svg width="400" height="400" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+  <!-- Contour de la France plus réaliste -->
+  <path d="M170,65 L180,58 L200,50 L216,55 L225,60 L239,65 L245,67 L252,63 L262,68 L265,78 L272,83 L275,73 L285,75 
+    L290,85 L302,85 L300,93 L310,103 L305,115 L310,125 L305,138 L295,145 L298,155 L290,163 L278,165 L270,175 
+    L280,185 L285,195 L280,205 L270,211 L265,225 L250,235 L240,245 L250,255 L260,267 L250,275 L235,285 L225,300 
+    L215,310 L205,318 L195,315 L182,328 L167,318 L160,300 L168,285 L158,275 L148,265 L132,260 L120,250 L112,235 
+    L118,220 L110,207 L100,195 L90,188 L80,175 L75,160 L85,148 L95,135 L105,125 L115,110 L125,100 L135,90 L150,80 
+    L160,70 L170,65 Z" 
+    fill="#F8F8F8" 
+    stroke="#DDDDDD" 
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round" />
+
+  <!-- Corse (simplifiée) -->
+  <path d="M265,225 L275,235 L270,255 L260,265 L250,260 L255,240 L265,225 Z"
+    fill="#F8F8F8" 
+    stroke="#DDDDDD" 
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round" />
+
+  <!-- Cities in France -->
+  <!-- Rennes -->
+  <circle id="rennes" cx="125" cy="165" r="5" fill="#4CAF50" opacity="0" />
+  
+  <!-- Paris -->
+  <circle id="paris" cx="200" cy="140" r="5" fill="#4CAF50" opacity="0" />
+  
+  <!-- Nantes -->
+  <circle id="nantes" cx="105" cy="190" r="5" fill="#4CAF50" opacity="0" />
+  
+  <!-- Brest -->
+  <circle id="brest" cx="65" cy="145" r="5" fill="#4CAF50" opacity="0" />
+  
+  <!-- Angers -->
+  <circle id="angers" cx="140" cy="185" r="5" fill="#4CAF50" opacity="0" />
+  
+  <!-- Laval -->
+  <circle id="laval" cx="155" cy="165" r="5" fill="#4CAF50" opacity="0" />
+  
+  <!-- Lorient -->
+  <circle id="lorient" cx="85" cy="170" r="5" fill="#4CAF50" opacity="0" />
+  
+  <!-- Quimper -->
+  <circle id="quimper" cx="70" cy="160" r="5" fill="#4CAF50" opacity="0" />
+  
+  <!-- St-Malo -->
+  <circle id="stmalo" cx="115" cy="145" r="5" fill="#4CAF50" opacity="0" />
+  
+  <!-- St-Brieuc -->
+  <circle id="stbrieuc" cx="95" cy="150" r="5" fill="#4CAF50" opacity="0" />
+  
+  <!-- Vannes -->
+  <circle id="vannes" cx="100" cy="178" r="5" fill="#4CAF50" opacity="0" />
+  
+  <!-- Morlaix -->
+  <circle id="morlaix" cx="75" cy="150" r="5" fill="#4CAF50" opacity="0" />
+  
+  <!-- Titre du pays (masqué par défaut) -->
+  <text x="200" y="70" font-family="Arial" font-size="14" fill="#333333" text-anchor="middle" opacity="0">France</text>
+</svg> 

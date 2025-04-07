@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 100">
+  <g>
+    <path d="M30,50 Q40,35 50,50 T70,50" fill="none" stroke="#666666" stroke-width="2"/>
+    <text x="80" y="50" font-family="Arial" font-size="16" font-weight="bold">colibee</text>
+    <text x="80" y="65" font-family="Arial" font-size="8" fill="#888888">L'essence du conseil</text>
+  </g>
+</svg> 

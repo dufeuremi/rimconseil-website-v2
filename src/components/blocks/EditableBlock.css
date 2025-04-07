@@ -1,0 +1,90 @@
+.editable-block {
+  width: 100%;
+  min-height: 1em;
+  outline: none;
+  padding: 0.5rem;
+  transition: background-color 0.2s ease;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.editable-block.is-empty:before {
+  content: "rédiger...";
+  font-style: italic;
+  color: var(--color-text-light);
+  opacity: 0.5;
+  pointer-events: none;
+  position: absolute;
+}
+
+.editable-block.is-editing {
+  background-color: var(--background-secondary);
+}
+
+/* Styles spécifiques pour chaque type de bloc */
+.editable-block.title {
+  font-size: 2rem;
+  font-weight: 500;
+  color: var(--color-text);
+  margin-bottom: 1rem;
+}
+
+.editable-block.subtitle {
+  font-size: 1.5rem;
+  font-weight: 500;
+  color: var(--color-text);
+  margin-bottom: 1rem;
+}
+
+.editable-block.text {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--color-text);
+}
+
+/* Styles améliorés pour les colonnes */
+.editable-block.text-2-col {
+  column-count: 2;
+  column-gap: 2rem;
+  column-rule: 1px solid #CCCCCC;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--color-text);
+  padding: 0.5rem 1rem;
+  background-color: #f9f9f9;
+  border-radius: 4px;
+}
+
+.editable-block.text-3-col {
+  column-count: 3;
+  column-gap: 2rem;
+  column-rule: 1px solid #CCCCCC;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--color-text);
+  padding: 0.5rem 1rem;
+  background-color: #f9f9f9;
+  border-radius: 4px;
+}
+
+/* Style pour mobile - réduire le nombre de colonnes sur petits écrans */
+@media (max-width: 768px) {
+  .editable-block.text-3-col {
+    column-count: 2;
+  }
+}
+
+@media (max-width: 480px) {
+  .editable-block.text-2-col,
+  .editable-block.text-3-col {
+    column-count: 1;
+  }
+}
+
+.editable-block.annotation {
+  font-size: 0.875rem;
+  font-style: italic;
+  color: var(--color-text-light);
+  padding-left: 1rem;
+  border-left: 2px solid #CCCCCC;
+} 

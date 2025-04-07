@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 100">
+  <g>
+    <polygon points="45,30 60,45 45,60 30,45" fill="none" stroke="#333333" stroke-width="2"/>
+    <polygon points="45,25 65,45 45,65 25,45" fill="none" stroke="#333333" stroke-width="1"/>
+    <text x="80" y="55" font-family="Arial" font-size="16" font-weight="bold">POLYNOM</text>
+  </g>
+</svg> 

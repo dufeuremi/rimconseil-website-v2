@@ -1,0 +1,207 @@
+.footer {
+  background-color: var(--color-white);
+  border-top: 1px solid var(--color-quaternary);
+  padding: 4rem 0 2rem;
+}
+
+.footer-content {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 1fr 1fr;
+  gap: 3rem;
+  margin-bottom: 3rem;
+}
+
+.footer-brand {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.brand-header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.footer-logo {
+  text-decoration: none;
+}
+
+.footer-logo .title-2 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: var(--color-primary);
+}
+
+.brand-slogan {
+  margin: 0;
+  font-size: 0.9375rem;
+  color: var(--color-secondary);
+  font-style: italic;
+}
+
+.footer-brand .eco-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  text-align: center;
+}
+
+.footer-brand .leaf-icon {
+  width: 20px;
+  height: 20px;
+  color: var(--color-primary);
+}
+
+.footer-brand .eco-info p {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--color-tertiary);
+  font-style: italic;
+}
+
+.footer-nav-group h3 {
+  margin: 0 0 1.5rem;
+  font-size: 1rem;
+  color: var(--color-secondary);
+  font-weight: 600;
+}
+
+.footer-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.footer-nav .link {
+  color: var(--color-tertiary);
+  text-decoration: none;
+  font-size: 0.9375rem;
+  transition: color 0.3s ease;
+}
+
+.footer-nav .link:hover {
+  color: var(--color-primary);
+}
+
+.nav-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.nav-title {
+  color: var(--color-secondary);
+  font-size: 0.9375rem;
+  font-weight: 500;
+}
+
+.footer-nav .cta-link {
+  color: var(--color-primary);
+  font-weight: 500;
+}
+
+.footer-address {
+  font-style: normal;
+  color: var(--color-tertiary);
+  font-size: 0.9375rem;
+  line-height: 1.5;
+}
+
+.footer-bottom {
+  padding-top: 2rem;
+  border-top: 1px solid var(--color-quaternary);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.copyright {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--color-tertiary);
+}
+
+.legal-nav {
+  display: flex;
+  gap: 2rem;
+}
+
+.legal-nav .link {
+  color: var(--color-tertiary);
+  text-decoration: none;
+  font-size: 0.875rem;
+  transition: color 0.3s ease;
+}
+
+.legal-nav .link:hover {
+  color: var(--color-primary);
+}
+
+.credits {
+  text-align: center;
+  margin-top: 0.5rem;
+}
+
+.credits p {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--color-tertiary);
+}
+
+.credits a {
+  color: var(--color-primary);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.credits a:hover {
+  color: var(--color-primaryLight);
+}
+
+.navigation-column {
+  flex: 0 0 calc(50% - 2rem); /* Pour prendre la moitié de l'espace disponible */
+}
+
+.footer-nav.two-column {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem 1.5rem;
+}
+
+@media (max-width: 1024px) {
+  .footer-content {
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+  }
+
+  .footer-brand {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 768px) {
+  .footer {
+    padding: 3rem 0 1.5rem;
+  }
+
+  .footer-content {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+
+  .footer-bottom {
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
+  }
+
+  .legal-nav {
+    justify-content: center;
+  }
+
+  .footer-nav.two-column {
+    grid-template-columns: 1fr;
+  }
+} 
