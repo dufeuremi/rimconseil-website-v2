@@ -64,13 +64,11 @@ const ExpertiseBlock = styled.div`
   
   &:nth-child(odd) {
     background-color: var(--color-light-gray, #f5f5f5);
-    border-radius: 8px;
     margin-right: 15%;
   }
   
   &:nth-child(even) {
     background-color: var(--color-light-gray, #f5f5f5);
-    border-radius: 8px;
     margin-left: 15%;
   }
 

@@ -38,6 +38,11 @@ const CardsContainer = styled.div`
   }
 `;
 
+const Header = styled.div`
+  text-align: center;
+  margin-bottom: 3rem;
+`;
+
 const Valeurs = () => {
   // Données des cartes de valeurs
   const valuesData = [
@@ -75,9 +80,9 @@ const Valeurs = () => {
 
   return (
     <PageContainer>
-      <TitleContainer>
+      <Header>
         <Title level={1} align="center">Nos valeurs</Title>
-      </TitleContainer>
+      </Header>
       <PageDescription>
         L'objectif, c'est de fournir du conseil pour des solutions IT responsables qui allient:
       </PageDescription>

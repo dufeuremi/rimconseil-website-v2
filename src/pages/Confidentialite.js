@@ -5,12 +5,14 @@ import Title from '../components/Title';
 const PageContainer = styled.div`
   min-height: 100vh;
   background-color: white;
+  text-align: left;
 `;
 
 const ContentSection = styled.div`
   max-width: 1280px;
   margin: 4rem auto;
   padding: 0 5rem;
+  text-align: left;
 
   @media (max-width: 768px) {
     padding: 0 2rem;
@@ -19,10 +21,12 @@ const ContentSection = styled.div`
 
 const TitleContainer = styled.div`
   margin-bottom: 3rem;
+  text-align: left;
 `;
 
 const Section = styled.section`
   margin-bottom: 3rem;
+  text-align: left;
 `;
 
 const SectionTitle = styled.h2`
@@ -30,30 +34,36 @@ const SectionTitle = styled.h2`
   color: var(--color-primary);
   margin-bottom: 1.5rem;
   font-weight: 600;
+  text-align: left;
 `;
 
 const Content = styled.div`
   color: var(--color-text);
   font-size: 1.125rem;
   line-height: 1.7;
+  text-align: left;
 
   p {
     margin-bottom: 1rem;
+    text-align: left;
   }
 
   strong {
     color: var(--color-secondary);
     font-weight: 600;
+    text-align: left;
   }
 
   ul {
     list-style-type: disc;
     margin-left: 1.5rem;
     margin-bottom: 1rem;
+    text-align: left;
   }
 
   li {
     margin-bottom: 0.5rem;
+    text-align: left;
   }
 `;
 
@@ -62,6 +72,7 @@ const InfoBox = styled.div`
   padding: 2rem;
   border-radius: 0;
   margin-bottom: 2rem;
+  text-align: left;
 `;
 
 const Confidentialite = () => {
@@ -195,7 +206,7 @@ const Confidentialite = () => {
               <p><strong>RIM'CONSEIL</strong></p>
               <p>7 rue Gounod, 35000 Rennes</p>
               <p>Email : info@rimconseil.fr</p>
-              <p>Téléphone : +33 (0)2 XX XX XX XX</p>
+              
             </InfoBox>
             <p>Si vous avez des questions concernant cette politique de confidentialité ou la manière dont nous traitons vos données personnelles, n'hésitez pas à nous contacter.</p>
           </Content>

@@ -1,340 +1,666 @@
+/* Variables de couleurs et d'espacement pour le dashboard */
+:root {
+  --dashboard-bg-color: white;
+  --dashboard-sidebar-bg: white;
+  --dashboard-content-bg: transparent;
+  --dashboard-border-color: #dee2e6;
+  --dashboard-shadow: none;
+  --dashboard-padding-sm: 0.5rem;
+  --dashboard-padding-md: 1rem;
+  --dashboard-padding-lg: 1.5rem;
+  --dashboard-radius: 0;
+  --dashboard-hover-bg: rgba(0, 0, 0, 0.03);
+  --dashboard-active-color: var(--color-primary, #0066cc);
+  --dashboard-text-color: #495057;
+  --dashboard-inactive-color: #6c757d;
+  --dashboard-icon-size: 20px;
+  --dashboard-sidebar-width: 280px;
+  --dashboard-sidebar-collapsed-width: 70px;
+}
+
+/* Layout général */
 .dashboard-layout {
   display: flex;
   min-height: 100vh;
-  background-color: #f5f5f5;
+  background-color: var(--dashboard-bg-color);
   position: relative;
 }
 
+/* Sidebar */
 .left-bar {
-  width: 280px;
-  background-color: white;
-  border-right: 1px solid #e0e0e0;
+  width: var(--dashboard-sidebar-width);
+  background-color: var(--dashboard-sidebar-bg);
+  border-right: 1px solid var(--dashboard-border-color);
   display: flex;
   flex-direction: column;
-  transition: all 0.3s ease;
+  transition: width 0.3s ease;
   position: fixed;
   height: 100vh;
   left: 0;
   top: 0;
   z-index: 10;
-  box-shadow: 2px 0 4px rgba(0, 0, 0, 0.05);
+  box-shadow: none;
 }
 
 .dashboard-layout.collapsed .left-bar {
-  width: 80px;
+  width: var(--dashboard-sidebar-collapsed-width);
 }
 
+/* En-tête de sidebar */
 .sidebar-header {
-  padding: 1.25rem;
+  padding: var(--dashboard-padding-md);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 1px solid #e0e0e0;
-  background-color: white;
+  border-bottom: 1px solid var(--dashboard-border-color);
+  background-color: var(--dashboard-sidebar-bg);
 }
 
+/* Logo et titre */
 .logo {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: var(--dashboard-padding-sm);
   text-decoration: none;
+  height: 24px;
 }
 
-.logo .icon {
-  font-size: 1.5rem;
-  color: var(--color-primary);
+.logo-image {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
 }
 
-.dashboard-layout.collapsed .logo .icon {
-  display: none;
+.dashboard-title {
+  font-size: 0.95rem !important;
+  font-weight: 500 !important;
+  color: var(--dashboard-text-color) !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  letter-spacing: 0.25px !important;
+  font-family: inherit !important;
+  line-height: 1 !important;
+  border: none !important;
 }
 
-.logo span {
-  color: var(--color-secondary);
-  font-size: 0.875rem;
-  font-weight: 500;
+.logo:hover .dashboard-title,
+.logo.active .dashboard-title {
+  color: var(--dashboard-active-color) !important;
 }
 
+/* Bouton de collapse */
 .collapse-btn {
   background: none;
   border: none;
   cursor: pointer;
-  font-size: 1.5rem;
-  color: var(--color-tertiary);
-  padding: 0.5rem;
-  transition: all 0.2s;
+  color: var(--dashboard-text-color);
+  padding: 0.25rem;
+  transition: color 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 30px;
+  height: 30px;
 }
 
-.collapse-btn:hover {
-  background-color: rgba(217, 226, 236, 0.4);
-  color: var(--color-primary);
+/* Icônes de toggle sans bordure mais avec couleur d'accentuation */
+.toggle-icon {
+  width: 18px;
+  height: 18px;
+  min-width: 18px;
+  color: var(--dashboard-border-color);
+  transition: color 0.3s ease;
+  box-sizing: content-box;
+  border: none;
+  padding: 0;
+  background: none;
 }
 
-.sidebar-nav {
-  flex: 1;
-  padding: 1.5rem 1rem;
-  overflow-y: auto;
+.collapse-btn:hover .toggle-icon {
+  color: var(--dashboard-border-color);
+  opacity: 0.8;
 }
 
+/* Sections de navigation */
 .nav-section {
   padding: 0;
+  margin: 0.2rem 0;
 }
 
-/* Ajout d'un sélecteur spécifique pour la première section (Pages) */
 .nav-section:first-of-type {
-  margin-top:1rem;
+  margin-top: 0.5rem;
 }
 
-/* Ajout de sélecteurs spécifiques pour gérer les marges entre sections */
-.nav-section:nth-child(2) {
-  margin-bottom: 0rem; /* Réduit davantage l'espace entre Articles et Personnalisation */
-}
-
-.section-title {
+/* Élément de navigation standard */
+.nav-item {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem 1.25rem;
+  gap: var(--dashboard-padding-sm);
+  padding: 0.45rem var(--dashboard-padding-md);
   cursor: pointer;
   transition: all 0.2s;
   text-decoration: none;
-  color: var(--color-tertiary);
+  color: var(--dashboard-text-color);
   width: 100%;
-  border-radius: 0;
   font-size: 0.875rem;
+  position: relative;
+  box-sizing: border-box;
 }
 
-.section-title span {
+/* Appliquer le style nav-item à tous les éléments interactifs */
+.section-title,
+.dropdown-content .nav-link,
+.alert-bug-btn,
+.logout-btn {
+  composes: nav-item;
+}
+
+/* Texte dans les éléments de navigation */
+.nav-item span {
   font-size: 0.875rem;
   flex: 1;
   text-align: left;
   font-weight: normal;
   transition: color 0.3s ease;
+  white-space: nowrap;
+  overflow: hidden;
+  padding: 0.5rem;
+  text-overflow: ellipsis;
 }
 
-.section-title .icon {
-  width: 1.5rem;
-  height: 1.5rem;
-  color: var(--color-tertiary);
+/* Icônes standard */
+.nav-item .icon {
+  width: var(--dashboard-icon-size);
+  height: var(--dashboard-icon-size);
+  min-width: var(--dashboard-icon-size);
+  color: var(--dashboard-text-color);
   transition: color 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
 }
 
-/* Style spécifique pour les icônes de flèche du dropdown */
-.section-title svg:last-child {
-  width: 1.2rem;
-  height: 1.2rem;
-  color: var(--color-tertiary);
+/* États de survol et actif */
+.nav-item:hover,
+.nav-item.active {
+  background-color: var(--dashboard-hover-bg);
+  color: var(--dashboard-active-color);
 }
 
-.section-title:hover,
-.section-title.active {
-  background-color: transparent;
-  color: var(--color-primary);
+.nav-item:hover .icon,
+.nav-item.active .icon {
+  color: var(--dashboard-active-color);
 }
 
-.section-title:hover span,
-.section-title.active span {
-  font-weight: normal;
+.nav-item:hover span,
+.nav-item.active span {
+  font-weight: 500;
 }
 
-.section-title:hover .icon,
-.section-title.active .icon {
-  color: var(--color-primary);
+/* Indicateur d'élément actif */
+.nav-item.active::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background-color: var(--dashboard-active-color);
 }
 
-.section-title:hover svg:last-child,
-.section-title.active svg:last-child {
-  color: var(--color-primary);
-}
-
+/* Style pour les sous-menus */
 .dropdown-content {
   padding-left: 0;
   display: flex;
   flex-direction: column;
   gap: 0;
   margin-top: 0;
+  background-color: var(--dashboard-hover-bg);
 }
 
 .dropdown-content .nav-link {
-  color: var(--color-tertiary);
-  text-decoration: none;
-  font-size: 0.875rem;
-  padding: 0.75rem 1.25rem 0.75rem 2.25rem;
-  display: flex;
-  align-items: center;
-  text-align: left;
-  width: 100%;
-  transition: all 0.2s;
+  padding: 0.4rem var(--dashboard-padding-md) 0.4rem calc(var(--dashboard-padding-md) * 2);
 }
 
-.dropdown-content .nav-link:hover,
-.dropdown-content .nav-link.active {
-  background-color: transparent;
-  color: var(--color-primary);
-}
-
-.sidebar-footer {
-  margin-top: auto;
-  padding: 1.25rem 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-  border-top: 1px solid #e0e0e0;
-  background-color: white;
-}
-
-.alert-bug-btn,
-.logout-btn {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
+/* Correction pour les icônes de dropdown */
+.dropdown-icon {
+  width: 16px;
+  height: 16px;
+  min-width: 16px;
+  color: var(--dashboard-active-color);
+  position: absolute;
+  right: var(--dashboard-padding-md);
+  transition: color 0.3s ease;
+  box-sizing: content-box;
   background: none;
   border: none;
-  padding: 0.75rem 1.25rem;
-  cursor: pointer;
-  color: var(--color-tertiary);
-  font-size: 0.875rem;
-  text-align: left;
-  transition: all 0.2s;
-  font-weight: normal;
+  padding: 0;
 }
 
-.alert-bug-btn .icon,
-.logout-btn .icon {
-  width: 1.5rem;
-  height: 1.5rem;
-  color: var(--color-tertiary);
-  transition: color 0.3s ease;
+.nav-item:hover .dropdown-icon,
+.nav-item.active .dropdown-icon {
+  color: var(--dashboard-active-color);
+  opacity: 0.8;
 }
 
-.alert-bug-btn:hover,
-.logout-btn:hover {
-  background-color: transparent;
-  color: var(--color-primary);
-  font-weight: normal;
+/* Footer de la sidebar */
+.sidebar-footer {
+  margin-top: auto;
+  padding: var(--dashboard-padding-md) 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  border-top: 1px solid var(--dashboard-border-color);
+  background-color: var(--dashboard-sidebar-bg);
 }
 
-.alert-bug-btn:hover .icon,
-.logout-btn:hover .icon {
-  color: var(--color-primary);
-}
-
+/* Contenu principal */
 .dashboard-content {
-  margin-left: 280px;
   flex: 1;
-  padding: 0rem;
-  position: relative;
-  z-index: 1;
+  margin-left: var(--dashboard-sidebar-width);
+  padding: var(--dashboard-padding-lg);
   transition: margin-left 0.3s ease;
-  min-height: 100vh;
-  background-color: #f8fafc;
+  width: calc(100% - var(--dashboard-sidebar-width));
+  box-sizing: border-box;
+  background-color: var(--dashboard-bg-color);
 }
 
 .dashboard-layout.collapsed .dashboard-content {
-  margin-left: 80px;
+  margin-left: var(--dashboard-sidebar-collapsed-width);
+  width: calc(100% - var(--dashboard-sidebar-collapsed-width));
 }
 
-/* État replié */
-.left-bar.collapsed .section-title {
-  justify-content: center;
-  padding: 0.75rem;
+/* Styles pour le mode collapsed */
+.dashboard-layout.collapsed .logo {
+  display: none;
 }
 
-.left-bar.collapsed .nav-section {
-  padding: 0.5rem;
+.dashboard-layout.collapsed .sidebar-header {
   display: flex;
+  align-items: center;
   justify-content: center;
+  padding: 0;
+  height: 50px;
 }
 
-/* Styles pour les appareils mobiles */
+.dashboard-layout.collapsed .collapse-btn {
+  margin: 0;
+  padding: 0;
+  width: var(--dashboard-sidebar-collapsed-width);
+  height: 50px;
+  position: relative;
+  box-sizing: border-box;
+}
+
+/* Mode collapsed */
+.dashboard-layout.collapsed .toggle-icon {
+  width: 18px;
+  height: 18px;
+  min-width: 18px;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  color: var(--dashboard-border-color);
+  margin: 0;
+}
+
+.dashboard-layout.collapsed .nav-item {
+  height: 40px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--dashboard-sidebar-collapsed-width);
+  position: relative;
+  margin: 0;
+}
+
+.dashboard-layout.collapsed .nav-item .icon {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  margin: 0;
+}
+
+/* Styles mobiles */
 @media (max-width: 768px) {
   .left-bar {
+    width: 0;
     transform: translateX(-100%);
   }
-
+  
   .left-bar.active {
+    width: var(--dashboard-sidebar-width);
     transform: translateX(0);
   }
-
+  
   .dashboard-content {
     margin-left: 0;
+    width: 100%;
+    padding: var(--dashboard-padding-md);
   }
-
+  
   .dashboard-layout.collapsed .dashboard-content {
     margin-left: 0;
+    width: 100%;
+  }
+  
+  .dashboard-mobile-toggle {
+    display: block;
+    position: fixed;
+    top: var(--dashboard-padding-md);
+    left: var(--dashboard-padding-md);
+    z-index: 11;
+    background: var(--dashboard-sidebar-bg);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--dashboard-shadow);
+    border: 1px solid var(--dashboard-border-color);
   }
 }
 
-/* Collapsed state styles */
-.dashboard-layout.collapsed .section-title {
-  justify-content: center;
-  padding: 0.75rem 0;
-}
-
-.dashboard-layout.collapsed .icon {
-  margin: 0;
-  font-size: 1.75rem;
-}
-
-.dashboard-layout.collapsed .sidebar-footer {
-  padding: 1rem 0;
-}
-
-.dashboard-layout.collapsed .alert-bug-btn,
-.dashboard-layout.collapsed .logout-btn {
-  justify-content: center;
-  padding: 0.75rem 0;
-  background: none;
+/* Styles pour les pages du dashboard */
+.dashboard-page {
+  background-color: transparent;
+  border-radius: 0;
+  box-shadow: none;
+  padding: var(--dashboard-padding-lg) 0;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
   border: none;
 }
 
+.dashboard-page h1 {
+  color: var(--dashboard-active-color);
+  font-size: 1.75rem;
+  margin-bottom: 2rem;
+  font-weight: 600;
+  border-bottom: 1px solid var(--dashboard-border-color);
+  padding-bottom: var(--dashboard-padding-md);
+}
+
+.dashboard-page h2 {
+  color: var(--dashboard-text-color);
+  font-size: 1.25rem;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  font-weight: 500;
+}
+
+.dashboard-page h3 {
+  color: var(--dashboard-text-color);
+  font-size: 1.125rem;
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+  font-weight: 500;
+}
+
+/* Avertissement mobile */
+.dashboard-mobile-warning {
+  display: none;
+  text-align: center;
+  padding: var(--dashboard-padding-lg);
+  background-color: transparent;
+  border-radius: 0;
+  box-shadow: none;
+  margin: var(--dashboard-padding-lg) auto;
+  max-width: 90%;
+  border-top: 1px solid var(--dashboard-border-color);
+  border-bottom: 1px solid var(--dashboard-border-color);
+}
+
+@media (max-width: 768px) {
+  .dashboard-mobile-warning {
+    display: block;
+  }
+}
+
+/* Uniformisation des titres de niveau 2 et 3 */
+.dashboard-page h2 {
+  margin-top: 2.5rem;
+  margin-bottom: 1.5rem;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.dashboard-page h3 {
+  margin-top: 2rem;
+  margin-bottom: 1.25rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+/* Uniformisation des icônes */
+.dashboard-layout.collapsed .icon,
+.dashboard-layout .icon,
+.section-title .icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  min-width: 1.25rem;
+}
+
+.logo.active .dashboard-title {
+  color: var(--dashboard-active-color) !important;
+}
+
+.logo:hover .dashboard-title {
+  color: var(--dashboard-active-color) !important;
+}
+
+/* Transitions fluides */
+.left-bar, 
+.dashboard-content,
+.section-title,
+.logo,
+.icon,
+.collapse-btn,
+.dashboard-layout.collapsed .section-title,
+.dashboard-layout.collapsed .icon,
+.dashboard-layout.collapsed .alert-bug-btn,
+.dashboard-layout.collapsed .logout-btn {
+  transition: all 0.3s ease;
+}
+
+/* Styles du logo en mode collapsed */
+.dashboard-layout.collapsed .sidebar-header {
+  justify-content: center;
+  padding: var(--dashboard-padding-sm);
+  height: 50px;
+}
+
+.dashboard-layout.collapsed .logo {
+  display: none;
+}
+
+.dashboard-layout.collapsed .logo-image {
+  display: none;
+}
+
+/* Indicateur visuel pour le logo actif en mode collapsed */
+.dashboard-layout.collapsed .logo.active::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background-color: var(--dashboard-active-color);
+}
+
+/* Uniformisation des éléments de navigation */
+.section-title,
+.dropdown-content .nav-link,
+.alert-bug-btn,
+.logout-btn {
+  position: relative;
+  overflow: hidden;
+}
+
+/* Correction des redondances et styles dupliqués */
+.dashboard-layout.collapsed .sidebar-header {
+  justify-content: center;
+  padding: var(--dashboard-padding-sm);
+  height: 50px;
+}
+
+/* Uniformisation de la taille des icônes pour tous les éléments */
+.dashboard-layout .icon,
+.section-title .icon,
+.alert-bug-btn .icon,
+.logout-btn .icon,
+.dropdown-content .icon {
+  width: 20px;
+  height: 20px;
+  min-width: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Alignement vertical des icônes */
+.section-title,
+.alert-bug-btn,
+.logout-btn,
+.dropdown-content .nav-link {
+  display: flex;
+  align-items: center;
+  gap: var(--dashboard-padding-sm);
+}
+
+/* Suppression des marges auto en mode collapsed pour améliorer l'alignement */
+.dashboard-layout.collapsed .icon,
+.dashboard-layout.collapsed .section-title .icon,
 .dashboard-layout.collapsed .alert-bug-btn .icon,
 .dashboard-layout.collapsed .logout-btn .icon {
-  font-size: 1.75rem;
   margin: 0;
 }
 
-/* Mobile warning styles */
-.dashboard-mobile-warning {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: white;
+/* Uniformisation des hauteurs des éléments de navigation */
+.dashboard-layout.collapsed .section-title,
+.dashboard-layout.collapsed .alert-bug-btn,
+.dashboard-layout.collapsed .logout-btn {
+  height: 40px;
+  padding: 0;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 2rem;
-  text-align: center;
-  z-index: 2;
-}
-
-.dashboard-mobile-warning h2 {
-  color: #333;
-  margin-bottom: 1rem;
-}
-
-.dashboard-mobile-warning p {
-  color: #666;
-  max-width: 400px;
-}
-
-/* Dashboard page styles */
-.dashboard-page {
-  text-align: left;
-  padding: 1rem;
+  width: 100%;
   position: relative;
-  z-index: 1;
 }
 
-.dashboard-page h1 {
-  margin-bottom: 0rem;
-  color: var(--color-secondary);
-  font-size: 1.75rem;
-  font-weight: 700;
+.dashboard-layout.collapsed .section-title .icon,
+.dashboard-layout.collapsed .alert-bug-btn .icon,
+.dashboard-layout.collapsed .logout-btn .icon {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  margin: 0;
+  color: var(--dashboard-active-color);
+}
+
+/* État actif des boutons de navigation en mode collapsed */
+.dashboard-layout.collapsed .section-title.active {
+  background-color: var(--dashboard-hover-bg);
+}
+
+.dashboard-layout.collapsed .section-title.active .icon {
+  color: var(--dashboard-active-color);
+}
+
+/* Ajustements pour le bouton de toggle en mode collapsed */
+.dashboard-layout.collapsed .collapse-btn {
+  margin: 0;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--dashboard-sidebar-collapsed-width);
+  height: 50px;
+  position: relative;
+  box-sizing: border-box;
+  border: none;
+}
+
+.dashboard-layout.collapsed .toggle-icon {
+  width: 20px;
+  height: 20px;
+  min-width: 20px;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  color: (var--dashboard-border-color);
+  margin: 0;
+}
+
+/* Ajustements pour le header en mode collapsed */
+.dashboard-layout.collapsed .sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  height: 50px;
+}
+
+/* Nettoyage des redondances pour l'alignement des icônes */
+
+/* Supprimer les définitions redondantes de margin pour les icônes en mode collapsed */
+.dashboard-layout.collapsed .icon {
+  margin: 0;
+  width: 20px;
+  height: 20px;
+  min-width: 20px;
+}
+
+/* Supprimer les définitions redondantes de section-title */
+.dashboard-layout.collapsed .section-title {
+  height: 40px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  position: relative;
+}
+
+/* Uniformiser l'alignement des boutons et liens avec une seule définition */
+.dashboard-layout.collapsed .section-title,
+.dashboard-layout.collapsed .alert-bug-btn,
+.dashboard-layout.collapsed .logout-btn {
+  height: 40px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--dashboard-sidebar-collapsed-width);
+  box-sizing: border-box;
+  position: relative;
+  margin: 0;
+}
+
+/* Alignement uniforme pour toutes les icônes en mode collapsed */
+.dashboard-layout.collapsed .section-title .icon,
+.dashboard-layout.collapsed .alert-bug-btn .icon,
+.dashboard-layout.collapsed .logout-btn .icon {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  margin: 0;
+  color: var(--dashboard-inactive-color);
+}
+
+/* Supprimer les règles redondantes */
+.dashboard-layout.collapsed .section-title .icon,
+.dashboard-layout.collapsed .alert-bug-btn .icon,
+.dashboard-layout.collapsed .logout-btn .icon,
+.dashboard-layout.collapsed .collapse-btn .toggle-icon {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  margin: 0;
 } 

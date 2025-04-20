@@ -10,12 +10,12 @@ const CardContainer = styled.div`
   align-items: center;
   text-align: center;
   padding: 1.5rem;
-  background-color: var(--color-white);
+  background: linear-gradient(to bottom, transparent, #F4F9FF);
   border-radius: 4px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   position: relative;
   overflow: hidden;
-  height: 100%;
+  // height: 100%;
 `;
 
 const IconContainer = styled.div`

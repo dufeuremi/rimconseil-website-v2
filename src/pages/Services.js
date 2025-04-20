@@ -5,90 +5,91 @@ import Text from '../components/Text';
 import ZoneIntervention from '../components/ZoneIntervention';
 import clientsImage from '../assets/images/clients.png';
 
-// Réutilisation des styled components de la page Expertises, si possible
-// S'ils sont exportés d'un fichier commun, les importer. Sinon, les dupliquer ou les adapter ici.
-// Pour cet exemple, je vais dupliquer/adapter les styles nécessaires.
-
+// Styled Components
 const PageContainer = styled.div`
   max-width: 1200px;
   margin: 0 auto;
-  padding: 4rem 2rem;
+  padding: 0 2rem;
+  overflow: visible;
 `;
 
 const Section = styled.section`
-  margin-bottom: 5rem;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin-bottom: 0;
+  overflow: visible;
+  padding: 2rem 0;
+
+  &.content-section {
+    min-height: auto;
+    margin-bottom: 5rem;
+  }
+`;
+
+const IntroContainer = styled.div`
+  max-width: 800px;
 `;
 
 const SectionTitle = styled(Title)`
   margin-bottom: 1.5rem;
+  text-align: left;
 `;
 
 const IntroText = styled(Text)`
-  max-width: 900px;
-  margin-bottom: 4rem; // Ou plus si l'image du schéma est présente
-  line-height: 1.7;
-`;
-
-// Placeholder pour le schéma s'il y en a un pour cette page
-const ServiceDiagramPlaceholder = styled.div`
   width: 100%;
-  max-width: 800px; // Ajuster la taille si nécessaire
-  height: 400px;    // Ajuster la taille si nécessaire
-  background-color: var(--color-quaternary);
-  margin: 0 auto;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--color-tertiary);
-  border-radius: 4px;
-  &::after {
-    content: '[Placeholder - Schéma Processus]';
-  }
+  margin-bottom: 4rem;
+  line-height: 1.7;
+  text-align: left;
 `;
 
 const ServiceGrid = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 6rem; 
+  gap: 6rem;
+  position: relative;
+  padding: 2rem 0;
 `;
 
 const ServiceBlock = styled.div`
   display: grid;
-  grid-template-columns: auto 1fr; // Colonnes pour numéro et texte
-  gap: 2rem; // Réduit l'écart entre numéro et texte
+  grid-template-columns: auto 1fr;
+  gap: 2rem;
   align-items: flex-start;
   position: relative;
-  padding: 2rem;
+  padding: 3rem;
+  background-color: var(--color-light-gray, #f5f5f5);
+  border-radius: 0;
   
   &:nth-child(odd) {
-    background-color: var(--color-light-gray, #f5f5f5);
-    border-radius: 8px;
-    margin-right: 15%;
+    margin-right: 10%;
   }
   
   &:nth-child(even) {
-    background-color: var(--color-light-gray, #f5f5f5);
-    border-radius: 8px;
-    margin-left: 15%;
+    margin-left: 10%;
   }
 
   @media (max-width: 768px) {
-    grid-template-columns: 1fr; // Empiler sur mobile
+    grid-template-columns: 1fr;
     gap: 1.5rem;
     margin-left: 0;
     margin-right: 0;
+    padding: 2rem;
   }
 `;
 
 const ServiceNumber = styled.span`
-  font-size: 4rem; // Taille de numéro légèrement réduite
-  font-weight: 300;
-  color: var(--color-olive); // Conserver la couleur ou choisir une autre du thème
+  font-size: 5rem;
+  font-weight: 600;
+  color: var(--color-primary);
   line-height: 1;
-  margin-top: -0.5rem; // Ajustement pour alignement
+  margin-top: -1rem;
+  opacity: 0.9;
+  font-family: 'Inter', sans-serif;
 
   @media (max-width: 768px) {
-    font-size: 3rem;
+    font-size: 3.5rem;
     grid-row: 1;
   }
 `;
@@ -102,10 +103,10 @@ const ServiceContent = styled.div`
 `;
 
 const ServiceTitle = styled.h3`
-  font-size: 1.5rem; // Taille de titre ajustée
+  font-size: 1.75rem;
   font-weight: 600;
   color: var(--color-secondary);
-  margin-bottom: 1.5rem;
+  margin-bottom: 2rem;
 `;
 
 const SubPoint = styled.div`
@@ -114,24 +115,63 @@ const SubPoint = styled.div`
 
 const SubPointTitle = styled.h4`
   font-size: 1.125rem;
-  font-weight: 600;
+  font-weight: 500;
   color: var(--color-secondary);
   margin-bottom: 0.5rem;
   display: flex;
   align-items: center;
+`;
 
-  &::before {
-    content: '◎';
-    color: var(--color-primary);
-    margin-right: 0.5rem;
-    font-size: 1rem;
-  }
+const NumberBullet = styled.span`
+  background-color: var(--color-primary);
+  color: white;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 500;
+  margin-right: 0.75rem;
 `;
 
 const SubPointText = styled(Text)`
   font-size: 1rem;
   line-height: 1.6;
   color: var(--color-text-light);
+`;
+
+// Nouveaux composants pour la section des clients
+const ClientsSection = styled.section`
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+  padding: 2rem 0;
+`;
+
+const ClientsTitle = styled.h2`
+  font-size: 2rem;
+  font-weight: 600;
+  color: var(--color-secondary);
+  margin-bottom: 3rem;
+  text-align: center;
+`;
+
+const ClientsImage = styled.img`
+  max-width: 80%;
+  height: auto;
+  margin: 0 auto;
+  display: block;
+`;
+
+const ZoneInterventionWrapper = styled.div`
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 2rem 0;
 `;
 
 // Data for Service Blocks
@@ -195,59 +235,43 @@ const serviceData = [
   }
 ];
 
-// Ajouter les composants styled pour la section des clients
-const ClientsSection = styled.section`
-  margin-top: 5rem;
-  margin-bottom: 5rem;
-  text-align: center;
-`;
-
-const ClientsTitle = styled.h2`
-  font-size: 2rem;
-  font-weight: 600;
-  color: var(--color-secondary);
-  margin-bottom: 3rem;
-  text-align: center;
-`;
-
-const ClientsImage = styled.img`
-  max-width: 80%;
-  height: auto;
-  margin: 0 auto;
-  display: block;
-`;
-
 const Services = () => {
   return (
     <PageContainer>
       <Section>
-        <SectionTitle level={1} align="left">Comment allons-nous procéder ?</SectionTitle>
-        <IntroText>
-          Les technologies sont des moyens, des facilitateurs et des déclencheurs de transformations et de puissants leviers de développement et d'innovations. Elles nécessitent d'être analysées à l'aune de vos enjeux et de votre stratégie afin d'être pleinement appropriée. Leur adoption et leur intégration doivent se faire dans un cadre d'architecture permettant de maîtriser les impacts techniques, organisationnels, humains et financiers.
-        </IntroText>
-        {/* Optionnel: Ajouter ici le placeholder du schéma si nécessaire */}
-        {/* <ServiceDiagramPlaceholder /> */}
+        <IntroContainer>
+          <SectionTitle level={1}>Comment allons-nous procéder ?</SectionTitle>
+          <IntroText>
+            Les technologies sont des moyens, des facilitateurs et des déclencheurs de transformations et de puissants leviers de développement et d'innovations. Elles nécessitent d'être analysées à l'aune de vos enjeux et de votre stratégie afin d'être pleinement appropriée. Leur adoption et leur intégration doivent se faire dans un cadre d'architecture permettant de maîtriser les impacts techniques, organisationnels, humains et financiers.
+          </IntroText>
+        </IntroContainer>
       </Section>
 
-      <ServiceGrid>
-        {serviceData.map((service, index) => (
-          <ServiceBlock key={index}>
-            <ServiceNumber>{service.number}</ServiceNumber>
-            <ServiceContent>
-              <ServiceTitle>{service.title}</ServiceTitle>
-              {service.subPoints.map((sub, subIndex) => (
-                <SubPoint key={subIndex}>
-                  {/* Pour l'instant, seul le titre est affiché car le texte est vide */}
-                  <SubPointTitle>{sub.title}</SubPointTitle>
-                  {/* {sub.text && <SubPointText>{sub.text}</SubPointText>} */}
-                </SubPoint>
-              ))}
-            </ServiceContent>
-          </ServiceBlock>
-        ))}
-      </ServiceGrid>
+      <Section className="content-section">
+        <ServiceGrid>
+          {serviceData.map((service, index) => (
+            <ServiceBlock key={index}>
+              <ServiceNumber>{service.number}</ServiceNumber>
+              <ServiceContent>
+                <ServiceTitle>{service.title}</ServiceTitle>
+                {service.subPoints.map((sub, subIndex) => (
+                  <SubPoint key={subIndex}>
+                    <SubPointTitle>
+                      <NumberBullet>{subIndex + 1}</NumberBullet>
+                      {sub.title}
+                    </SubPointTitle>
+                    {sub.text && <SubPointText>{sub.text}</SubPointText>}
+                  </SubPoint>
+                ))}
+              </ServiceContent>
+            </ServiceBlock>
+          ))}
+        </ServiceGrid>
+      </Section>
       
-      <ZoneIntervention />
+      <ZoneInterventionWrapper>
+        <ZoneIntervention />
+      </ZoneInterventionWrapper>
       
       <ClientsSection>
         <ClientsTitle>Ils approuvent notre expertise</ClientsTitle>

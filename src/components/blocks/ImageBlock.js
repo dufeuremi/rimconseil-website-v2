@@ -22,6 +22,11 @@ const ImageBlock = ({ initialImage, onChange }) => {
     }
   };
 
+  const handleButtonClick = (e) => {
+    e.preventDefault(); // Prevent form submission
+    document.getElementById('image-upload').click();
+  };
+
   return (
     <div className="image-block">
       {image ? (
@@ -29,7 +34,7 @@ const ImageBlock = ({ initialImage, onChange }) => {
           <img src={image} alt="Contenu" />
           <button 
             className="change-image-button"
-            onClick={() => document.getElementById('image-upload').click()}
+            onClick={handleButtonClick}
           >
             Changer l'image
           </button>
@@ -45,7 +50,8 @@ const ImageBlock = ({ initialImage, onChange }) => {
           </div>
           <button 
             className="upload-button"
-            onClick={() => document.getElementById('image-upload').click()}
+            onClick={handleButtonClick}
+            type="button"
           >
             Upload
           </button>

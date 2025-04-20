@@ -1,5 +1,5 @@
 .header {
-  background-color: var(--color-white);
+
   border-bottom: 1px solid var(--color-quaternary);
   padding: 1rem 0;
   position: sticky;
@@ -82,7 +82,7 @@
   right: -100%;
   width: 300px;
   height: 100vh;
-  background-color: var(--color-white);
+
   transition: all 0.3s ease-in-out;
   z-index: 1001;
   padding: 5rem 2rem 2rem;

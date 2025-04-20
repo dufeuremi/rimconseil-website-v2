@@ -4,6 +4,7 @@ export const theme = {
     secondary: '#FFD700', // Gold
     accent: '#C41E3A', // Deep red
     background: '#FFFFFF',
+    dashboardBackground: '#F5F5F5',
     text: '#333333',
     textLight: '#666666',
     white: '#FFFFFF',
@@ -19,6 +20,8 @@ export const theme = {
       800: '#424242',
       900: '#212121',
     },
+    greenLight: '#A8E6CF', // Light green
+    greenDark: '#56AB2F', // Dark green
   },
   typography: {
     fontFamily: {

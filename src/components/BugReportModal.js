@@ -29,7 +29,7 @@ const BugReportModal = ({ isOpen, onClose }) => {
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Signaler un problème">
+    <Modal isOpen={isOpen} onClose={onClose} title="Signaler une panne" >
       <form className="bug-report-form" onSubmit={handleSubmit}>
         <div className="form-group">
           <textarea 

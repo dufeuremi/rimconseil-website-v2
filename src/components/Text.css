@@ -7,6 +7,7 @@
   font-size: 1rem;
   line-height: 1.6;
   color: var(--color-text);
+  font-weight: 500;
 }
 
 .text-body-large {

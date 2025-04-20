@@ -9,9 +9,13 @@ import animation2 from '../assets/animations/animation5.json';
 import animation3 from '../assets/animations/animation6.json';
 
 const SectionContainer = styled.section`
+  width: 100%;
   max-width: 1200px;
-  margin: 5rem auto;
   padding: 0 2rem;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 `;
 
 const TitleContainer = styled.div`

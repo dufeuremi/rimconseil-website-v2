@@ -136,3 +136,18 @@ input:focus {
   border-color: var(--color-primary);
   box-shadow: 0 0 0 2px rgba(75, 139, 244, 0.1);
 }
+
+/* Custom scrollbar styles */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--color-primary);
+  border-radius: 0;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}

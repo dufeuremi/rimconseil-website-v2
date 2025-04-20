@@ -9,9 +9,13 @@ import clearBAnimation from '../assets/animations/clearB.json';
 import clearCAnimation from '../assets/animations/clearC.json';
 
 const SectionContainer = styled.section`
+  width: 100%;
   max-width: 1200px;
-  margin: 5rem auto;
   padding: 0 2rem;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 `;
 
 const TitleContainer = styled.div`

@@ -1,5 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import axios from 'axios';
 import './App.css';
 import './styles/global.css';
 import Header from './components/Header';
@@ -9,6 +10,11 @@ import PageTitle from './components/PageTitle';
 import CookieConsent from './components/CookieConsent';
 import DashboardLayout from './components/DashboardLayout';
 import PageSettings from './components/PageSettings';
+import ProtectedRoute from './components/ProtectedRoute';
+import { ThemeProvider } from 'styled-components';
+import { theme } from './styles/theme';
+import Articles from './pages/Articles';
+import NotFound from './pages/NotFound';
 
 // Page imports
 import Home from './pages/Home';
@@ -26,6 +32,7 @@ import Login from './pages/Login';
 import RendezVous from './pages/RendezVous';
 import MentionsLegales from './pages/MentionsLegales';
 import Confidentialite from './pages/Confidentialite';
+import Maintenance from './pages/Maintenance';
 
 // Dashboard pages
 import DashboardHome from './pages/dashboard/DashboardHome';
@@ -37,6 +44,16 @@ import DashboardSecteurs from './pages/dashboard/DashboardSecteurs';
 import DashboardValeurs from './pages/dashboard/DashboardValeurs';
 import DashboardActualites from './pages/dashboard/DashboardActualites';
 import DashboardContact from './pages/dashboard/DashboardContact';
+import DashboardMessages from './pages/dashboard/DashboardMessages';
+
+// Configuration globale
+export const API_BASE_URL = 'http://localhost:4000';
+
+// Ajouter le token JWT aux headers par défaut s'il existe
+const token = localStorage.getItem('token');
+if (token) {
+  axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+}
 
 const MainLayout = ({ children }) => {
   return (
@@ -67,69 +84,119 @@ const AppContent = () => {
       <ScrollToTop />
       <PageTitle />
       <Routes>
-        {/* Dashboard routes */}
+        {/* Dashboard routes - protected */}
         <Route path="/dashboard" element={
-          <DashboardContainer>
-            <DashboardHome />
-          </DashboardContainer>
+          <ProtectedRoute>
+            <DashboardContainer>
+              <DashboardHome />
+            </DashboardContainer>
+          </ProtectedRoute>
         } />
         <Route path="/dashboard/pages" element={
-          <DashboardContainer>
-            <DashboardPages />
-          </DashboardContainer>
+          <ProtectedRoute>
+            <DashboardContainer>
+              <DashboardPages />
+            </DashboardContainer>
+          </ProtectedRoute>
         } />
         <Route path="/dashboard/articles" element={
-          <DashboardContainer>
-            <DashboardArticles />
-          </DashboardContainer>
+          <ProtectedRoute>
+            <DashboardContainer>
+              <DashboardArticles />
+            </DashboardContainer>
+          </ProtectedRoute>
         } />
         <Route path="/dashboard/expertises" element={
-          <DashboardContainer>
-            <DashboardExpertises />
-          </DashboardContainer>
+          <ProtectedRoute>
+            <DashboardContainer>
+              <DashboardExpertises />
+            </DashboardContainer>
+          </ProtectedRoute>
         } />
         <Route path="/dashboard/services" element={
-          <DashboardContainer>
-            <DashboardServices />
-          </DashboardContainer>
+          <ProtectedRoute>
+            <DashboardContainer>
+              <DashboardServices />
+            </DashboardContainer>
+          </ProtectedRoute>
         } />
         <Route path="/dashboard/secteurs" element={
-          <DashboardContainer>
-            <DashboardSecteurs />
-          </DashboardContainer>
+          <ProtectedRoute>
+            <DashboardContainer>
+              <DashboardSecteurs />
+            </DashboardContainer>
+          </ProtectedRoute>
         } />
         <Route path="/dashboard/valeurs" element={
-          <DashboardContainer>
-            <DashboardValeurs />
-          </DashboardContainer>
+          <ProtectedRoute>
+            <DashboardContainer>
+              <DashboardValeurs />
+            </DashboardContainer>
+          </ProtectedRoute>
         } />
         <Route path="/dashboard/actualites" element={
-          <DashboardContainer>
-            <DashboardActualites />
-          </DashboardContainer>
+          <ProtectedRoute>
+            <DashboardContainer>
+              <DashboardActualites />
+            </DashboardContainer>
+          </ProtectedRoute>
         } />
         <Route path="/dashboard/contact" element={
-          <DashboardContainer>
-            <DashboardContact />
-          </DashboardContainer>
+          <ProtectedRoute>
+            <DashboardContainer>
+              <DashboardContact />
+            </DashboardContainer>
+          </ProtectedRoute>
+        } />
+        <Route path="/dashboard/messages" element={
+          <ProtectedRoute>
+            <DashboardContainer>
+              <DashboardMessages />
+            </DashboardContainer>
+          </ProtectedRoute>
         } />
         <Route path="/dashboard/pages/:id/edit" element={
-          <DashboardContainer>
-            <PageSettings 
-              onSave={(data) => {
-                console.log('Enregistrement des données:', data);
-                // Ici vous pourriez appeler une API pour sauvegarder les données
-              }}
-            />
-          </DashboardContainer>
+          <ProtectedRoute>
+            <DashboardContainer>
+              <PageSettings 
+                onSave={(data) => {
+                  console.log('Enregistrement des données:', data);
+                  // Ici vous pourriez appeler une API pour sauvegarder les données
+                }}
+              />
+            </DashboardContainer>
+          </ProtectedRoute>
+        } />
+        <Route path="/dashboard/actualites/edit/:id" element={
+          <ProtectedRoute>
+            <DashboardContainer>
+              <PageSettings 
+                onSave={(data) => {
+                  console.log('Enregistrement des données actus:', data);
+                  // Ici vous pourriez appeler une API pour sauvegarder les actus
+                }}
+                contentType="actus"
+              />
+            </DashboardContainer>
+          </ProtectedRoute>
+        } />
+        <Route path="/dashboard/articles/edit/:id" element={
+          <ProtectedRoute>
+            <DashboardContainer>
+              <PageSettings 
+                onSave={(data) => {
+                  console.log('Enregistrement des données articles:', data);
+                  // Ici vous pourriez appeler une API pour sauvegarder les articles
+                }}
+                contentType="articles"
+              />
+            </DashboardContainer>
+          </ProtectedRoute>
         } />
 
-        {/* Main routes */}
-        <Route path="/" element={
-          <MainLayout>
-            <Home />
-          </MainLayout>
-        } />
+        {/* Main routes - public */}
+        <Route path="/acceuil" element={<MainLayout><Home /></MainLayout>} />
+        <Route path="/" element={<Maintenance />} />
         <Route path="/expertises" element={
           <MainLayout>
             <Expertises />
@@ -158,6 +225,16 @@ const AppContent = () => {
         <Route path="/actualites" element={
           <MainLayout>
             <Actualites />
+          </MainLayout>
+        } />
+        <Route path="/articles" element={
+          <MainLayout>
+            <Articles />
+          </MainLayout>
+        } />
+        <Route path="/articles/:id" element={
+          <MainLayout>
+            <Articles />
           </MainLayout>
         } />
         <Route path="/contact" element={
@@ -207,9 +284,11 @@ const AppContent = () => {
 
 function App() {
   return (
-    <Router>
-      <AppContent />
-    </Router>
+    <ThemeProvider theme={theme}>
+      <Router>
+        <AppContent />
+      </Router>
+    </ThemeProvider>
   );
 }
 

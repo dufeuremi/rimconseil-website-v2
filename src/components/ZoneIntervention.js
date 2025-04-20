@@ -4,11 +4,16 @@ import Button from './Button';
 import LocationTag from './LocationTag';
 import franceSvg from '../assets/images/france_map.svg';
 import Text from './Text';
+import Title from './Title';
 
 const SectionContainer = styled.section`
+  width: 100%;
   max-width: 1200px;
-  margin: 5rem auto;
   padding: 0 2rem;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 `;
 
 const SectionTitle = styled.h2`
@@ -296,7 +301,7 @@ const ZoneIntervention = () => {
 
   return (
     <SectionContainer>
-      <SectionTitle>Zones d'intervention</SectionTitle>
+       <Title level={2} align="center">Notre zone d'intervention</Title>
       <Description variant="body">
         RIM Conseil intervient sur l'ensemble du territoire français et au Maroc. 
         Nous proposons nos services de conseil en systèmes d'information aux entreprises 

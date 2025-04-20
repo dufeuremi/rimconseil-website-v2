@@ -11,6 +11,7 @@ const pageTitles = {
   '/equipe': 'Notre Équipe',
   '/reseau': 'Notre Réseau',
   '/actualites': 'Actualités',
+  '/articles': 'Articles',
   '/contact': 'Contact',
   '/connexion': 'Connexion',
   '/rendez-vous': 'Rendez-vous',
@@ -34,6 +35,9 @@ const PageTitle = () => {
     // Si on est sur la page d'accueil, on affiche seulement "Rim'conseil"
     if (location.pathname === '/') {
       document.title = "Rim'conseil";
+    } else if (location.pathname.startsWith('/articles/')) {
+      // Pour les articles individuels
+      document.title = `Article - Rim'conseil`;
     } else {
       // Sinon, on affiche "Nom de page - Rim'conseil"
       const pageTitle = pageTitles[location.pathname] || 'Page';

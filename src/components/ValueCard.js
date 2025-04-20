@@ -7,10 +7,19 @@ const CardContainer = styled.div`
   flex-direction: column;
   align-items: center;
   text-align: center;
-  padding: 1.5rem;
-  background-color: var(--color-white);
-  border-radius: 4px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  padding: 2rem 1.5rem;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  position: relative;
+  height: 100%;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  overflow: hidden;
+  
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  }
 `;
 
 const IconContainer = styled.div`

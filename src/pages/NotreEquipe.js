@@ -28,6 +28,11 @@ const TeamContainer = styled.div`
   gap: 6rem;
 `;
 
+const Header = styled.div`
+  text-align: center;
+  margin-bottom: 3rem;
+`;
+
 // Composant principal de la page
 const NotreEquipe = () => {
   // Données des membres de l'équipe
@@ -58,7 +63,9 @@ const NotreEquipe = () => {
 
   return (
     <PageContainer>
-      <Title level={1} align="left">Notre équipe</Title>
+      <Header>
+        <Title level={1} align="center">Notre équipe</Title>
+      </Header>
       <PageDescription>
         Rim'conseil évolue avec Jean-Philippe Robin, intervenant au service de votre entreprise et Loubna Berrado-Robin, Consultante en organisation et en transformation numérique.
       </PageDescription>

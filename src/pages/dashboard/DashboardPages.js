@@ -34,7 +34,7 @@ const pagesData = [
 const DashboardPages = () => {
   return (
     <>
-      <Title>Gestion des Pages</Title>
+      <Title>Gestion des Actus</Title>
       <PagesContainer>
         {pagesData.map(page => (
           <Page
@@ -43,6 +43,7 @@ const DashboardPages = () => {
             path={page.path}
             description={page.description}
             categories={page.categories}
+            direction="ltr"
           />
         ))}
       </PagesContainer>

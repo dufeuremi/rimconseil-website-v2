@@ -1,7 +1,22 @@
 import React from 'react';
 import './Block.css';
 
-const Block = ({ children, onDelete, onMoveUp, onMoveDown, isFirst, isLast, isEditing, ...props }) => {
+// Function to get friendly names for block types
+const getFriendlyBlockName = (blockName) => {
+  if (!blockName) return '';
+  
+  // Extract type from name like "title_1" -> "Title"
+  const parts = blockName.split('_');
+  if (parts.length < 2) return blockName;
+  
+  // Get base type
+  const baseType = parts[0];
+  
+  // Capitalize first letter
+  return baseType.charAt(0).toUpperCase() + baseType.slice(1);
+};
+
+const Block = ({ children, onDelete, onMoveUp, onMoveDown, isFirst, isLast, isEditing, blockName, ...props }) => {
   const handleDelete = (e) => {
     e.stopPropagation();
     onDelete();
@@ -17,9 +32,24 @@ const Block = ({ children, onDelete, onMoveUp, onMoveDown, isFirst, isLast, isEd
     onMoveDown();
   };
 
+  // Get friendly display name
+  const displayName = getFriendlyBlockName(blockName);
+
   return (
     <div className={`content-block ${isEditing ? 'is-editing' : ''}`} {...props}>
       <div className="block-controls">
+        {blockName && (
+          <span className="block-name" title="Type de bloc" style={{ 
+            fontSize: '10px', 
+            color: '#666', 
+            marginRight: '8px',
+            padding: '2px 5px',
+            background: '#f0f0f0',
+            borderRadius: '3px'
+          }}>
+            {displayName}
+          </span>
+        )}
         <button 
           className="move-block-button" 
           onClick={handleMoveUp}

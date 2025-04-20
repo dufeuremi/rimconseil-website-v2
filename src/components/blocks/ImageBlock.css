@@ -61,7 +61,7 @@
   height: auto;
   display: block;
   border-radius: 0;
-  border: 1px solid #CCCCCC;
+  border: none;
 }
 
 .change-image-button {
