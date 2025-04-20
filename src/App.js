@@ -195,8 +195,11 @@ const AppContent = () => {
         } />
 
         {/* Main routes - public */}
-        <Route path="/acceuil" element={<MainLayout><Home /></MainLayout>} />
-        <Route path="/" element={<Maintenance />} />
+        <Route path="/" element={
+          <MainLayout>
+            <Home />
+          </MainLayout>
+        } />
         <Route path="/expertises" element={
           <MainLayout>
             <Expertises />
@@ -275,6 +278,12 @@ const AppContent = () => {
         <Route path="/enjeux" element={
           <MainLayout>
             <Enjeux />
+          </MainLayout>
+        } />
+        <Route path="/maintenance" element={<Maintenance />} />
+        <Route path="*" element={
+          <MainLayout>
+            <NotFound />
           </MainLayout>
         } />
       </Routes>
