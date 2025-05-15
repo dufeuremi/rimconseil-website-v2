@@ -86,7 +86,7 @@ const ExpertiseSection = () => {
   return (
     <SectionContainer>
       <TitleContainer>
-        <Title level={2} align="center">Nos savoir-faire</Title>
+        <Title level={1} align="center" variant="page-title">Nos savoir-faire</Title>
       </TitleContainer>
       <Description>
         Innovation, respect de l'humain et de l'environnement au cœur de notre approche.

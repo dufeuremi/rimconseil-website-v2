@@ -5,6 +5,7 @@ import LocationTag from './LocationTag';
 import franceSvg from '../assets/images/france_map.svg';
 import Text from './Text';
 import Title from './Title';
+import { Link } from 'react-router-dom';
 
 const SectionContainer = styled.section`
   width: 100%;
@@ -301,7 +302,7 @@ const ZoneIntervention = () => {
 
   return (
     <SectionContainer>
-       <Title level={2} align="center">Notre zone d'intervention</Title>
+      <Title level={1} align="center" variant="page-title">Zone d'intervention</Title>
       <Description variant="body">
         RIM Conseil intervient sur l'ensemble du territoire français et au Maroc. 
         Nous proposons nos services de conseil en systèmes d'information aux entreprises 
@@ -325,7 +326,7 @@ const ZoneIntervention = () => {
           </TagsContainer>
           
           <ContactButton>
-            <Button variant="primary" arrow>
+            <Button variant="primary" arrow as={Link} to="/contact">
               Nous contacter
             </Button>
           </ContactButton>

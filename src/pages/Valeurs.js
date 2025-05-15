@@ -11,7 +11,7 @@ import animation3 from '../assets/animations/animation6.json';
 const PageContainer = styled.div`
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 2rem 4rem 2rem;
+  padding: 10rem 2rem 4rem 2rem;
 `;
 
 const TitleContainer = styled.div`

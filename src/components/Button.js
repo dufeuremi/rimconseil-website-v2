@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { RiArrowRightLine } from 'react-icons/ri';
+import { RiArrowRightLine, RiMessage3Line, RiSendPlane2Line, RiMailLine } from 'react-icons/ri';
 
 const StyledButton = styled.button`
   display: inline-flex;
@@ -28,6 +28,7 @@ const StyledButton = styled.button`
   &:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    color: white;
   }
 
   &:hover .arrow-icon {
@@ -93,10 +94,13 @@ const Button = ({
   arrow = false,
   disabled = false,
   onClick,
-  className
+  className,
+  as,
+  ...rest
 }) => {
   return (
     <StyledButton
+      as={as}
       type={type}
       variant={variant}
       fullWidth={fullWidth}
@@ -105,6 +109,7 @@ const Button = ({
       disabled={disabled}
       onClick={onClick}
       className={className}
+      {...rest}
     >
       <span>{children}</span>
       {arrow && <RiArrowRightLine className="arrow-icon" />}
@@ -112,4 +117,5 @@ const Button = ({
   );
 };
 
-export default Button; 
+export default Button;
+export { RiMessage3Line, RiSendPlane2Line, RiMailLine }; 

@@ -1,31 +1,28 @@
 import React, { useState, useRef, useEffect } from 'react';
 import styled from 'styled-components';
 import Lottie from 'lottie-react';
+import { RiArrowRightLine } from 'react-icons/ri';
+import Button from './Button';
+import { Link } from 'react-router-dom';
 
 const CardContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  padding: 2rem 1.5rem;
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  padding: 1.5rem;
+  background: linear-gradient(to bottom, transparent, #F4F9FF);
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   position: relative;
-  height: 100%;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
   overflow: hidden;
-  
-  &:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-  }
+  // height: 100%;
 `;
 
 const IconContainer = styled.div`
   margin-bottom: 1.5rem;
-  width: 160px;
-  height: 160px;
+  width: 140px;
+  height: 140px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -46,17 +43,13 @@ const IconFallback = styled.div`
   color: white;
   font-size: 2rem;
   font-weight: bold;
-  border-radius: 50%;
-  background-image: url('/path/to/approche.svg');
-  background-size: cover;
-  background-position: center;
+  border-radius: 4px;
 `;
 
 const Title = styled.h3`
   color: var(--color-secondary);
   font-size: 1.25rem;
   font-weight: 600;
-  margin-top: 2rem;
   margin-bottom: 1.5rem;
 `;
 
@@ -72,15 +65,23 @@ const ListItem = styled.li`
   padding-left: 1.5rem;
   margin-bottom: 0.75rem;
   color: var(--color-text);
-  font-size: 0.9rem;
+  font-size: 1rem;
   line-height: 1.5;
 
   &:before {
-    content: "⤷";
+    content: attr(data-number);
     position: absolute;
     left: 0;
     color: var(--color-primary);
   }
+`;
+
+const ButtonContainer = styled.div`
+  margin-top: auto;
+  padding-top: 1.5rem;
+  width: 100%;
+  display: flex;
+  justify-content: center;
 `;
 
 const ValueCard = ({ title, lottieFile, iconAlt, items }) => {
@@ -94,7 +95,7 @@ const ValueCard = ({ title, lottieFile, iconAlt, items }) => {
     const anim = lottieRef.current.animationItem;
     
     if (isHovered) {
-      // Configurer l'animation pour aller vers l'avant
+      // Animation vers l'avant lors du survol
       anim.setDirection(1);
       anim.setSpeed(2.5);
       anim.play();
@@ -105,6 +106,12 @@ const ValueCard = ({ title, lottieFile, iconAlt, items }) => {
       anim.play();
     }
   }, [isHovered]);
+
+  // Générer les symboles pour les numéros de liste
+  const getNumberSymbol = (index) => {
+    const symbols = ['①', '②', '③', '④', '⑤'];
+    return symbols[index] || `${index + 1}`;
+  };
   
   // Déterminer le type de carte pour le fallback
   const getCardType = () => {
@@ -146,9 +153,16 @@ const ValueCard = ({ title, lottieFile, iconAlt, items }) => {
       <Title>{title}</Title>
       <ListContainer>
         {items.map((item, index) => (
-          <ListItem key={index}>{item}</ListItem>
+          <ListItem key={index} data-number={getNumberSymbol(index)}>
+            {item}
+          </ListItem>
         ))}
       </ListContainer>
+      <ButtonContainer>
+        <Button arrow={true} as={Link} to="/valeurs">
+          Découvrir
+        </Button>
+      </ButtonContainer>
     </CardContainer>
   );
 };

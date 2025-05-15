@@ -7,7 +7,7 @@ import { RiArrowLeftSLine, RiArrowRightSLine } from 'react-icons/ri';
 const PageContainer = styled.div`
   max-width: 1200px;
   margin: 0 auto;
-  padding: 4rem 2rem;
+  padding: 10rem 2rem 4rem 2rem;
 `;
 
 const TitleContainer = styled.div`

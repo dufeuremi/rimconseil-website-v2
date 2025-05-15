@@ -12,12 +12,14 @@ import clearCAnimation from '../assets/animations/clearC.json';
 
 // Import de l'image des partenaires
 import partenairesImage from '../assets/images/clients.png';
+import client1 from '../assets/images/client1.svg';
+import client2 from '../assets/images/client2.svg';
 
 // Styled Components
 const PageContainer = styled.div`
   max-width: 1200px;
   margin: 0 auto;
-  padding: 4rem 2rem;
+  padding: 10rem 2rem 4rem 2rem;
   overflow: visible; /* S'assurer que le contenu n'est pas masqué */
 `;
 
@@ -357,11 +359,13 @@ const PartnersTitle = styled.h2`
   text-align: center;
 `;
 
-const PartnersImage = styled.img`
-  max-width: 80%;
-  height: auto;
+const ClientsLogosRow = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 3rem;
+  width: 100%;
   margin: 0 auto;
-  display: block;
 `;
 
 const Expertises = () => {
@@ -386,7 +390,10 @@ const Expertises = () => {
 
       <PartnersSection>
         <PartnersTitle>Ils approuvent notre expertise</PartnersTitle>
-        <PartnersImage src={partenairesImage} alt="Nos partenaires" />
+        <ClientsLogosRow>
+          <img src={client1} alt="Client 1" style={{ height: '80px', width: 'auto' }} />
+          <img src={client2} alt="Client 2" style={{ height: '80px', width: 'auto' }} />
+        </ClientsLogosRow>
       </PartnersSection>
     </PageContainer>
   );

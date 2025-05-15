@@ -4,12 +4,15 @@ import Title from '../components/Title';
 import Text from '../components/Text';
 import ZoneIntervention from '../components/ZoneIntervention';
 import clientsImage from '../assets/images/clients.png';
+import client1 from '../assets/images/client1.svg';
+import client2 from '../assets/images/client2.svg';
+import procederSvg from '../assets/images/proceder.svg';
 
 // Styled Components
 const PageContainer = styled.div`
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 2rem;
+  padding: 10rem 2rem 4rem 2rem;
   overflow: visible;
 `;
 
@@ -59,8 +62,10 @@ const ServiceBlock = styled.div`
   align-items: flex-start;
   position: relative;
   padding: 3rem;
-  background-color: var(--color-light-gray, #f5f5f5);
-  border-radius: 0;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 4px 24px rgba(0, 32, 72, 0.08);
+  border: none;
   
   &:nth-child(odd) {
     margin-right: 10%;
@@ -174,6 +179,44 @@ const ZoneInterventionWrapper = styled.div`
   padding: 2rem 0;
 `;
 
+const ClientsLogosRow = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 3rem;
+  width: 100%;
+  margin: 0 auto;
+`;
+
+const IntroRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 3rem;
+  @media (max-width: 900px) {
+    flex-direction: column;
+    gap: 2rem;
+    align-items: flex-start;
+  }
+`;
+
+const IntroTextContainer = styled.div`
+  flex: 0 1 66.66%;
+  max-width: 66.66%;
+`;
+
+const IntroImage = styled.img`
+  flex: 0 1 33.33%;
+  width: 73px;
+  height: auto;
+  max-width: 33.33%;
+  @media (max-width: 900px) {
+    width: 55px;
+    max-width: 100%;
+    margin: 0 auto;
+    display: block;
+  }
+`;
+
 // Data for Service Blocks
 const serviceData = [
   {
@@ -239,12 +282,15 @@ const Services = () => {
   return (
     <PageContainer>
       <Section>
-        <IntroContainer>
-          <SectionTitle level={1}>Comment allons-nous procéder ?</SectionTitle>
-          <IntroText>
-            Les technologies sont des moyens, des facilitateurs et des déclencheurs de transformations et de puissants leviers de développement et d'innovations. Elles nécessitent d'être analysées à l'aune de vos enjeux et de votre stratégie afin d'être pleinement appropriée. Leur adoption et leur intégration doivent se faire dans un cadre d'architecture permettant de maîtriser les impacts techniques, organisationnels, humains et financiers.
-          </IntroText>
-        </IntroContainer>
+        <IntroRow>
+          <IntroTextContainer>
+            <SectionTitle level={1}>Comment allons-nous procéder ?</SectionTitle>
+            <IntroText>
+              Les technologies sont des moyens, des facilitateurs et des déclencheurs de transformations et de puissants leviers de développement et d'innovations. Elles nécessitent d'être analysées à l'aune de vos enjeux et de votre stratégie afin d'être pleinement appropriée. Leur adoption et leur intégration doivent se faire dans un cadre d'architecture permettant de maîtriser les impacts techniques, organisationnels, humains et financiers.
+            </IntroText>
+          </IntroTextContainer>
+          <IntroImage src={procederSvg} alt="Procéder illustration" />
+        </IntroRow>
       </Section>
 
       <Section className="content-section">
@@ -275,7 +321,10 @@ const Services = () => {
       
       <ClientsSection>
         <ClientsTitle>Ils approuvent notre expertise</ClientsTitle>
-        <ClientsImage src={clientsImage} alt="Nos clients" />
+        <ClientsLogosRow>
+          <img src={client1} alt="Client 1" style={{ height: '80px', width: 'auto' }} />
+          <img src={client2} alt="Client 2" style={{ height: '80px', width: 'auto' }} />
+        </ClientsLogosRow>
       </ClientsSection>
     </PageContainer>
   );

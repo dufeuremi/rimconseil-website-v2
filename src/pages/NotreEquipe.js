@@ -9,8 +9,8 @@ import intervenantImg from '../assets/images/intervenant1.png';
 const PageContainer = styled.div`
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 2rem 4rem 2rem;
-  margin-top: 2.5rem;
+  padding: 8rem 2rem 4rem 2rem;
+  margin-top: 0;
 `;
 
 const PageDescription = styled.p`

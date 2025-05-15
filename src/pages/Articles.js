@@ -10,7 +10,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 // Wrapper pour assurer la hauteur minimale
 const PageWrapper = styled.div`
   min-height: calc(100vh - 150px - 50px); /* Ajuster selon la hauteur du header et footer */
-  padding-top: 1rem; /* Ajouter un peu d'espace en haut si nécessaire */
+  padding-top: 10rem; /* Ajouter un padding top de 10rem */
 `;
 
 const ArticlesContainer = styled.div`

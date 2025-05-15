@@ -68,7 +68,7 @@ const PartnersSection = () => {
   return (
     <SectionContainer>
       <TitleContainer>
-        <Title level={2} align="center">Notre réseau</Title>
+        <Title level={1} align="center" variant="page-title">Nos partenaires</Title>
       </TitleContainer>
       <SectionDescription>
         Rim conseil coopère avec des entreprises partenaires pour diversifier les services proposés. 

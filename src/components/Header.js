@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { Link, useLocation } from 'react-router-dom';
 import { List, Leaf } from '@phosphor-icons/react';
@@ -12,7 +12,8 @@ const HeaderWrapper = styled.div`
   top: 0;
   left: 0;
   right: 0;
-  background-color: ${({ transparent }) => transparent ? 'transparent' : 'white'};
+background-color: ${({ transparent }) => transparent ? 'transparent' : 'rgba(255, 255, 255, 0.55)'};
+
   z-index: 100;
   transition: transform 0.3s ease, background-color 0.3s ease, border-bottom 0.3s ease, margin-bottom 0.3s ease;
   transform: translateY(${({ visible }) => (visible ? '0' : '-100%')});
@@ -39,17 +40,37 @@ const Logo = styled(Link)`
   text-decoration: none;
   display: flex;
   align-items: center;
+  padding: 0.5rem 1.25rem 0.5rem 0.5rem;
+  border-radius: 32px;
+  transition: box-shadow 0.2s;
+  min-height: 36px;
+  min-width: 90px;
+  cursor: pointer;
+  gap: 0.2rem;
+  width: 100%;
+  &:hover, &:focus {
+    background: none;
+    box-shadow: none;
+    text-decoration: none;
+  }
 `;
 
 const LogoImage = styled.img`
-  height: 28px;
-  margin-right: 0.5rem;
+  height: 24px;
+  width: auto;
+  margin-right: 0.2rem;
+  border-radius: 8px;
+  background: none;
+  transition: box-shadow 0.2s;
 `;
 
 const LogoText = styled.span`
-  font-size: 1.5rem;
+  font-size: 1.32rem;
   font-weight: 600;
   color: ${({ transparent }) => transparent ? '#fff' : 'var(--color-secondary)'};
+  letter-spacing: -0.5px;
+  line-height: 1;
+  transition: color 0.2s;
 `;
 
 const HeaderActions = styled.div`
@@ -132,8 +153,7 @@ const MenuButton = styled.button`
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [visible, setVisible] = useState(true);
-  const [prevScrollPos, setPrevScrollPos] = useState(0);
-  const [scrolledFullScreen, setScrolledFullScreen] = useState(false);
+  const prevScrollPos = useRef(window.pageYOffset);
   const [transparent, setTransparent] = useState(false);
   const location = useLocation();
   const isHomePage = location.pathname === '/';
@@ -148,31 +168,33 @@ const Header = () => {
       if (isHomePage) {
         if (currentScrollPos < halfWindowHeight) {
           setTransparent(true);
-          document.querySelector('.main-content').classList.add('header-transparent');
+          document.querySelector('.main-content')?.classList.add('header-transparent');
         } else {
           setTransparent(false);
-          document.querySelector('.main-content').classList.remove('header-transparent');
+          document.querySelector('.main-content')?.classList.remove('header-transparent');
         }
       } else {
         setTransparent(false);
-        document.querySelector('.main-content').classList.remove('header-transparent');
+        document.querySelector('.main-content')?.classList.remove('header-transparent');
       }
 
       // Masquage/affichage (toutes pages)
-      const isScrollingUp = prevScrollPos > currentScrollPos;
       if (currentScrollPos > windowHeight) {
-        setVisible(isScrollingUp);
+        if (currentScrollPos < prevScrollPos.current) {
+          setVisible(true); // scroll up
+        } else if (currentScrollPos > prevScrollPos.current) {
+          setVisible(false); // scroll down
+        }
       } else {
         setVisible(true);
       }
-
-      setPrevScrollPos(currentScrollPos);
+      prevScrollPos.current = currentScrollPos;
     };
 
     window.addEventListener('scroll', handleScroll);
     handleScroll();
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [prevScrollPos, isHomePage]);
+  }, [isHomePage]);
 
   return (
     <>

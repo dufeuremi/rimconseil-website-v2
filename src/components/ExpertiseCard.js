@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import Lottie from 'lottie-react';
 import { RiArrowRightLine } from 'react-icons/ri';
 import Button from './Button';
+import { Link } from 'react-router-dom';
 
 const CardContainer = styled.div`
   display: flex;
@@ -148,7 +149,7 @@ const ExpertiseCard = ({ title, lottieFile, iconAlt, items, type }) => {
         ))}
       </ListContainer>
       <ButtonContainer>
-        <Button arrow={true}>
+        <Button arrow={true} as={Link} to="/expertises">
           Découvrir
         </Button>
       </ButtonContainer>

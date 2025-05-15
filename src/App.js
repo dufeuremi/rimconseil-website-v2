@@ -15,6 +15,10 @@ import { ThemeProvider } from 'styled-components';
 import { theme } from './styles/theme';
 import Articles from './pages/Articles';
 import NotFound from './pages/NotFound';
+import { RiMailLine } from './components/Button';
+import styled from 'styled-components';
+import { Link } from 'react-router-dom';
+import LoaderSplash from './components/LoaderSplash';
 
 // Page imports
 import Home from './pages/Home';
@@ -78,9 +82,38 @@ const DashboardContainer = ({ children }) => {
   );
 };
 
+const FloatingContactButton = styled(Link)`
+  position: fixed;
+  bottom: 32px;
+  right: 32px;
+  z-index: 2000;
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(45deg, var(--color-primary) 0%, var(--color-primarylight) 100%);
+  color: #fff;
+  box-shadow: 0 4px 16px rgba(44, 119, 227, 0.12);
+  transition: transform 0.2s, box-shadow 0.2s;
+  font-size: 2rem;
+  cursor: pointer;
+  border: none;
+  outline: none;
+  text-decoration: none;
+  border-radius: 0;
+
+  &:hover {
+    transform: translateY(-4px) scale(1.07);
+    box-shadow: 0 8px 24px rgba(44, 119, 227, 0.18);
+    color: #fff;
+  }
+`;
+
 const AppContent = () => {
   return (
     <div className="App">
+      <LoaderSplash />
       <ScrollToTop />
       <PageTitle />
       <Routes>
@@ -287,6 +320,9 @@ const AppContent = () => {
           </MainLayout>
         } />
       </Routes>
+      <FloatingContactButton to="/contact" aria-label="Contact">
+        <RiMailLine />
+      </FloatingContactButton>
     </div>
   );
 };

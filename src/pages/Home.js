@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import styled from 'styled-components';
 import { RiArrowRightLine } from 'react-icons/ri';
 import Header from '../components/Header';
@@ -10,6 +10,11 @@ import ValuesSection from '../components/ValuesSection';
 import ClientsSection from '../components/ClientsSection';
 import PartnersSection from '../components/PartnersSection';
 import ZoneIntervention from '../components/ZoneIntervention';
+import Article from '../components/Article';
+import Lottie from 'lottie-react';
+import maskAnimation from '../assets/animations/mask.json';
+import { Link } from 'react-router-dom';
+// import Maintenance from './Maintenance';
 
 const HomeContainer = styled.div`
   min-height: 100vh;
@@ -31,6 +36,24 @@ const SectionContainer = styled.div`
     position: relative;
     overflow: hidden;
   }
+
+  &.mt-large {
+    margin-top: 6rem;
+  }
+
+  &.mt-medium {
+    margin-top: 3rem;
+  }
+`;
+
+const BackgroundContainer = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100%;
+  z-index: -1;
+  overflow: hidden;
 `;
 
 const BackgroundImage = styled.div`
@@ -44,6 +67,20 @@ const BackgroundImage = styled.div`
   background-position: center;
   z-index: -1;
   opacity: 1;
+`;
+
+const LottieMaskOverlay = styled.div`
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100vw;
+  height: 80px;
+  pointer-events: none;
+  overflow: visible;
+  z-index: 2;
+  /* Masquer le haut du Lottie pour ne garder que la vague */
+  mask-image: linear-gradient(to top, black 60%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to top, black 60%, transparent 100%);
 `;
 
 const HeroSection = styled.div`
@@ -63,8 +100,12 @@ const HeroSection = styled.div`
 
 const Subtitle = styled.p`
   font-size: 1rem;
-  color: var(--color-primary);
+  color: #fff;
+  background: rgba(174, 207, 255, 0.1);
   margin-bottom: 1rem;
+  padding: 0px 7px;
+  border-radius: 0;
+  display: inline-block;
 `;
 
 const TitleHighlight = styled.span`
@@ -84,11 +125,90 @@ const Description = styled.p`
 `;
 
 const Home = () => {
+  // Mock d'actualités pour l'exemple (à remplacer par un fetch API si besoin)
+  const actusPreview = [
+    {
+      id: 1,
+      title: "Lancement de notre nouveau service IT responsable",
+      date: "2024-06-01",
+      description: "Découvrez notre nouvelle offre d'accompagnement pour des systèmes d'information plus durables et éthiques.",
+      categories: ["Innovation", "Responsabilité"]
+    },
+    {
+      id: 2,
+      title: "Rim'Conseil au salon Green IT 2024",
+      date: "2024-05-15",
+      description: "Retour sur notre intervention au salon Green IT, où nous avons présenté nos solutions éco-conçues.",
+      categories: ["Événement"]
+    },
+    {
+      id: 3,
+      title: "RGPD : les bonnes pratiques en 2024",
+      date: "2024-04-20",
+      description: "Nos experts partagent les dernières recommandations pour une conformité RGPD durable.",
+      categories: ["RGPD", "Conseil"]
+    }
+  ];
+
+  const lottieRef = useRef();
+  const directionRef = useRef(1);
+  const bgRef = useRef();
+
+  // Fonction pour gérer l'aller-retour
+  const handleLottieComplete = () => {
+    if (lottieRef.current && lottieRef.current.animationItem) {
+      directionRef.current = -directionRef.current;
+      lottieRef.current.animationItem.setDirection(directionRef.current);
+      lottieRef.current.animationItem.setSpeed(0.5);
+      lottieRef.current.animationItem.play();
+    }
+  };
+
+  // Appliquer le mask SVG animé sur le background
+  useEffect(() => {
+    const updateMask = () => {
+      if (!lottieRef.current) return;
+      const svg = lottieRef.current.container?.querySelector('svg');
+      if (!svg || !bgRef.current) return;
+      // Convertir le SVG en data URL
+      const serializer = new XMLSerializer();
+      const svgString = serializer.serializeToString(svg);
+      const svgDataUrl = `data:image/svg+xml;utf8,${encodeURIComponent(svgString)}`;
+      bgRef.current.style.webkitMaskImage = `url('${svgDataUrl}')`;
+      bgRef.current.style.maskImage = `url('${svgDataUrl}')`;
+      bgRef.current.style.webkitMaskRepeat = 'no-repeat';
+      bgRef.current.style.maskRepeat = 'no-repeat';
+      bgRef.current.style.webkitMaskSize = '100% 80px';
+      bgRef.current.style.maskSize = '100% 80px';
+      bgRef.current.style.webkitMaskPosition = 'bottom';
+      bgRef.current.style.maskPosition = 'bottom';
+    };
+    // Mettre à jour le mask à chaque frame
+    const interval = setInterval(updateMask, 50);
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <HomeContainer>
-      <Header />
+      {/* Masquer la popup de maintenance */}
+      {/* <Maintenance /> */}
       <SectionContainer className="hero-section">
-        <BackgroundImage />
+        <BackgroundContainer>
+          <BackgroundImage />
+          {/* Lottie visible en blanc, en overlay bas */}
+          <div style={{ position: 'absolute', left: 0, bottom: 0, width: '100vw', height: '80px', pointerEvents: 'none', zIndex: 2 }}>
+            <Lottie
+              lottieRef={lottieRef}
+              animationData={maskAnimation}
+              loop={false}
+              autoplay
+              onComplete={handleLottieComplete}
+              style={{ width: '100vw', height: '100%', transform: 'scaleY(0.165) translateY(2px)', transformOrigin: 'bottom', filter: 'brightness(0) invert(1)' }}
+              rendererSettings={{ preserveAspectRatio: 'none' }}
+              speed={0.5}
+            />
+          </div>
+        </BackgroundContainer>
         <HeroSection>
           <Subtitle>Conseil et accompagnement d'entreprise</Subtitle>
           <Title level={1} align="center" variant="page-title" style={{ color: '#fff', fontWeight: 600 }}>
@@ -97,17 +217,17 @@ const Home = () => {
           <Description>
             Votre partenaire pour co-construire vos solutions IT responsables qui allient innovation et respect des valeurs écologiques et sociales
           </Description>
-          <Button arrow={true}>
-            Découvrir
+          <Button arrow={true} as={Link} to="/services">
+            Voir les services
           </Button>
         </HeroSection>
       </SectionContainer>
       
-      <SectionContainer>
+      <SectionContainer className="mt-medium">
         <ExpertiseSection />
       </SectionContainer>
 
-      <SectionContainer>
+      <SectionContainer className="mt-large">
         <EnjeuxSection />
       </SectionContainer>
 
@@ -125,6 +245,23 @@ const Home = () => {
 
       <SectionContainer>
         <ZoneIntervention />
+      </SectionContainer>
+
+      {/* Section Actualités */}
+      <SectionContainer>
+        <div style={{ width: '100%', maxWidth: 1200, margin: '0 auto' }}>
+          <Title level={1} align="center" variant="page-title">Nos actus</Title>
+          {actusPreview.map(actu => (
+            <Article
+              key={actu.id}
+              id={actu.id}
+              title={actu.title}
+              date={actu.date}
+              description={actu.description}
+              categories={actu.categories}
+            />
+          ))}
+        </div>
       </SectionContainer>
     </HomeContainer>
   );

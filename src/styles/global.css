@@ -42,6 +42,7 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  cursor: url('../assets/images/cursor.svg') 16 16, auto;
 }
 
 body {
@@ -150,4 +151,8 @@ input:focus {
 
 ::-webkit-scrollbar-track {
   background: transparent;
+}
+
+a, button, [role="button"], input[type="button"], input[type="submit"], [style*="cursor: pointer"], .cursor-pointer, .btn, .button, .dropdown-item, .format-button, .move-block-button, .delete-block, .upload-container, .change-image-button, .leaf-icon, .dropdown-toggle, .link, .OtherButton, .Tag, .StatItem[isButton], .StatusToggle, .content-block, .editable-block a, .block-controls, .format-toolbar-portal, .toolbar-btn, .link-picker-close {
+  cursor: url('../assets/images/cursor-pointer.svg') 16 16, pointer !important;
 }

@@ -3,12 +3,13 @@ import styled from 'styled-components';
 import Title from '../components/Title';
 import Text from '../components/Text';
 import partenairesImage from '../assets/images/partenaires.png';
-import clientsImage from '../assets/images/clients.png';
+import client1 from '../assets/images/client1.svg';
+import client2 from '../assets/images/client2.svg';
 
 const PageContainer = styled.div`
   max-width: 1200px;
   margin: 0 auto;
-  padding: 2rem 2rem 4rem 2rem;
+  padding: 10rem 2rem 4rem 2rem;
 `;
 
 const Header = styled.div`
@@ -66,11 +67,13 @@ const ClientsTitle = styled.h2`
   text-align: center;
 `;
 
-const ClientsImage = styled.img`
-  max-width: 80%;
-  height: auto;
+const ClientsLogosRow = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 3rem;
+  width: 100%;
   margin: 0 auto;
-  display: block;
 `;
 
 const NotreReseau = () => {
@@ -111,7 +114,10 @@ const NotreReseau = () => {
       
       <ClientsSection>
         <ClientsTitle>Ils approuvent notre expertise</ClientsTitle>
-        <ClientsImage src={clientsImage} alt="Nos clients" />
+        <ClientsLogosRow>
+          <img src={client1} alt="Client 1" style={{ height: '80px', width: 'auto' }} />
+          <img src={client2} alt="Client 2" style={{ height: '80px', width: 'auto' }} />
+        </ClientsLogosRow>
       </ClientsSection>
     </PageContainer>
   );

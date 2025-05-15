@@ -23,7 +23,7 @@ const TitleContainer = styled.div`
   margin-bottom: 1rem;
 `;
 
-const SectionDescription = styled.p`
+const Description = styled.p`
   font-size: 1rem;
   color: var(--color-text);
   text-align: center;
@@ -49,6 +49,7 @@ const ValuesSection = () => {
       title: "Valeurs Sociales",
       lottieFile: animation1,
       iconAlt: "Animation représentant des connexions sociales",
+      type: "social",
       items: [
         "Placer l'humain au cœur du processus de transformation: (écoute, implication, co-construction, acteurs du changement)",
         "Protéger des données individuelles"
@@ -58,6 +59,7 @@ const ValuesSection = () => {
       title: "Valeurs écologiques",
       lottieFile: animation2,
       iconAlt: "Animation représentant les valeurs écologiques",
+      type: "eco",
       items: [
         "Infrastructures et équipements responsables (longévité, réparabilité, évolutivité)",
         "Gestion sobre des données (collecte optimisée, conservation raisonnée)",
@@ -69,6 +71,7 @@ const ValuesSection = () => {
       title: "Innovation et pratiques agiles",
       lottieFile: animation3,
       iconAlt: "Animation représentant l'innovation",
+      type: "innovation",
       items: [
         "Des architectures IT évolutives",
         "Approches Data centric",
@@ -80,11 +83,11 @@ const ValuesSection = () => {
   return (
     <SectionContainer>
       <TitleContainer>
-        <Title level={2} align="center">Nos valeurs</Title>
+        <Title level={1} align="center" variant="page-title">Nos valeurs</Title>
       </TitleContainer>
-      <SectionDescription>
+      <Description>
         L'objectif, c'est de fournir du conseil pour des solutions IT responsables qui allient:
-      </SectionDescription>
+      </Description>
       
       <CardsContainer>
         {valuesData.map((card, index) => (
@@ -94,6 +97,7 @@ const ValuesSection = () => {
             lottieFile={card.lottieFile}
             iconAlt={card.iconAlt}
             items={card.items}
+            type={card.type}
           />
         ))}
       </CardsContainer>

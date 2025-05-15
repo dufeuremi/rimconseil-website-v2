@@ -22,6 +22,7 @@ export const theme = {
     },
     greenLight: '#A8E6CF', // Light green
     greenDark: '#56AB2F', // Dark green
+    brand: '#102A3A',
   },
   typography: {
     fontFamily: {
