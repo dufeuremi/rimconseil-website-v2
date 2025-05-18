@@ -51,7 +51,7 @@ import DashboardContact from './pages/dashboard/DashboardContact';
 import DashboardMessages from './pages/dashboard/DashboardMessages';
 
 // Configuration globale
-export const API_BASE_URL = 'http://localhost:4000';
+export const API_BASE_URL = 'https://backend.rimconseil.com';
 
 // Ajouter le token JWT aux headers par défaut s'il existe
 const token = localStorage.getItem('token');
