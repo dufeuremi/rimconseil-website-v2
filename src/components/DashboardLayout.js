@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { SidebarSimple, Sidebar, Article, Files, Gear, Warning, SignOut, CaretDown, CaretRight, ChatText } from '@phosphor-icons/react';
+import { SidebarSimple, Sidebar, Article, Files, Warning, SignOut, ChatText } from '@phosphor-icons/react';
 import axios from 'axios';
 import './DashboardLayout.css';
 import BugReportModal from './BugReportModal';
@@ -11,7 +11,6 @@ import SuccessPopup from './SuccessPopup';
 
 const DashboardLayout = ({ children }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const [activeSection, setActiveSection] = useState(null);
   const [isBugModalOpen, setIsBugModalOpen] = useState(false);
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
@@ -36,16 +35,6 @@ const DashboardLayout = ({ children }) => {
 
   const toggleCollapse = () => {
     setIsCollapsed(!isCollapsed);
-  };
-
-  const toggleSection = (section) => {
-    // Si la sidebar est fermée, l'ouvrir d'abord
-    if (isCollapsed) {
-      setIsCollapsed(false);
-    }
-    
-    // Ensuite basculer la section
-    setActiveSection(activeSection === section ? null : section);
   };
 
   const isActive = (path) => {
@@ -113,40 +102,6 @@ const DashboardLayout = ({ children }) => {
             <Article className="icon" />
             {!isCollapsed && <span>Articles</span>}
           </Link>
-        </nav>
-
-        <nav className="nav-section">
-          <div className={`nav-item ${activeSection === 'personalisation' ? 'active' : ''}`} onClick={() => toggleSection('personalisation')}>
-            <Gear className="icon" />
-            {!isCollapsed && (
-              <>
-                <span>Personnalisation</span>
-                {activeSection === 'personalisation' ? 
-                  <CaretDown className="dropdown-icon" /> : 
-                  <CaretRight className="dropdown-icon" />
-                }
-              </>
-            )}
-          </div>
-          {activeSection === 'personalisation' && !isCollapsed && (
-            <div className="dropdown-content">
-              <Link to="/dashboard/expertises" className={`nav-item ${isActive('/dashboard/expertises') ? 'active' : ''}`} onClick={() => isMobile && setShowMobileMenu(false)}>
-                Expertises
-              </Link>
-              <Link to="/dashboard/services" className={`nav-item ${isActive('/dashboard/services') ? 'active' : ''}`} onClick={() => isMobile && setShowMobileMenu(false)}>
-                Services
-              </Link>
-              <Link to="/dashboard/secteurs" className={`nav-item ${isActive('/dashboard/secteurs') ? 'active' : ''}`} onClick={() => isMobile && setShowMobileMenu(false)}>
-                Secteurs
-              </Link>
-              <Link to="/dashboard/valeurs" className={`nav-item ${isActive('/dashboard/valeurs') ? 'active' : ''}`} onClick={() => isMobile && setShowMobileMenu(false)}>
-                Valeurs
-              </Link>
-              <Link to="/dashboard/contact" className={`nav-item ${isActive('/dashboard/contact') ? 'active' : ''}`} onClick={() => isMobile && setShowMobileMenu(false)}>
-                Contact
-              </Link>
-            </div>
-          )}
         </nav>
 
         <div className="sidebar-footer">

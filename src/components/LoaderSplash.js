@@ -1,61 +1,90 @@
-import React, { useEffect, useState } from 'react';
-import styled, { keyframes } from 'styled-components';
-import logoWhite from '../assets/images/logoWhite.svg';
+import React, { useState, useEffect } from 'react';
+import styled from 'styled-components';
+import Lottie from 'lottie-react';
+import logoAnimation from '../assets/logo_animation.json';
 
-const fadeOut = keyframes`
-  to {
-    opacity: 0;
-    visibility: hidden;
-  }
+const LoaderWrapper = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  opacity: ${props => props.isVisible ? 1 : 0};
+  visibility: ${props => props.isVisible ? 'visible' : 'hidden'};
+  transition: opacity 0.3s ease-out, visibility 0.3s ease-out;
 `;
 
-const SplashScreen = styled.div`
-  position: fixed;
-  z-index: 9999;
-  inset: 0;
-  width: 100vw;
-  height: 100vh;
-  background: #fff;
+const AnimationContainer = styled.div`
+  width: 250px;
+  height: 250px;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: opacity 0.7s;
-  opacity: ${props => (props.hide ? 0 : 1)};
-  pointer-events: ${props => (props.hide ? 'none' : 'all')};
-  animation: ${props => props.hide ? fadeOut : 'none'} 0.7s forwards;
-`;
-
-const Logo = styled.img`
-  width: 120px;
-  height: auto;
-  @media (max-width: 600px) {
-    width: 80px;
-  }
+  transform: translateY(-10%); /* Ajustement fin du centrage vertical */
 `;
 
 const LoaderSplash = () => {
-  const [hide, setHide] = useState(false);
-  const [removed, setRemoved] = useState(false);
+  const [isVisible, setIsVisible] = useState(true);
+  const lottieRef = React.useRef(null);
 
   useEffect(() => {
-    // On attend que le site soit chargé (ici 1.2s, ajustable)
-    const timer = setTimeout(() => setHide(true), 1200);
-    let removeTimer;
-    if (hide) {
-      removeTimer = setTimeout(() => setRemoved(true), 700); // durée du fade
-    }
-    return () => {
-      clearTimeout(timer);
-      if (removeTimer) clearTimeout(removeTimer);
-    };
-  }, [hide]);
+    // Attendre que toutes les images soient chargées
+    const images = document.querySelectorAll('img');
+    let loadedImages = 0;
 
-  if (removed) return null;
+    const handleImageLoad = () => {
+      loadedImages++;
+      if (loadedImages === images.length) {
+        // Attendre un peu plus pour assurer une transition fluide
+        setTimeout(() => {
+          setIsVisible(false);
+        }, 300); // Réduit de 500ms à 300ms
+      }
+    };
+
+    // Si aucune image n'est présente, on cache quand même le loader après un délai
+    if (images.length === 0) {
+      setTimeout(() => {
+        setIsVisible(false);
+      }, 1500); // Réduit de 2000ms à 1500ms
+    } else {
+      images.forEach(img => {
+        if (img.complete) {
+          handleImageLoad();
+        } else {
+          img.addEventListener('load', handleImageLoad);
+        }
+      });
+    }
+
+    return () => {
+      images.forEach(img => {
+        img.removeEventListener('load', handleImageLoad);
+      });
+    };
+  }, []);
 
   return (
-    <SplashScreen hide={hide}>
-      <Logo src={logoWhite} alt="Logo Rim Conseil" />
-    </SplashScreen>
+    <LoaderWrapper isVisible={isVisible}>
+      <AnimationContainer>
+        <Lottie
+          animationData={logoAnimation}
+          loop={false}
+          autoplay={true}
+          lottieRef={lottieRef}
+          onComplete={() => {
+            if (lottieRef.current) {
+              lottieRef.current.goToAndStop(lottieRef.current.getDuration(true), true);
+            }
+          }}
+        />
+      </AnimationContainer>
+    </LoaderWrapper>
   );
 };
 

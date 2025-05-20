@@ -10,7 +10,6 @@ import ValuesSection from '../components/ValuesSection';
 import ClientsSection from '../components/ClientsSection';
 import PartnersSection from '../components/PartnersSection';
 import ZoneIntervention from '../components/ZoneIntervention';
-import Article from '../components/Article';
 import Lottie from 'lottie-react';
 import maskAnimation from '../assets/animations/mask.json';
 import { Link } from 'react-router-dom';
@@ -125,31 +124,6 @@ const Description = styled.p`
 `;
 
 const Home = () => {
-  // Mock d'actualités pour l'exemple (à remplacer par un fetch API si besoin)
-  const actusPreview = [
-    {
-      id: 1,
-      title: "Lancement de notre nouveau service IT responsable",
-      date: "2024-06-01",
-      description: "Découvrez notre nouvelle offre d'accompagnement pour des systèmes d'information plus durables et éthiques.",
-      categories: ["Innovation", "Responsabilité"]
-    },
-    {
-      id: 2,
-      title: "Rim'Conseil au salon Green IT 2024",
-      date: "2024-05-15",
-      description: "Retour sur notre intervention au salon Green IT, où nous avons présenté nos solutions éco-conçues.",
-      categories: ["Événement"]
-    },
-    {
-      id: 3,
-      title: "RGPD : les bonnes pratiques en 2024",
-      date: "2024-04-20",
-      description: "Nos experts partagent les dernières recommandations pour une conformité RGPD durable.",
-      categories: ["RGPD", "Conseil"]
-    }
-  ];
-
   const lottieRef = useRef();
   const directionRef = useRef(1);
   const bgRef = useRef();
@@ -203,7 +177,7 @@ const Home = () => {
               loop={false}
               autoplay
               onComplete={handleLottieComplete}
-              style={{ width: '100vw', height: '100%', transform: 'scaleY(0.165) translateY(2px)', transformOrigin: 'bottom', filter: 'brightness(0) invert(1)' }}
+              style={{ color: 'white', width: '100vw', height: '100%', transform: 'scaleY(0.165) translateY(2px)', transformOrigin: 'bottom', filter: 'brightness(0.0) invert(1)' }}
               rendererSettings={{ preserveAspectRatio: 'none' }}
               speed={0.5}
             />
@@ -245,23 +219,6 @@ const Home = () => {
 
       <SectionContainer>
         <ZoneIntervention />
-      </SectionContainer>
-
-      {/* Section Actualités */}
-      <SectionContainer>
-        <div style={{ width: '100%', maxWidth: 1200, margin: '0 auto' }}>
-          <Title level={1} align="center" variant="page-title">Nos actus</Title>
-          {actusPreview.map(actu => (
-            <Article
-              key={actu.id}
-              id={actu.id}
-              title={actu.title}
-              date={actu.date}
-              description={actu.description}
-              categories={actu.categories}
-            />
-          ))}
-        </div>
       </SectionContainer>
     </HomeContainer>
   );

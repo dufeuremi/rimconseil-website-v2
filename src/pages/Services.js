@@ -120,11 +120,20 @@ const SubPoint = styled.div`
 
 const SubPointTitle = styled.h4`
   font-size: 1.125rem;
-  font-weight: 500;
+  font-weight: 700;
   color: var(--color-secondary);
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.25rem;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
+
+  &::before {
+    content: attr(data-number);
+    color: var(--color-primary);
+    margin-right: 0.75rem;
+    font-size: 1.1rem;
+    min-width: 1.5rem;
+    text-align: left;
+  }
 `;
 
 const NumberBullet = styled.span`
@@ -302,8 +311,7 @@ const Services = () => {
                 <ServiceTitle>{service.title}</ServiceTitle>
                 {service.subPoints.map((sub, subIndex) => (
                   <SubPoint key={subIndex}>
-                    <SubPointTitle>
-                      <NumberBullet>{subIndex + 1}</NumberBullet>
+                    <SubPointTitle data-number={subIndex + 1}>
                       {sub.title}
                     </SubPointTitle>
                     {sub.text && <SubPointText>{sub.text}</SubPointText>}

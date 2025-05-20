@@ -5,11 +5,15 @@ import Article from '../components/Article';
 import ArticleRenderer from '../components/ArticleRenderer';
 import axios from 'axios';
 import { API_BASE_URL } from '../App';
+import { useLocation } from 'react-router-dom';
 
 // Wrapper pour assurer la hauteur minimale
 const PageWrapper = styled.div`
   min-height: calc(100vh - 150px - 50px); /* Ajuster selon la hauteur du header et footer */
-  padding-top: 10rem; /* Ajouter un padding top de 10rem */
+  padding-top: ${props => props.isHomePage ? '0' : '10rem'}; /* Pas de padding top sur la page d'accueil */
+  width: 100%;
+  max-width: ${props => props.isHomePage ? '100%' : '1200px'};
+  margin: 0 auto;
 `;
 
 const ArticlesContainer = styled.div`
@@ -179,6 +183,8 @@ const Actualites = () => {
   const [error, setError] = useState(null);
   const [selectedActu, setSelectedActu] = useState(null);
   const [selectedCategories, setSelectedCategories] = useState([]); // multi-sélection
+  const location = useLocation();
+  const isHomePage = location.pathname === '/';
   
   useEffect(() => {
     const fetchActus = async () => {
@@ -279,9 +285,9 @@ const Actualites = () => {
 
   if (loading) {
     return (
-      <PageWrapper>
+      <PageWrapper isHomePage={isHomePage}>
         <div className="container">
-          <Title variant="page-title" level={2}>Actualités</Title>
+          {!isHomePage && <Title variant="page-title" level={2}>Actualités</Title>}
           <LoadingMessage>Chargement des actualités...</LoadingMessage>
           {renderSkeletons()}
         </div>
@@ -291,9 +297,9 @@ const Actualites = () => {
 
   if (error) {
     return (
-      <PageWrapper>
+      <PageWrapper isHomePage={isHomePage}>
         <div className="container">
-          <Title variant="page-title" level={2}>Actualités</Title>
+          {!isHomePage && <Title variant="page-title" level={2}>Actualités</Title>}
           <ErrorMessage>{error}</ErrorMessage>
         </div>
       </PageWrapper>
@@ -303,7 +309,7 @@ const Actualites = () => {
   // Display the detail view when an actu is selected
   if (selectedActu) {
     return (
-      <PageWrapper>
+      <PageWrapper isHomePage={isHomePage}>
         <div className="container">
           <BackButton onClick={handleBack}>
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -335,9 +341,9 @@ const Actualites = () => {
   }
 
   return (
-    <PageWrapper>
+    <PageWrapper isHomePage={isHomePage}>
       <div className="container">
-        <Title variant="page-title" level={2}>Actualités</Title>
+        {!isHomePage && <Title variant="page-title" level={2}>Actualités</Title>}
         {allCategories.length > 0 && (
           <CategoryFilterContainer>
             {allCategories.map(cat => (

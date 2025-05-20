@@ -13,16 +13,18 @@ const LoginContainer = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  padding: 4rem 2rem 2rem 2rem;
-  background-color: var(--color-background);
+  padding: 8rem 2rem 2rem 2rem;
+  background-image: url('../assets/images/texture.png');
+  background-repeat: repeat;
 `;
 
 const LoginCard = styled.div`
   width: 100%;
   max-width: 400px;
   padding: 2.5rem 2rem;
-  background-color: white;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  background-color: transparent;
+  box-shadow: none;
+  margin-top: 2rem;
 `;
 
 const Logo = styled.img`

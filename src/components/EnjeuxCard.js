@@ -56,7 +56,7 @@ const Title = styled.h3`
 const Description = styled.p`
   font-size: 1rem;
   line-height: 1.6;
-    color: var(--color-text-light);
+  color: rgba(255, 255, 255, 0.95);
   margin: 0;
 `;
 

@@ -4,13 +4,14 @@ import EnjeuxCard from './EnjeuxCard';
 import Title from './Title';
 import { RiArrowLeftSLine, RiArrowRightSLine } from 'react-icons/ri';
 
-const EnjeuxSectionContainer = styled.div`
-  background-color: #102A3A;
+const SectionContainer = styled.section`
+  background-color: #303947;
   background-image: url(${require('../assets/images/texturewaves.jpg')});
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
   background-blend-mode: multiply;
+  filter: brightness(0.8);
   width: 100vw;
   margin-left: calc(-50vw + 50%);
   padding: 0 2rem;
@@ -18,6 +19,8 @@ const EnjeuxSectionContainer = styled.div`
   flex-direction: column;
   justify-content: center;
   padding-bottom: 8rem;
+  padding-top: 5rem;
+  position: relative;
 `;
 
 const TitleContainer = styled.div`
@@ -33,7 +36,7 @@ const TitleContainer = styled.div`
 
 const SectionDescription = styled.p`
   font-size: 1rem;
-  color: var(--color-text-light);
+  color: #fff;
   text-align: center;
   max-width: 700px;
   margin: 0 auto 3rem auto;
@@ -206,12 +209,14 @@ const EnjeuxSection = () => {
   const visibleCards = enjeuxData.slice(startIndex, startIndex + cardsPerPage);
 
   return (
-    <EnjeuxSectionContainer>
+    <SectionContainer>
       <TitleContainer>
-        <Title level={1} align="center" variant="page-title">Vos enjeux</Title>
+        <Title level={2} align="center" variant="section-title" style={{ color: '#fff' }}>
+          Vos enjeux
+        </Title>
       </TitleContainer>
       <SectionDescription>
-        Comprendre vos enjeux pour trouver les meilleures solutions.
+        Nous analysons vos défis spécifiques pour vous proposer des solutions sur mesure et innovantes.
       </SectionDescription>
       
       <CarouselContainer>
@@ -247,7 +252,7 @@ const EnjeuxSection = () => {
           <RiArrowRightSLine size={24} />
         </NavigationButton>
       </CarouselContainer>
-    </EnjeuxSectionContainer>
+    </SectionContainer>
   );
 };
 

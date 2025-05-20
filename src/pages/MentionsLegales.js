@@ -11,13 +11,18 @@ const PageContainer = styled.div`
 
 const ContentSection = styled.div`
   max-width: 1280px;
-  margin: 8rem auto 4rem;
-  padding: 0 5rem;
+  margin: 0 auto 4rem;
+  padding: 8rem 5rem 0;
   text-align: left;
 
   @media (max-width: 768px) {
-    padding: 0 2rem;
+    padding: 8rem 2rem 0;
   }
+`;
+
+const StyledHeader = styled(Header)`
+  margin-bottom: 0;
+  padding: 1rem 0;
 `;
 
 const Section = styled.section`
@@ -49,9 +54,9 @@ const CompanyInfo = styled.div`
 const MentionsLegales = () => {
   return (
     <PageContainer>
-      <Header />
+      <StyledHeader />
       <ContentSection>
-        <Title align="left">Mentions Légales</Title>
+        <Title level={1} align="left">Mentions Légales</Title>
 
         <Section>
           <SectionTitle>1. Présentation du site</SectionTitle>

@@ -5,12 +5,13 @@ import client1 from '../assets/images/client1.svg';
 import client2 from '../assets/images/client2.svg';
 
 const SectionContainer = styled.section`
-  background-color: #102A3A;
+  background-color: #303947;
   background-image: url(${require('../assets/images/texturewaves.jpg')});
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
   background-blend-mode: multiply;
+  filter: brightness(0.8);
   width: 100vw;
   margin-left: calc(-50vw + 50%);
   padding: 0 2rem;
@@ -19,6 +20,9 @@ const SectionContainer = styled.section`
   justify-content: center;
   padding-bottom: 8rem;
   padding-top: 5rem;
+  position: relative;
+  margin-top: 0;
+  margin-bottom: 0;
 `;
 
 const SectionTitle = styled.h2`
@@ -66,8 +70,7 @@ const ClientsSection = () => {
 
   return (
     <SectionContainer>
-      <SectionTitle as="h1" className="page-title">Ils approuvent notre expertise</SectionTitle>
-      
+      <SectionTitle>Ils approuvent notre expertise</SectionTitle>
       <ClientsImageContainer>
         <ClientsLogosRow>
           <img src={client1} alt="Client 1" style={{ height: '80px', width: 'auto' }} />

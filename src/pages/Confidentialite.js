@@ -10,12 +10,12 @@ const PageContainer = styled.div`
 
 const ContentSection = styled.div`
   max-width: 1280px;
-  margin: 4rem auto;
-  padding: 0 5rem;
+  margin: 0 auto 4rem;
+  padding: 8rem 5rem 0;
   text-align: left;
 
   @media (max-width: 768px) {
-    padding: 0 2rem;
+    padding: 8rem 2rem 0;
   }
 `;
 

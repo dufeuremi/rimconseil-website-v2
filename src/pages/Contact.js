@@ -11,7 +11,7 @@ import SuccessPopup from '../components/SuccessPopup';
 import { API_BASE_URL } from '../App';
 
 const ContactContainer = styled.div`
-  padding: 2rem;
+  padding: 8rem 2rem 2rem 2rem;
   max-width: 1200px;
   margin: 0 auto;
 `;
