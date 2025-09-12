@@ -1,10 +1,13 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import styled from 'styled-components';
 import Title from '../components/Title';
 import Text from '../components/Text';
 import partenairesImage from '../assets/images/partenaires.png';
 import client1 from '../assets/images/client1.svg';
-import client2 from '../assets/images/client2.svg';
+import client2 from '../assets/images/client2.png';
+import excelcioLogo from '../assets/images/excelcio_logo.png';
+import axios from 'axios';
+import { API_BASE_URL } from '../App';
 
 const PageContainer = styled.div`
   max-width: 1200px;
@@ -83,6 +86,33 @@ const NotreReseau = () => {
     setImageError(true);
   };
 
+  // Charger le contenu éditable depuis l'API
+  useEffect(() => {
+    const loadEditableContent = async () => {
+      try {
+        const { data } = await axios.get(`${API_BASE_URL}/api/editable-content/reseau`);
+        if (data?.elements?.length) {
+          data.elements.forEach(item => {
+            const element = document.querySelector(item.element_selector);
+            if (element) {
+              if (item.element_type === 'deleted') {
+                element.style.display = 'none';
+                return;
+              }
+              const target = element.querySelector('.editable-target') || element;
+              target.innerHTML = item.content_html;
+            }
+          });
+        }
+      } catch (error) {
+        console.warn('Could not load editable content for reseau page:', error);
+      }
+    };
+
+    const timer = setTimeout(loadEditableContent, 300);
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
     <PageContainer>
       <Header>
@@ -117,6 +147,7 @@ const NotreReseau = () => {
         <ClientsLogosRow>
           <img src={client1} alt="Client 1" style={{ height: '80px', width: 'auto' }} />
           <img src={client2} alt="Client 2" style={{ height: '80px', width: 'auto' }} />
+          <img src={excelcioLogo} alt="Excelcio" style={{ height: '80px', width: 'auto' }} />
         </ClientsLogosRow>
       </ClientsSection>
     </PageContainer>

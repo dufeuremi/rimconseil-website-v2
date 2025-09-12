@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { SidebarSimple, Sidebar, Article, Files, Warning, SignOut, ChatText } from '@phosphor-icons/react';
+import { SidebarSimple, Sidebar, Article, Files, Warning, SignOut, ChatText, Palette } from '@phosphor-icons/react';
 import axios from 'axios';
 import './DashboardLayout.css';
 import BugReportModal from './BugReportModal';
-import logo from '../assets/images/logo.svg';
+import profileBlack from '../assets/images/profile_black.svg';
 import Title from './Title';
 import ConfirmationDialog from './ConfirmationDialog';
 import SuccessPopup from './SuccessPopup';
@@ -73,8 +73,8 @@ const DashboardLayout = ({ children }) => {
       <div className={`left-bar ${isMobile && showMobileMenu ? 'active' : ''}`}>
         <div className="sidebar-header">
           <Link to="/dashboard" className={`logo ${isActive('/dashboard') ? 'active' : ''}`} onClick={() => isMobile && setShowMobileMenu(false)}>
-            <img src={logo} alt="Logo" className="logo-image" />
-            {!isCollapsed && <Title level={3} className="dashboard-title">Dashboard</Title>}
+            <img src={profileBlack} alt="Logo" className="logo-image" style={{ height: '40px', width: 'auto' }} />
+            {!isCollapsed && <Title level={3} className="dashboard-title">Backoffice</Title>}
           </Link>
           {!isMobile && (
             <button className="collapse-btn" onClick={toggleCollapse}>
@@ -87,6 +87,13 @@ const DashboardLayout = ({ children }) => {
           <Link to="/dashboard/messages" className={`nav-item ${isActive('/dashboard/messages') ? 'active' : ''}`} onClick={() => isMobile && setShowMobileMenu(false)}>
             <ChatText className="icon" />
             {!isCollapsed && <span>Messages</span>}
+          </Link>
+        </nav>
+
+        <nav className="nav-section">
+          <Link to="/dashboard/personnalisation" className={`nav-item ${isActive('/dashboard/personnalisation') ? 'active' : ''}`} onClick={() => isMobile && setShowMobileMenu(false)}>
+            <Palette className="icon" />
+            {!isCollapsed && <span>Personnalisation</span>}
           </Link>
         </nav>
 

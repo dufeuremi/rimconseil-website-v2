@@ -1,12 +1,11 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import ValueCard from '../components/ValueCard';
 import Title from '../components/Title';
-
-// Import des animations Lottie
 import animation1 from '../assets/animations/animation2.json';
 import animation2 from '../assets/animations/animation5.json';
 import animation3 from '../assets/animations/animation6.json';
+import { API_BASE_URL } from '../App';
 
 const PageContainer = styled.div`
   max-width: 1200px;
@@ -44,46 +43,75 @@ const Header = styled.div`
 `;
 
 const Valeurs = () => {
-  // Données des cartes de valeurs
   const valuesData = [
     {
       title: "Valeurs Sociales",
       lottieFile: animation1,
-      iconAlt: "Animation représentant des connexions sociales",
-      items: [
-        "Placer l'humain au cœur du processus de transformation: (écoute, implication, co-construction, acteurs du changement)",
-        "Protéger des données individuelles"
-      ]
+      paragraph: "Placer l'humain au cœur du processus de transformation: (écoute, implication, co-construction, acteurs du changement). Protéger des données individuelles."
     },
     {
       title: "Valeurs écologiques",
       lottieFile: animation2,
-      iconAlt: "Animation représentant les valeurs écologiques",
-      items: [
-        "Infrastructures et équipements responsables (longévité, réparabilité, évolutivité)",
-        "Gestion sobre des données (collecte optimisée, conservation raisonnée)",
-        "Optimisation des flux pour réduire l'empreinte énergétique",
-        "Conformité réglementaire sur la durée de vie des données"
-      ]
+      paragraph: "Infrastructures et équipements responsables (longévité, réparabilité, évolutivité). Gestion sobre des données (collecte optimisée, conservation raisonnée). Optimisation des flux pour réduire l'empreinte énergétique. Conformité réglementaire sur la durée de vie des données."
     },
     {
       title: "Innovation et pratiques agiles",
       lottieFile: animation3,
-      iconAlt: "Animation représentant l'innovation",
-      items: [
-        "Des architectures IT évolutives",
-        "Approches Data centric",
-        "Approches agiles et collaboratives"
-      ]
+      paragraph: "Des architectures IT évolutives. Approches Data centric. Approches agiles et collaboratives."
     }
   ];
+
+
+  useEffect(() => {
+    const loadContent = async () => {
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/editable-content/valeurs`);
+        if (!res.ok) return;
+        const data = await res.json();
+        if (data?.elements?.length) {
+          // Load saved paragraph content
+          data.elements.forEach(item => {
+            const m = item.element_selector && item.element_selector.match(/\.valeur-(\d+)-paragraph/);
+            if (m && item.element_type === 'paragraph') {
+              const vIdx = parseInt(m[1], 10);
+              const el = document.querySelector(item.element_selector);
+              if (el) {
+                el.textContent = item.content_html;
+              }
+            }
+          });
+        }
+        data.elements?.forEach(item => {
+          const el = document.querySelector(item.element_selector);
+          if (el) {
+            if (item.element_type === 'deleted') {
+              el.style.display = 'none';
+              return;
+            }
+            
+            if (item.element_type === 'link') {
+              const anchor = el.closest('a') || el;
+              if (anchor && typeof item.content_html === 'string') {
+                anchor.setAttribute('href', item.content_html);
+              }
+            } else {
+              const target = el.querySelector('.editable-target') || el;
+              target.innerHTML = item.content_html;
+            }
+          }
+        });
+      } catch {}
+    };
+    const t = setTimeout(loadContent, 300);
+    return () => clearTimeout(t);
+  }, []);
 
   return (
     <PageContainer>
       <Header>
-        <Title level={1} align="center">Nos valeurs</Title>
+        <Title level={1} align="center" className="valeurs-title">Nos valeurs</Title>
       </Header>
-      <PageDescription>
+      <PageDescription className="valeurs-description">
         L'objectif, c'est de fournir du conseil pour des solutions IT responsables qui allient:
       </PageDescription>
       
@@ -93,8 +121,9 @@ const Valeurs = () => {
             key={index}
             title={card.title}
             lottieFile={card.lottieFile}
-            iconAlt={card.iconAlt}
-            items={card.items}
+            paragraph={card.paragraph}
+            hideDiscoverButton={true}
+            classNamePrefix={`valeur-${index}`}
           />
         ))}
       </CardsContainer>

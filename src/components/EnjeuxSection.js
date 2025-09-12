@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import EnjeuxCard from './EnjeuxCard';
 import Title from './Title';
 import { RiArrowLeftSLine, RiArrowRightSLine } from 'react-icons/ri';
+import axios from 'axios';
+import { API_BASE_URL } from '../App';
 
 const SectionContainer = styled.section`
   background-color: #303947;
@@ -115,14 +117,20 @@ const NavigationButton = styled.button`
   }
 `;
 
-const EnjeuxSection = () => {
+const EnjeuxSection = ({ ctaLinks = {} }) => {
+  const [localCtaLinks, setLocalCtaLinks] = useState(ctaLinks);
+  
+  // Mettre à jour les liens locaux quand les props changent
+  useEffect(() => {
+    setLocalCtaLinks(ctaLinks);
+  }, [ctaLinks]);
+  
   // Données des cartes d'enjeux
   const enjeuxData = [
     {
       title: "Nom de l'enjeux",
       description: "Innovation, respect de l'humain et de l'environnement au cœur de notre approche.",
       link: "/contact",
-      image: "/images/enjeux/enjeu1.jpg", // Image qui pourrait ne pas exister
       details: [
         "Accompagnement personnalisé à chaque étape",
         "Intégration des valeurs humaines dans la transformation",
@@ -134,7 +142,6 @@ const EnjeuxSection = () => {
       title: "Nom de l'enjeux",
       description: "Innovation, respect de l'humain et de l'environnement au cœur de notre approche.",
       link: "/contact",
-      image: "/images/enjeux/enjeu2.jpg", // Image qui pourrait ne pas exister
       details: [
         "Stratégies d'innovation adaptées à votre secteur",
         "Mise en place de processus respectueux",
@@ -146,7 +153,6 @@ const EnjeuxSection = () => {
       title: "Nom de l'enjeux",
       description: "Innovation, respect de l'humain et de l'environnement au cœur de notre approche.",
       link: "/contact",
-      image: "/images/enjeux/enjeu3.jpg", // Image qui pourrait ne pas exister
       details: [
         "Audit complet de l'existant",
         "Proposition de solutions sur mesure",
@@ -158,7 +164,6 @@ const EnjeuxSection = () => {
       title: "Transformation digitale",
       description: "Accompagner votre entreprise dans sa transformation numérique avec des solutions adaptées à vos besoins.",
       link: "/contact",
-      image: "/images/enjeux/enjeu4.jpg", // Image qui pourrait ne pas exister
       details: [
         "Évaluation de la maturité digitale",
         "Conception d'une feuille de route de transformation",
@@ -170,7 +175,6 @@ const EnjeuxSection = () => {
       title: "Sécurité des données",
       description: "Protéger vos informations sensibles avec des stratégies de sécurité robustes et conformes aux réglementations.",
       link: "/contact",
-      image: "/images/enjeux/enjeu5.jpg", // Image qui pourrait ne pas exister
       details: [
         "Audit de sécurité et identification des vulnérabilités",
         "Mise en place de solutions de protection adaptées",
@@ -182,7 +186,6 @@ const EnjeuxSection = () => {
       title: "Performance IT",
       description: "Optimiser vos infrastructures pour une meilleure performance et une réduction des coûts opérationnels.",
       link: "/contact",
-      image: "/images/enjeux/enjeu6.jpg", // Image qui pourrait ne pas exister
       details: [
         "Analyse des performances actuelles",
         "Optimisation des infrastructures et applications",
@@ -208,14 +211,53 @@ const EnjeuxSection = () => {
   const startIndex = currentPage * cardsPerPage;
   const visibleCards = enjeuxData.slice(startIndex, startIndex + cardsPerPage);
 
+  // Inject editable content from API for home section
+  useEffect(() => {
+    const loadEditable = async () => {
+      try {
+        const { data } = await axios.get(`${API_BASE_URL}/api/editable-content/enjeux`);
+        const links = {};
+        
+        (data.elements || []).forEach(item => {
+          const el = document.querySelector(item.element_selector);
+          if (el) {
+            if (item.element_type === 'deleted') {
+              el.style.display = 'none';
+              return;
+            }
+            
+            if (item.element_type === 'link') {
+              // Store CTA links for buttons
+              if (item.element_selector.includes('-cta')) {
+                links[item.element_selector] = item.content_html;
+              }
+              
+              const anchor = el.closest('a') || el;
+              if (anchor && typeof item.content_html === 'string') {
+                anchor.setAttribute('href', item.content_html);
+              }
+            } else {
+              const target = el.querySelector('.editable-target') || el;
+              target.innerHTML = item.content_html;
+            }
+          }
+        });
+        
+        setLocalCtaLinks(prev => ({ ...prev, ...links }));
+      } catch {}
+    };
+    const t = setTimeout(loadEditable, 200);
+    return () => clearTimeout(t);
+  }, [currentPage]);
+
   return (
     <SectionContainer>
       <TitleContainer>
-        <Title level={2} align="center" variant="section-title" style={{ color: '#fff' }}>
+        <Title level={2} align="center" variant="section-title" style={{ color: '#fff' }} className="enjeux-title">
           Vos enjeux
         </Title>
       </TitleContainer>
-      <SectionDescription>
+      <SectionDescription className="enjeux-description">
         Nous analysons vos défis spécifiques pour vous proposer des solutions sur mesure et innovantes.
       </SectionDescription>
       
@@ -236,9 +278,10 @@ const EnjeuxSection = () => {
               title={enjeu.title}
               description={enjeu.description}
               link={enjeu.link}
-              image={enjeu.image}
               details={enjeu.details}
               index={startIndex + index}
+              classNamePrefix={`enjeu-${startIndex + index}`}
+              ctaLinks={localCtaLinks}
             />
           ))}
         </CardsContainer>

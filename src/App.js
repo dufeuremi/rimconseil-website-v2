@@ -49,9 +49,11 @@ import DashboardValeurs from './pages/dashboard/DashboardValeurs';
 import DashboardActualites from './pages/dashboard/DashboardActualites';
 import DashboardContact from './pages/dashboard/DashboardContact';
 import DashboardMessages from './pages/dashboard/DashboardMessages';
+import DashboardPersonnalisation from './pages/dashboard/DashboardPersonnalisation';
+import EditablePage from './components/EditablePage';
 
 // Configuration globale
-export const API_BASE_URL = 'https://backend.rimconseil.com';
+export const API_BASE_URL = 'http://localhost:4000';
 
 // Ajouter le token JWT aux headers par défaut s'il existe
 const token = localStorage.getItem('token');
@@ -111,6 +113,9 @@ const FloatingContactButton = styled(Link)`
 `;
 
 const AppContent = () => {
+  const location = useLocation();
+  const isDashboard = location.pathname.startsWith('/dashboard');
+
   return (
     <div className="App">
       <LoaderSplash />
@@ -188,6 +193,18 @@ const AppContent = () => {
             </DashboardContainer>
           </ProtectedRoute>
         } />
+        <Route path="/dashboard/personnalisation" element={
+          <ProtectedRoute>
+            <DashboardContainer>
+              <DashboardPersonnalisation />
+            </DashboardContainer>
+          </ProtectedRoute>
+        } />
+        <Route path="/dashboard/personnalisation/edit/:pageId" element={
+          <ProtectedRoute>
+            <EditablePage />
+          </ProtectedRoute>
+        } />
         <Route path="/dashboard/pages/:id/edit" element={
           <ProtectedRoute>
             <DashboardContainer>
@@ -263,6 +280,11 @@ const AppContent = () => {
             <Actualites />
           </MainLayout>
         } />
+        <Route path="/actualites/:id" element={
+          <MainLayout>
+            <Actualites />
+          </MainLayout>
+        } />
         <Route path="/articles" element={
           <MainLayout>
             <Articles />
@@ -320,9 +342,11 @@ const AppContent = () => {
           </MainLayout>
         } />
       </Routes>
-      <FloatingContactButton to="/contact" aria-label="Contact">
-        <RiMailLine />
-      </FloatingContactButton>
+      {!isDashboard && (
+        <FloatingContactButton to="/contact" aria-label="Contact">
+          <RiMailLine />
+        </FloatingContactButton>
+      )}
     </div>
   );
 };

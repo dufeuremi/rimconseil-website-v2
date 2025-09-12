@@ -56,7 +56,7 @@ const Logo = styled(Link)`
 `;
 
 const LogoImage = styled.img`
-  height: 24px;
+  height: 32px;
   width: auto;
   margin-right: 0.2rem;
   border-radius: 8px;
@@ -202,13 +202,13 @@ const Header = () => {
         <HeaderContainer>
           <Logo to="/">
             <LogoImage src={transparent ? logoWhiteSrc : logoSrc} alt="Logo Rim Conseil" />
-            <LogoText transparent={transparent}>
+            {/* <LogoText transparent={transparent}>
               Rim'conseil
-            </LogoText>
+            </LogoText> */}
           </Logo>
           <HeaderActions>
             <LinkedInIcon
-              href="https://www.linkedin.com/in/robin-jean-philippe/"
+              href="https://www.linkedin.com/company/rimconseil/"sur 
               target="_blank"
               rel="noopener noreferrer"
               transparent={transparent}

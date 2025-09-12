@@ -19,10 +19,11 @@ const ArticlesContainer = styled.div`
 
 // Style pour les catégories (repris du composant Page)
 const CategoryTag = styled.span`
-  padding: 0.5rem 1rem;
+  padding: 0.25rem 0.75rem;
   font-size: 0.875rem;
   color: var(--color-text);
   border: 1px solid var(--color-quaternary);
+  border-radius: 12px;
   
   &:first-child {
     background-color: var(--color-quaternary);
@@ -195,47 +196,76 @@ const DashboardArticles = () => {
   const [successMessage, setSuccessMessage] = useState('');
   const [deleteId, setDeleteId] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [showErrorPopup, setShowErrorPopup] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
-  useEffect(() => {
-    const fetchArticles = async () => {
-      try {
-        setLoading(true);
-        const response = await axios.get(`${API_BASE_URL}/api/articles`);
-        console.log('Données API complètes:', response);
-        console.log('Données API articles:', response.data);
-        
-        // Afficher le premier article pour déboguer (s'il existe)
-        if (response.data && response.data.length > 0) {
-          console.log('Premier article:', response.data[0]);
-          // Liste toutes les propriétés du premier article
-          console.log('Propriétés du premier article:', Object.keys(response.data[0]));
-        }
-        
-        setArticles(response.data);
-        setError(null);
-      } catch (err) {
-        console.error('Erreur lors de la récupération des articles:', err);
-        
-        // Capturer les détails de l'erreur pour le débogage
-        const errorMessage = err.message || 'Une erreur inconnue est survenue';
-        const statusCode = err.response?.status || 'Pas de code d\'état';
-        const errorData = err.response?.data || {};
-        
-        const detailsMessage = `
+  // Fonction utilitaire pour déterminer le statut en ligne de manière cohérente
+  const getOnlineStatus = (item) => {
+    return Boolean(
+      (item.is_online !== undefined && item.is_online !== null) 
+        ? item.is_online === 1 
+        : (item.isOnline !== undefined && item.isOnline !== null)
+          ? item.isOnline
+          : false
+    );
+  };
+
+  const fetchArticles = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get(`${API_BASE_URL}/api/articles`);
+      
+      // Normaliser le statut isOnline pour chaque article
+      const normalizedArticles = response.data.map(article => ({
+        ...article,
+        // S'assurer que isOnline est un boolean basé sur les données API
+        // Priorité : is_online (si présent) puis isOnline (si présent) puis false par défaut
+        isOnline: getOnlineStatus(article),
+        // Normaliser is_online pour la cohérence
+        is_online: (
+          (article.is_online !== undefined && article.is_online !== null)
+            ? article.is_online
+            : (article.isOnline !== undefined && article.isOnline !== null)
+              ? (article.isOnline ? 1 : 0)
+              : 0
+        )
+      }));
+      
+      console.log('📊 Articles chargés avec statuts normalisés:', 
+        normalizedArticles.map(a => ({ 
+          id: a.id, 
+          titre: a.titre, 
+          isOnline: a.isOnline, 
+          is_online: a.is_online 
+        }))
+      );
+      
+      setArticles(normalizedArticles);
+      setError(null);
+    } catch (err) {
+      console.error('Erreur lors de la récupération des articles:', err);
+      
+      // Capturer les détails de l'erreur pour le débogage
+      const errorMessage = err.message || 'Une erreur inconnue est survenue';
+      const statusCode = err.response?.status || 'Pas de code d\'état';
+      const errorData = err.response?.data || {};
+      
+      const detailsMessage = `
 Message: ${errorMessage}
 Code d'état: ${statusCode}
 URL: ${API_BASE_URL}/api/articles
 Détails: ${JSON.stringify(errorData, null, 2)}
-        `;
-        
-        setError('Impossible de charger les articles. Veuillez réessayer plus tard.');
-        setErrorDetails(detailsMessage);
-        setArticles([]);
-      } finally {
-        setLoading(false);
-      }
-    };
+      `;
+      
+      setError('Impossible de charger les articles. Veuillez réessayer plus tard.');
+      setErrorDetails(detailsMessage);
+      setArticles([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchArticles();
   }, [refreshData]);
 
@@ -309,8 +339,8 @@ Détails: ${JSON.stringify(errorData, null, 2)}
       // Récupérer l'ID du nouvel article
       const newArticleId = response.data.id;
       
-      // Rediriger vers la page d'édition de ce nouvel article
-      navigate(`/dashboard/articles/edit/${newArticleId}`);
+      // Rafraîchir la liste des articles pour afficher le nouvel article
+      fetchArticles();
     } catch (err) {
       console.error('Erreur lors de la création de l\'article:', err);
       
@@ -350,6 +380,95 @@ Détails: ${JSON.stringify(errorData, null, 2)}
     }
   };
 
+  const handleToggleStatus = async (id, newStatus) => {
+    try {
+      // Optimistic update
+      setArticles(prevArticles =>
+        prevArticles.map(article =>
+          article.id === id ? { ...article, isOnline: newStatus, is_online: newStatus ? 1 : 0 } : article
+        )
+      );
+
+      // API call to update status using the correct field name for database
+      // Get the current article data to preserve existing fields
+      const currentArticle = articles.find(article => article.id === id);
+      
+      // Create FormData according to new API documentation
+      const formData = new FormData();
+      
+      // Add required fields to FormData
+      formData.append('date', currentArticle?.date || new Date().toISOString().split('T')[0]);
+      formData.append('titre', currentArticle?.titre || currentArticle?.title || 'Sans titre');
+      formData.append('text_preview', currentArticle?.text_preview || '');
+      
+      // Handle content_json
+      const contentJson = currentArticle?.content_json || {
+        metadata: {
+          type: "articles",
+          id: id,
+          updated_at: new Date().toISOString()
+        },
+        blocks: {}
+      };
+      formData.append('content_json', typeof contentJson === 'string' ? contentJson : JSON.stringify(contentJson));
+      
+      // Handle category
+      const categoryData = Array.isArray(currentArticle?.category) ? currentArticle.category : (currentArticle?.category ? [currentArticle.category] : []);
+      formData.append('category', JSON.stringify(categoryData));
+      
+      // Add image paths if they exist
+      if (currentArticle?.img_path) {
+        formData.append('img_path', currentArticle.img_path);
+      }
+      if (currentArticle?.cover_img_path) {
+        formData.append('cover_img_path', currentArticle.cover_img_path);
+      }
+      
+      // Update the online status
+      formData.append('is_online', newStatus ? '1' : '0');
+      
+      const response = await axios.patch(`${API_BASE_URL}/api/articles/${id}`, formData);
+      
+      // Show success message
+      setSuccessMessage(`Article mis ${newStatus ? 'en ligne' : 'hors ligne'} avec succès`);
+      setShowSuccessPopup(true);
+      
+    } catch (error) {
+      console.error('Error updating article status:', error);
+      
+      // Revert optimistic update on error
+      setArticles(prevArticles =>
+        prevArticles.map(article =>
+          article.id === id ? { ...article, isOnline: !newStatus, is_online: !newStatus ? 1 : 0 } : article
+        )
+      );
+      
+      // Show detailed error message in popup
+      let errorDetails = `Erreur lors de la mise à jour du statut de l'article ${id}:\n\n`;
+      
+      if (error.response) {
+        // Server responded with error status
+        errorDetails += `Code d'erreur: ${error.response.status}\n`;
+        errorDetails += `Message: ${error.response.data?.message || error.response.statusText}\n`;
+        errorDetails += `URL: ${error.response.config?.url}\n`;
+        if (error.response.data?.details) {
+          errorDetails += `Détails: ${JSON.stringify(error.response.data.details, null, 2)}`;
+        }
+      } else if (error.request) {
+        // Network error
+        errorDetails += `Erreur réseau: Impossible de contacter le serveur\n`;
+        errorDetails += `URL tentée: ${API_BASE_URL}/api/articles/${id}\n`;
+        errorDetails += `Vérifiez que le serveur backend est démarré sur le port 4000`;
+      } else {
+        // Other error
+        errorDetails += `Erreur inattendue: ${error.message}`;
+      }
+      
+      setErrorMessage(errorDetails);
+      setShowErrorPopup(true);
+    }
+  };
+
   // Fonction pour générer plusieurs skeleton loaders
   const renderSkeletons = () => {
     return (
@@ -378,6 +497,31 @@ Détails: ${JSON.stringify(errorData, null, 2)}
         onHide={() => setShowSuccessPopup(false)}
         duration={2000} // 2 seconds
       />
+      
+      {/* Error Popup for Toggle Issues */}
+      <ConfirmationDialog
+        isOpen={showErrorPopup}
+        onClose={() => setShowErrorPopup(false)}
+        onConfirm={() => setShowErrorPopup(false)}
+        title="Erreur de mise en ligne"
+        confirmText="OK"
+        cancelText={null}
+        danger={true}
+      >
+        <div style={{ 
+          maxHeight: '400px', 
+          overflowY: 'auto', 
+          whiteSpace: 'pre-wrap', 
+          fontFamily: 'monospace',
+          fontSize: '0.85rem',
+          padding: '1rem',
+          backgroundColor: '#f8f9fa',
+          borderRadius: '4px',
+          border: '1px solid #dee2e6'
+        }}>
+          {errorMessage}
+        </div>
+      </ConfirmationDialog>
       
       {/* Delete Confirmation Dialog */}
       <ConfirmationDialog
@@ -423,6 +567,7 @@ Détails: ${JSON.stringify(errorData, null, 2)}
           onClick={handleAddNewArticle}
           arrow={true}
           variant="secondary"
+          disabled={loading}
         >
           Ajouter un article
         </Button>
@@ -438,7 +583,6 @@ Détails: ${JSON.stringify(errorData, null, 2)}
       ) : (
         <ArticlesContainer>
           {articles.map(article => {
-            console.log('Rendu de l\'article:', article);
             
             // Utiliser le champ category (array) si présent
             let categories = Array.isArray(article.category) ? article.category : [];
@@ -470,6 +614,12 @@ Détails: ${JSON.stringify(errorData, null, 2)}
                 route={article.route || article.id}
                 onDelete={handleDeleteArticle}
                 onEdit={handleEditArticle}
+                isOnline={getOnlineStatus(article)}
+                onToggleStatus={handleToggleStatus}
+                showStatusToggle={true}
+                contentType="articles"
+                isDashboard={true}
+                coverImage={article.cover_img_path || article.img_path || ''}
               />
             );
           })}

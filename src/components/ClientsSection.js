@@ -2,7 +2,9 @@ import React from 'react';
 import styled from 'styled-components';
 import Title from './Title';
 import client1 from '../assets/images/client1.svg';
-import client2 from '../assets/images/client2.svg';
+import client2 from '../assets/images/client2.png';
+import client2white from '../assets/images/client2white.png';
+import excelcioLogoWhite from '../assets/images/excelcio_logo_white.png';
 
 const SectionContainer = styled.section`
   background-color: #303947;
@@ -61,7 +63,7 @@ const FallbackText = styled.div`
   }
 `;
 
-const ClientsSection = () => {
+const ClientsSection = ({ useWhiteLogo = false }) => {
   const [imageError, setImageError] = React.useState(false);
   
   const handleImageError = () => {
@@ -74,7 +76,10 @@ const ClientsSection = () => {
       <ClientsImageContainer>
         <ClientsLogosRow>
           <img src={client1} alt="Client 1" style={{ height: '80px', width: 'auto' }} />
-          <img src={client2} alt="Client 2" style={{ height: '80px', width: 'auto' }} />
+          <img src={useWhiteLogo ? client2white : client2} alt="Client 2" style={{ height: '80px', width: 'auto' }} />
+          {useWhiteLogo && (
+            <img src={excelcioLogoWhite} alt="Excelcio" style={{ height: '80px', width: 'auto' }} />
+          )}
         </ClientsLogosRow>
         <FallbackText className={imageError ? 'visible' : ''}>
           Nos clients incluent des entreprises de divers secteurs qui nous font confiance

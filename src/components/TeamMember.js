@@ -110,8 +110,19 @@ const TeamMember = ({
   phone, 
   linkedin, 
   location,
-  image
+  image,
+  classNamePrefix = '',
+  renderName,
+  renderRole,
+  renderBioItem
 }) => {
+  const nameEl = (
+    <MemberName className={classNamePrefix ? `${classNamePrefix}-name` : ''}>{name}</MemberName>
+  );
+  const roleEl = (
+    <MemberRole className={classNamePrefix ? `${classNamePrefix}-role` : ''}>{role}</MemberRole>
+  );
+
   return (
     <MemberCard>
       <ProfileImageContainer>
@@ -131,16 +142,19 @@ const TeamMember = ({
       </ProfileImageContainer>
       
       <MemberInfo>
-        <MemberName>{name}</MemberName>
-        <MemberRole>{role}</MemberRole>
+        {typeof renderName === 'function' ? renderName(nameEl) : nameEl}
+        {typeof renderRole === 'function' ? renderRole(roleEl) : roleEl}
         
         <MemberBio>
           {typeof bio === 'string' ? (
-            <Text variant="body">{bio}</Text>
+            typeof renderBioItem === 'function'
+              ? renderBioItem(<Text variant="body" className={classNamePrefix ? `${classNamePrefix}-bio-0` : ''}>{bio}</Text>, 0)
+              : <Text variant="body" className={classNamePrefix ? `${classNamePrefix}-bio-0` : ''}>{bio}</Text>
           ) : (
-            bio.map((paragraph, index) => (
-              <Text variant="body" key={index}>{paragraph}</Text>
-            ))
+            (bio || []).map((paragraph, index) => {
+              const defaultP = <Text variant="body" key={index} className={classNamePrefix ? `${classNamePrefix}-bio-${index}` : ''}>{paragraph}</Text>;
+              return typeof renderBioItem === 'function' ? renderBioItem(defaultP, index) : defaultP;
+            })
           )}
         </MemberBio>
         

@@ -3,9 +3,10 @@ import styled, { keyframes } from 'styled-components';
 import Title from '../components/Title';
 import Article from '../components/Article';
 import ArticleRenderer from '../components/ArticleRenderer';
+import CoverImageDisplay from '../components/CoverImageDisplay';
 import axios from 'axios';
 import { API_BASE_URL } from '../App';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useParams, useNavigate } from 'react-router-dom';
 
 // Wrapper pour assurer la hauteur minimale
 const PageWrapper = styled.div`
@@ -37,7 +38,7 @@ const SkeletonArticle = styled.div`
   background: linear-gradient(to right, #f6f7f8 8%, #edeef1 18%, #f6f7f8 33%);
   background-size: 800px 104px;
   animation: ${shimmer} 1.5s infinite linear;
-  border-radius: 4px;
+  border-radius: 0;
   padding: 1.5rem;
   height: 160px;
   position: relative;
@@ -163,8 +164,8 @@ const CategoryFilterTag = styled.button`
   background: ${({ active }) => active ? 'var(--color-primary)' : 'var(--color-quaternary)'};
   color: ${({ active }) => active ? 'white' : 'var(--color-secondary)'};
   border: 1px solid var(--color-quaternary);
-  border-radius: 0;
-  padding: 0.35em 1.1em;
+  border-radius: 12px;
+  padding: 0.25rem 0.75rem;
   font-size: 1em;
   font-weight: ${({ active }) => active ? 700 : 400};
   cursor: pointer;
@@ -178,42 +179,94 @@ const CategoryFilterTag = styled.button`
 `;
 
 const Actualites = () => {
-  const [actus, setActus] = useState([]);
+  const [actusData, setActusData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedActu, setSelectedActu] = useState(null);
-  const [selectedCategories, setSelectedCategories] = useState([]); // multi-sélection
-  const location = useLocation();
-  const isHomePage = location.pathname === '/';
+  const [selectedCategories, setSelectedCategories] = useState([]);
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const isHomePage = window.location.pathname === '/';
+
+  // Fonction utilitaire pour déterminer le statut en ligne de manière cohérente
+  const getOnlineStatus = (item) => {
+    return Boolean(
+      (item.is_online !== undefined && item.is_online !== null) 
+        ? item.is_online === 1 
+        : (item.isOnline !== undefined && item.isOnline !== null)
+          ? item.isOnline
+          : false
+    );
+  };
   
   useEffect(() => {
     const fetchActus = async () => {
       try {
         setLoading(true);
+        
+        // Récupérer toutes les actualités
         const response = await axios.get(`${API_BASE_URL}/api/actus`);
-        setActus(response.data);
+        const actusData = response.data;
+        
+        // Filtrer pour n'afficher que les actualités en ligne en public
+        const onlineActus = actusData.filter(actu => {
+          // Si isOnline est défini, l'utiliser
+          if (actu.isOnline !== undefined) {
+            return actu.isOnline === true;
+          }
+          // Sinon utiliser is_online (0 = hors ligne, 1 = en ligne)
+          if (actu.is_online !== undefined) {
+            return actu.is_online === 1;
+          }
+          // Par défaut, considérer comme en ligne si aucun champ n'est défini
+          return true;
+        });
+        setActusData(onlineActus);
+        
+        // Si un ID est spécifié dans l'URL, chercher l'actualité correspondante
+        if (id) {
+          const actu = onlineActus.find(a => a.id == id || a.route == id);
+          if (actu) {
+            setSelectedActu(actu);
+          } else {
+            setError(`Actualité avec l'identifiant "${id}" introuvable ou non publiée.`);
+          }
+        } else {
+          setSelectedActu(null);
+        }
+        
         setError(null);
       } catch (err) {
         console.error('Erreur lors de la récupération des actualités:', err);
         setError('Impossible de charger les actualités. Veuillez réessayer plus tard.');
-        setActus([]);
+        setActusData([]);
       } finally {
         setLoading(false);
       }
     };
 
     fetchActus();
-  }, []);
+  }, [id]); // Réexécuter lorsque l'ID dans l'URL change
 
   const handleActuClick = (id) => {
-    const actu = actus.find(a => a.id === id);
+    const actu = actusData.find(a => a.id === id);
     if (actu) {
-      setSelectedActu(actu);
+      // Naviguer vers la page de l'actualité avec son ID
+      navigate(`/actualites/${actu.id}`);
     }
   };
   
   const handleBack = () => {
-    setSelectedActu(null);
+    // Retourner à la liste des actualités
+    navigate('/actualites');
+  };
+  
+  const handleToggleStatus = (id, isOnline) => {
+    setActusData(prevActus =>
+      prevActus.map(actu =>
+        actu.id === id ? { ...actu, isOnline } : actu
+      )
+    );
   };
   
   // Format JSON prettily
@@ -266,13 +319,13 @@ const Actualites = () => {
 
   // Récupérer toutes les catégories uniques (array de string)
   const allCategories = Array.from(new Set(
-    actus.flatMap(a => Array.isArray(a.category) ? a.category : []).filter(Boolean)
+    actusData.flatMap(a => Array.isArray(a.category) ? a.category : []).filter(Boolean)
   ));
 
   // Filtrer les actus selon les catégories sélectionnées
   const filteredActus = selectedCategories.length > 0
-    ? actus.filter(a => Array.isArray(a.category) && a.category.some(cat => selectedCategories.includes(cat)))
-    : actus;
+    ? actusData.filter(a => Array.isArray(a.category) && a.category.some(cat => selectedCategories.includes(cat)))
+    : actusData;
 
   // Gestion du clic sur un tag
   const handleCategoryClick = (cat) => {
@@ -327,6 +380,12 @@ const Actualites = () => {
             )}
           </DetailHeader>
           
+          {selectedActu.img_path && (
+            <CoverImageDisplay
+              src={selectedActu.img_path}
+            />
+          )}
+          
           {selectedActu.text_preview && (
             <p style={{ fontStyle: 'italic', color: 'var(--color-text-light)', marginBottom: '2rem' }}>
             </p>
@@ -374,7 +433,10 @@ const Actualites = () => {
                   date={actu.date || 'Date inconnue'}
                   description={actu.text_preview || actu.description || actu.content || 'Aucune description'}
                   categories={categories}
-                  onEdit={(id) => setSelectedActu(actus.find(a => a.id === id))}
+                  route={actu.route || actu.id}
+                  isOnline={getOnlineStatus(actu)}
+                  contentType="actualites"
+                  coverImage={actu.cover_img_path || actu.img_path || ''}
                 />
               );
             })}

@@ -13,7 +13,9 @@ import clearCAnimation from '../assets/animations/clearC.json';
 // Import de l'image des partenaires
 import partenairesImage from '../assets/images/clients.png';
 import client1 from '../assets/images/client1.svg';
-import client2 from '../assets/images/client2.svg';
+import client2 from '../assets/images/client2.png';
+import { API_BASE_URL } from '../App';
+import excelcioLogo from '../assets/images/excelcio_logo.png';
 
 // Styled Components
 const PageContainer = styled.div`
@@ -177,6 +179,10 @@ const SubPointTitle = styled.h4`
     min-width: 1.5rem; /* Largeur fixe pour aligner correctement */
     text-align: left;
   }
+
+  &:empty {
+    display: none;
+  }
 `;
 
 const SubPointText = styled(Text)`
@@ -186,9 +192,13 @@ const SubPointText = styled(Text)`
   margin-left: 0; /* Supprimé la marge à gauche pour aligner sur la gauche */
   margin-bottom: 1.75rem; /* Espacement entre les points */
   max-width: 90%; /* Limiter la largeur pour améliorer la lisibilité */
+
+  &:empty {
+    display: none;
+  }
 `;
 
-// Data for Expertise Blocks
+// Data for Expertise Blocks - Synchronisé avec EditableExpertises
 const expertiseData = [
   {
     number: '1',
@@ -273,8 +283,7 @@ const AnimationContainer = styled.div`
 
 // Fonction pour obtenir le caractère de numéro encerclé
 const getCircledNumber = (num) => {
-  const circledNumbers = ['①', '②', '③', '④', '⑤', '⑥', '⑦', '⑧', '⑨'];
-  return circledNumbers[num] || `${num + 1}`;
+  return '»';
 };
 
 // Composant d'expertise avec animation
@@ -314,15 +323,15 @@ const ExpertiseBlockWithAnimation = ({ expertise, index }) => {
     >
       <ExpertiseNumber>{expertise.number}</ExpertiseNumber>
       <ExpertiseContent>
-        <ExpertiseTitle>{expertise.title}</ExpertiseTitle>
+        <ExpertiseTitle className={`expertise-${index}-title`}>{expertise.title}</ExpertiseTitle>
         {expertise.subPoints.map((sub, subIndex) => (
           <SubPoint key={subIndex}>
-            <SubPointTitle data-number={getCircledNumber(subIndex)}>{sub.title}</SubPointTitle>
-            <SubPointText>{sub.text}</SubPointText>
+            <SubPointTitle className={`expertise-${index}-subpoint-${subIndex}`} data-number={getCircledNumber(subIndex)}>{sub.title || ''}</SubPointTitle>
+            <SubPointText className={`expertise-${index}-subtext-${subIndex}`}>{sub.text || ''}</SubPointText>
           </SubPoint>
         ))}
       </ExpertiseContent>
-      <AnimationContainer isHovered={isHovered}>
+      <AnimationContainer>
         <Lottie
           lottieRef={lottieRef}
           animationData={getAnimationData()}
@@ -369,30 +378,113 @@ const ClientsLogosRow = styled.div`
 `;
 
 const Expertises = () => {
+  const [expertiseData, setExpertiseData] = useState({
+    0: "Alignement de vos stratégies IT (DATA, ERP, ...) avec les perspectives d'évolutions de l'activité de votre structure et de son écosystème. Nous analysons votre contexte métier pour garantir que vos systèmes d'information soutiennent efficacement vos objectifs stratégiques et votre croissance. Définition des référentiels structurants et leurs modes de gouvernance. Nous élaborons des cadres de référence solides qui standardisent vos processus IT et établissons des règles claires pour la prise de décision et la gestion des systèmes. Transformation organisationnelle. Nous vous accompagnons dans la refonte de vos structures organisationnelles pour les adapter aux nouveaux enjeux digitaux, en tenant compte de l'aspect humain et des résistances au changement.",
+    1: "Architecture d'entreprise, applicative et de données. Nous concevons des architectures robustes qui alignent systèmes informatiques, processus métiers et stratégie globale, garantissant cohérence et performance de votre écosystème IT. Onprem / Cloud / Hybrid. Nous vous guidons dans le choix et l'implémentation de solutions adaptées à vos besoins, qu'elles soient sur site, dans le cloud ou hybrides, en tenant compte des contraintes de sécurité, performance et coût. Move to Cloud. Nous orchestrons votre migration vers le cloud en minimisant les risques et perturbations, tout en maximisant les bénéfices liés à la flexibilité, l'évolutivité et l'optimisation des coûts.",
+    2: "Audit applicatif. Nous évaluons en profondeur vos applications existantes pour identifier les forces, faiblesses et opportunités d'amélioration, vous aidant à prendre des décisions éclairées sur l'évolution de votre patrimoine applicatif. Analyse des flux. Nous cartographions et optimisons les flux de données entre vos systèmes pour éliminer les redondances, réduire les latences et améliorer la fiabilité de vos échanges d'information. Définition de Référentiel MDM. Nous établissons une gestion centralisée de vos données de référence (Master Data Management) pour garantir leur unicité, cohérence et fiabilité à travers tous vos systèmes. Modélisation Data. Nous concevons des modèles de données adaptés à vos besoins métiers, facilitant l'exploitation et l'analyse de vos données, tout en préparant le terrain pour l'intelligence artificielle et le machine learning. Analyse des Pain Points. Nous identifions et adressons les points de friction dans vos processus et systèmes pour améliorer l'expérience utilisateur et l'efficacité opérationnelle."
+  });
+
+  useEffect(() => {
+    const loadContent = async () => {
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/editable-content/expertises`);
+        if (!res.ok) return;
+        const data = await res.json();
+        
+        console.log('🔍 API Data loaded:', data); // Debug
+        
+        if (data?.elements?.length) {
+          
+          data.elements?.forEach(item => {
+            console.log('📝 Processing element:', item.element_selector, item.element_type); // Debug
+            
+            const el = document.querySelector(item.element_selector);
+            if (el) {
+              if (item.element_type === 'deleted') {
+                el.style.display = 'none';
+                return;
+              }
+              
+              if (item.element_type === 'link') {
+                const anchor = el.closest('a') || el;
+                if (anchor && typeof item.content_html === 'string') {
+                  anchor.setAttribute('href', item.content_html);
+                }
+              } else {
+                // Mise à jour améliorée pour la page publique
+                const target = el.querySelector('.editable-target') || el;
+                if (target) {
+                  target.innerHTML = item.content_html;
+                } else {
+                  // Si pas de .editable-target, mettre à jour directement l'élément
+                  el.innerHTML = item.content_html;
+                }
+              }
+            }
+            
+            // Load paragraph content
+            const m = item.element_selector && item.element_selector.match(/\.expertise-(\d+)-paragraph/);
+            if (m && item.element_type === 'paragraph') {
+              const eIdx = parseInt(m[1], 10);
+              if (eIdx >= 0 && eIdx < 3) {
+                setExpertiseData(prev => ({ ...prev, [eIdx]: item.content_html }));
+              }
+            }
+          });
+          
+        }
+      } catch (error) {
+        console.warn('Could not load editable content for expertises:', error);
+      }
+    };
+    const t = setTimeout(loadContent, 300);
+    
+    // Recharger le contenu après un délai plus long pour s'assurer que le DOM est prêt
+    const t2 = setTimeout(loadContent, 1000);
+    
+    return () => {
+      clearTimeout(t);
+      clearTimeout(t2);
+    };
+  }, []);
+
   return (
     <PageContainer>
       <Section>
-        <SectionTitle level={1}>Notre approche</SectionTitle>
-        <ApproachText>
+        <SectionTitle level={1} className="expertises-approach-title">Notre approche</SectionTitle>
+        <ApproachText className="expertises-approach-text">
           Les technologies sont des moyens, des facilitateurs et des déclencheurs de transformations et de puissants leviers de développement et d'innovations. Elles nécessitent d'être analysées à l'aune de vos enjeux et de votre stratégie afin d'être pleinement appropriée. Leur adoption et leur intégration doivent se faire dans un cadre d'architecture permettant de maîtriser les impacts techniques, organisationnels, humains et financiers.
         </ApproachText>
         <ApproachDiagram src={approcheSvg} alt="Schéma de notre approche" />
       </Section>
 
       <Section>
-        <SectionTitle level={1}>Nos domaines d'expertise</SectionTitle>
+        <SectionTitle level={1} className="expertises-section-title">Nos domaines d'expertise</SectionTitle>
         <ExpertiseGrid>
-          {expertiseData.map((exp, index) => (
-            <ExpertiseBlockWithAnimation key={index} expertise={exp} index={index} />
+          {[0, 1, 2].map((index) => (
+            <ExpertiseBlock key={index}>
+              <ExpertiseNumber>{index + 1}</ExpertiseNumber>
+              <ExpertiseContent>
+                <ExpertiseTitle className={`expertise-${index}-title`}>
+                  {index === 0 ? 'Stratégie IT' : index === 1 ? 'Architecture IT' : 'Analyse de donnée'}
+                </ExpertiseTitle>
+                <div style={{ textAlign: 'left', width: '100%', marginBottom: '1rem' }}>
+                  <p className={`expertise-${index}-paragraph`} style={{ color: 'var(--color-text)', fontSize: '1rem', lineHeight: 1.6, margin: 0, padding: 0 }}>
+                    {expertiseData[index] || ''}
+                  </p>
+                </div>
+              </ExpertiseContent>
+            </ExpertiseBlock>
           ))}
         </ExpertiseGrid>
       </Section>
 
       <PartnersSection>
-        <PartnersTitle>Ils approuvent notre expertise</PartnersTitle>
+        <PartnersTitle className="expertises-partners-title">Ils approuvent notre expertise</PartnersTitle>
         <ClientsLogosRow>
           <img src={client1} alt="Client 1" style={{ height: '80px', width: 'auto' }} />
           <img src={client2} alt="Client 2" style={{ height: '80px', width: 'auto' }} />
+          <img src={excelcioLogo} alt="Excelcio" style={{ height: '80px', width: 'auto' }} />
         </ClientsLogosRow>
       </PartnersSection>
     </PageContainer>

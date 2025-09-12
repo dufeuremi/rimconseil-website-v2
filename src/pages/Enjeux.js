@@ -1,8 +1,10 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import styled from 'styled-components';
 import EnjeuxCard from '../components/EnjeuxCard';
 import Title from '../components/Title';
 import { RiArrowLeftSLine, RiArrowRightSLine } from 'react-icons/ri';
+import axios from 'axios';
+import { API_BASE_URL } from '../App';
 
 const PageContainer = styled.div`
   max-width: 1200px;
@@ -96,43 +98,45 @@ const NavigationButton = styled.button`
 `;
 
 const Enjeux = () => {
+  const [ctaLinks, setCtaLinks] = useState({});
+  
   // Données des cartes d'enjeux
   const enjeuxData = [
     {
       title: "Nom de l'enjeux",
       description: "Innovation, respect de l'humain et de l'environnement au cœur de notre approche.",
       link: "/contact",
-      image: "/images/enjeux/enjeu1.jpg" // Image qui pourrait ne pas exister
+      image: "/images/enjeux/enjeu1.jpg"
     },
     {
       title: "Nom de l'enjeux",
       description: "Innovation, respect de l'humain et de l'environnement au cœur de notre approche.",
       link: "/contact",
-      image: "/images/enjeux/enjeu2.jpg" // Image qui pourrait ne pas exister
+      image: "/images/enjeux/enjeu2.jpg"
     },
     {
       title: "Nom de l'enjeux",
       description: "Innovation, respect de l'humain et de l'environnement au cœur de notre approche.",
       link: "/contact",
-      image: "/images/enjeux/enjeu3.jpg" // Image qui pourrait ne pas exister
+      image: "/images/enjeux/enjeu3.jpg"
     },
     {
       title: "Transformation digitale",
       description: "Accompagner votre entreprise dans sa transformation numérique avec des solutions adaptées à vos besoins.",
       link: "/contact",
-      image: "/images/enjeux/enjeu4.jpg" // Image qui pourrait ne pas exister
+      image: "/images/enjeux/enjeu4.jpg"
     },
     {
       title: "Sécurité des données",
       description: "Protéger vos informations sensibles avec des stratégies de sécurité robustes et conformes aux réglementations.",
       link: "/contact",
-      image: "/images/enjeux/enjeu5.jpg" // Image qui pourrait ne pas exister
+      image: "/images/enjeux/enjeu5.jpg"
     },
     {
       title: "Performance IT",
       description: "Optimiser vos infrastructures pour une meilleure performance et une réduction des coûts opérationnels.",
       link: "/contact",
-      image: "/images/enjeux/enjeu6.jpg" // Image qui pourrait ne pas exister
+      image: "/images/enjeux/enjeu6.jpg"
     }
   ];
 
@@ -152,12 +156,51 @@ const Enjeux = () => {
   const startIndex = currentPage * cardsPerPage;
   const visibleCards = enjeuxData.slice(startIndex, startIndex + cardsPerPage);
 
+  // Inject editable content from API
+  useEffect(() => {
+    const loadEditable = async () => {
+      try {
+        const { data } = await axios.get(`${API_BASE_URL}/api/editable-content/enjeux`);
+        const links = {};
+        
+        (data.elements || []).forEach(item => {
+          const el = document.querySelector(item.element_selector);
+          if (el) {
+            if (item.element_type === 'deleted') {
+              el.style.display = 'none';
+              return;
+            }
+            
+            if (item.element_type === 'link') {
+              // Store CTA links for buttons
+              if (item.element_selector.includes('-cta')) {
+                links[item.element_selector] = item.content_html;
+              }
+              
+              const anchor = el.closest('a') || el;
+              if (anchor && typeof item.content_html === 'string') {
+                anchor.setAttribute('href', item.content_html);
+              }
+            } else {
+              const target = el.querySelector('.editable-target') || el;
+              target.innerHTML = item.content_html;
+            }
+          }
+        });
+        
+        setCtaLinks(links);
+      } catch {}
+    };
+    const t = setTimeout(loadEditable, 400);
+    return () => clearTimeout(t);
+  }, []);
+
   return (
     <PageContainer>
       <TitleContainer>
-        <Title level={1} align="center">Vos enjeux</Title>
+        <Title level={1} align="center" className="enjeux-title">Vos enjeux</Title>
       </TitleContainer>
-      <PageDescription>
+      <PageDescription className="enjeux-description">
         Comprendre vos enjeux pour trouver les meilleures solutions.
       </PageDescription>
       
@@ -180,6 +223,8 @@ const Enjeux = () => {
               link={enjeu.link}
               image={enjeu.image}
               index={startIndex + index}
+              classNamePrefix={`enjeu-${startIndex + index}`}
+              ctaLinks={ctaLinks}
             />
           ))}
         </CardsContainer>

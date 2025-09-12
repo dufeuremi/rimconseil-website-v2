@@ -19,10 +19,11 @@ const ArticlesContainer = styled.div`
 
 // Style pour les catégories (repris du composant Page)
 const CategoryTag = styled.span`
-  padding: 0.5rem 1rem;
+  padding: 0.25rem 0.75rem;
   font-size: 0.875rem;
   color: var(--color-text);
   border: 1px solid var(--color-quaternary);
+  border-radius: 12px;
   
   &:first-child {
     background-color: var(--color-quaternary);
@@ -195,47 +196,76 @@ const DashboardActualites = () => {
   const [successMessage, setSuccessMessage] = useState('');
   const [deleteId, setDeleteId] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [showErrorPopup, setShowErrorPopup] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
-  useEffect(() => {
-    const fetchActus = async () => {
-      try {
-        setLoading(true);
-        const response = await axios.get(`${API_BASE_URL}/api/actus`);
-        console.log('Données API complètes:', response);
-        console.log('Données API actus:', response.data);
-        
-        // Afficher le premier actus pour déboguer (s'il existe)
-        if (response.data && response.data.length > 0) {
-          console.log('Premier actus:', response.data[0]);
-          // Liste toutes les propriétés du premier actus
-          console.log('Propriétés du premier actus:', Object.keys(response.data[0]));
-        }
-        
-        setActus(response.data);
-        setError(null);
-      } catch (err) {
-        console.error('Erreur lors de la récupération des actus:', err);
-        
-        // Capturer les détails de l'erreur pour le débogage
-        const errorMessage = err.message || 'Une erreur inconnue est survenue';
-        const statusCode = err.response?.status || 'Pas de code d\'état';
-        const errorData = err.response?.data || {};
-        
-        const detailsMessage = `
+  // Fonction utilitaire pour déterminer le statut en ligne de manière cohérente
+  const getOnlineStatus = (item) => {
+    return Boolean(
+      (item.is_online !== undefined && item.is_online !== null) 
+        ? item.is_online === 1 
+        : (item.isOnline !== undefined && item.isOnline !== null)
+          ? item.isOnline
+          : false
+    );
+  };
+
+  const fetchActus = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get(`${API_BASE_URL}/api/actus`);
+      
+      // Normaliser le statut isOnline pour chaque actualité
+      const normalizedActus = response.data.map(actu => ({
+        ...actu,
+        // S'assurer que isOnline est un boolean basé sur les données API
+        // Priorité : is_online (si présent) puis isOnline (si présent) puis false par défaut
+        isOnline: getOnlineStatus(actu),
+        // Normaliser is_online pour la cohérence
+        is_online: (
+          (actu.is_online !== undefined && actu.is_online !== null)
+            ? actu.is_online
+            : (actu.isOnline !== undefined && actu.isOnline !== null)
+              ? (actu.isOnline ? 1 : 0)
+              : 0
+        )
+      }));
+      
+      console.log('📊 Actualités chargées avec statuts normalisés:', 
+        normalizedActus.map(a => ({ 
+          id: a.id, 
+          titre: a.titre, 
+          isOnline: a.isOnline, 
+          is_online: a.is_online 
+        }))
+      );
+      
+      setActus(normalizedActus);
+      setError(null);
+    } catch (err) {
+      console.error('Erreur lors de la récupération des actualités:', err);
+      
+      // Capturer les détails de l'erreur pour le débogage
+      const errorMessage = err.message || 'Une erreur inconnue est survenue';
+      const statusCode = err.response?.status || 'Pas de code d\'état';
+      const errorData = err.response?.data || {};
+      
+      const detailsMessage = `
 Message: ${errorMessage}
-Code d\'état: ${statusCode}
+Code d'état: ${statusCode}
 URL: ${API_BASE_URL}/api/actus
 Détails: ${JSON.stringify(errorData, null, 2)}
-        `;
-        
-        setError('Impossible de charger les actus. Veuillez réessayer plus tard.');
-        setErrorDetails(detailsMessage);
-        setActus([]);
-      } finally {
-        setLoading(false);
-      }
-    };
+      `;
+      
+      setError('Impossible de charger les actualités. Veuillez réessayer plus tard.');
+      setErrorDetails(detailsMessage);
+      setActus([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchActus();
   }, [refreshData]);
 
@@ -297,8 +327,8 @@ Détails: ${JSON.stringify(errorData, null, 2)}
       // Récupérer l'ID de la nouvelle actu
       const newActuId = response.data.id;
       
-      // Rediriger vers la page d'édition de cette nouvelle actu
-      navigate(`/dashboard/actualites/edit/${newActuId}`);
+      // Rafraîchir la liste des actualités pour afficher la nouvelle actu
+      fetchActus();
     } catch (err) {
       console.error('Erreur lors de la création de l\'actualité:', err);
       setErrorDialogMessage('Impossible de créer la nouvelle actualité. Veuillez réessayer.');
@@ -324,6 +354,95 @@ Détails: ${JSON.stringify(errorData, null, 2)}
       navigate(url);
     } else {
       console.error('Navigation function is not available!');
+    }
+  };
+
+  const handleToggleStatus = async (id, newStatus) => {
+    try {
+      // Optimistic update
+      setActus(prevActus =>
+        prevActus.map(actu =>
+          actu.id === id ? { ...actu, isOnline: newStatus, is_online: newStatus ? 1 : 0 } : actu
+        )
+      );
+
+      // API call to update status using the correct field name for database
+      // Get the current actualité data to preserve existing fields
+      const currentActu = actus.find(actu => actu.id === id);
+      
+      // Create FormData according to new API documentation
+      const formData = new FormData();
+      
+      // Add required fields to FormData
+      formData.append('titre', currentActu?.titre || currentActu?.title || 'Sans titre');
+      formData.append('text_preview', currentActu?.text_preview || '');
+      formData.append('date', currentActu?.date || new Date().toISOString().split('T')[0]);
+      
+      // Handle content_json
+      const contentJson = currentActu?.content_json || JSON.stringify({
+        metadata: {
+          type: "actus",
+          id: id,
+          updated_at: new Date().toISOString()
+        },
+        blocks: {}
+      });
+      formData.append('content_json', typeof contentJson === 'string' ? contentJson : JSON.stringify(contentJson));
+      
+      // Handle category
+      const categoryData = Array.isArray(currentActu?.category) ? currentActu.category : (currentActu?.category ? [currentActu.category] : []);
+      formData.append('category', JSON.stringify(categoryData));
+      
+      // Add image paths if they exist
+      if (currentActu?.img_path) {
+        formData.append('img_path', currentActu.img_path);
+      }
+      if (currentActu?.cover_img_path) {
+        formData.append('cover_img_path', currentActu.cover_img_path);
+      }
+      
+      // Update the online status
+      formData.append('is_online', newStatus ? '1' : '0');
+      
+      const response = await axios.patch(`${API_BASE_URL}/api/actus/${id}`, formData);
+      
+      // Show success message
+      setSuccessMessage(`Actualité mise ${newStatus ? 'en ligne' : 'hors ligne'} avec succès`);
+      setShowSuccessPopup(true);
+      
+    } catch (error) {
+      console.error('Error updating actualité status:', error);
+      
+      // Revert optimistic update on error
+      setActus(prevActus =>
+        prevActus.map(actu =>
+          actu.id === id ? { ...actu, isOnline: !newStatus, is_online: !newStatus ? 1 : 0 } : actu
+        )
+      );
+      
+      // Show detailed error message in popup
+      let errorDetails = `Erreur lors de la mise à jour du statut de l'actualité ${id}:\n\n`;
+      
+      if (error.response) {
+        // Server responded with error status
+        errorDetails += `Code d'erreur: ${error.response.status}\n`;
+        errorDetails += `Message: ${error.response.data?.message || error.response.statusText}\n`;
+        errorDetails += `URL: ${error.response.config?.url}\n`;
+        if (error.response.data?.details) {
+          errorDetails += `Détails: ${JSON.stringify(error.response.data.details, null, 2)}`;
+        }
+      } else if (error.request) {
+        // Network error
+        errorDetails += `Erreur réseau: Impossible de contacter le serveur\n`;
+        errorDetails += `URL tentée: ${API_BASE_URL}/api/actus/${id}\n`;
+        errorDetails += `Vérifiez que le serveur backend est démarré sur le port 4000`;
+      } else {
+        // Other error
+        errorDetails += `Erreur inattendue: ${error.message}`;
+      }
+      
+      setErrorMessage(errorDetails);
+      setShowErrorPopup(true);
     }
   };
 
@@ -353,8 +472,33 @@ Détails: ${JSON.stringify(errorData, null, 2)}
         show={showSuccessPopup} 
         message={successMessage} 
         onHide={() => setShowSuccessPopup(false)}
-        duration={2000} // 2 seconds (1 second longer)
+        duration={2000} // 2 seconds
       />
+      
+      {/* Error Popup for Toggle Issues */}
+      <ConfirmationDialog
+        isOpen={showErrorPopup}
+        onClose={() => setShowErrorPopup(false)}
+        onConfirm={() => setShowErrorPopup(false)}
+        title="Erreur de mise en ligne"
+        confirmText="OK"
+        cancelText={null}
+        danger={true}
+      >
+        <div style={{ 
+          maxHeight: '400px', 
+          overflowY: 'auto', 
+          whiteSpace: 'pre-wrap', 
+          fontFamily: 'monospace',
+          fontSize: '0.85rem',
+          padding: '1rem',
+          backgroundColor: '#f8f9fa',
+          borderRadius: '4px',
+          border: '1px solid #dee2e6'
+        }}>
+          {errorMessage}
+        </div>
+      </ConfirmationDialog>
       
       {/* Delete Confirmation Dialog */}
       <ConfirmationDialog
@@ -427,6 +571,12 @@ Détails: ${JSON.stringify(errorData, null, 2)}
                 categories={categories}
                 onDelete={handleDeleteActus}
                 onEdit={handleEditActus}
+                isOnline={getOnlineStatus(actusItem)}
+                onToggleStatus={handleToggleStatus}
+                showStatusToggle={true}
+                contentType="actualites"
+                isDashboard={true}
+                coverImage={actusItem.cover_img_path || actusItem.img_path || ''}
               />
             );
           })}

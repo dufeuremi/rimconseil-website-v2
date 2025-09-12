@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import styled from 'styled-components';
 import TeamMember from '../components/TeamMember';
 import Title from '../components/Title';
 import ZoneIntervention from '../components/ZoneIntervention';
 import intervenantImg from '../assets/images/intervenant1.png';
+import { API_BASE_URL } from '../App';
 
 // Styles pour la page
 const PageContainer = styled.div`
@@ -61,12 +62,43 @@ const NotreEquipe = () => {
     }
   ];
 
+  useEffect(() => {
+    const loadContent = async () => {
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/editable-content/equipe`);
+        if (!res.ok) return;
+        const data = await res.json();
+        data.elements?.forEach(item => {
+          const el = document.querySelector(item.element_selector);
+          if (el) {
+            if (item.element_type === 'deleted') {
+              el.style.display = 'none';
+              return;
+            }
+            
+            if (item.element_type === 'link') {
+              const anchor = el.closest('a') || el;
+              if (anchor && typeof item.content_html === 'string') {
+                anchor.setAttribute('href', item.content_html);
+              }
+            } else {
+              const target = el.querySelector('.editable-target') || el;
+              target.innerHTML = item.content_html;
+            }
+          }
+        });
+      } catch {}
+    };
+    const t = setTimeout(loadContent, 300);
+    return () => clearTimeout(t);
+  }, []);
+
   return (
     <PageContainer>
       <Header>
-        <Title level={1} align="center">Notre équipe</Title>
+        <Title level={1} align="center" className="equipe-title">Notre équipe</Title>
       </Header>
-      <PageDescription>
+      <PageDescription className="equipe-description">
         Rim'conseil évolue avec Jean-Philippe Robin, intervenant au service de votre entreprise et Loubna Berrado-Robin, Consultante en organisation et en transformation numérique.
       </PageDescription>
       
@@ -80,8 +112,8 @@ const NotreEquipe = () => {
             email={member.email}
             phone={member.phone}
             linkedin={member.linkedin}
-            location={member.location}
             image={member.image}
+            classNamePrefix={`member-${index}`}
           />
         ))}
       </TeamContainer>

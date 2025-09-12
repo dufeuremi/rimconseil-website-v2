@@ -74,6 +74,23 @@ const ListItem = styled.li`
     left: 0;
     color: var(--color-primary);
   }
+
+  &:empty {
+    display: none;
+  }
+`;
+
+const ParagraphContainer = styled.div`
+  text-align: left;
+  width: 100%;
+`;
+
+const Paragraph = styled.p`
+  color: var(--color-text);
+  font-size: 1rem;
+  line-height: 1.6;
+  margin: 0;
+  padding: 0;
 `;
 
 const ButtonContainer = styled.div`
@@ -84,44 +101,42 @@ const ButtonContainer = styled.div`
   justify-content: center;
 `;
 
-const ValueCard = ({ title, lottieFile, iconAlt, items }) => {
+const ValueCard = ({ title, lottieFile, iconAlt, items, paragraph, hideDiscoverButton = false, classNamePrefix = '', renderTitle, renderItem, renderParagraph }) => {
   const [isHovered, setIsHovered] = useState(false);
   const lottieRef = useRef(null);
   
-  // Gérer l'animation Lottie lors du survol
   useEffect(() => {
     if (!lottieRef.current || !lottieRef.current.animationItem) return;
     
     const anim = lottieRef.current.animationItem;
     
     if (isHovered) {
-      // Animation vers l'avant lors du survol
       anim.setDirection(1);
       anim.setSpeed(2.5);
       anim.play();
     } else {
-      // Animation inverse lorsque le survol est terminé
-      anim.setDirection(-1); // Inverser la direction
-      anim.setSpeed(3); // Légèrement plus rapide pour le retour
+      anim.setDirection(-1);
+      anim.setSpeed(3);
       anim.play();
     }
   }, [isHovered]);
 
-  // Générer les symboles pour les numéros de liste
   const getNumberSymbol = (index) => {
-    const symbols = ['①', '②', '③', '④', '⑤'];
-    return symbols[index] || `${index + 1}`;
+    return '»';
   };
   
-  // Déterminer le type de carte pour le fallback
   const getCardType = () => {
-    if (title.toLowerCase().includes('social')) return 'social';
-    if (title.toLowerCase().includes('écolo')) return 'eco';
-    if (title.toLowerCase().includes('innov')) return 'innovation';
+    if ((title || '').toLowerCase().includes('social')) return 'social';
+    if ((title || '').toLowerCase().includes('écolo')) return 'eco';
+    if ((title || '').toLowerCase().includes('innov')) return 'innovation';
     return 'default';
   };
 
   const cardType = getCardType();
+
+  const defaultTitleEl = (
+    <Title className={`${classNamePrefix ? classNamePrefix + '-title' : ''}`}>{title}</Title>
+  );
 
   return (
     <CardContainer 
@@ -150,19 +165,43 @@ const ValueCard = ({ title, lottieFile, iconAlt, items }) => {
           </IconFallback>
         )}
       </IconContainer>
-      <Title>{title}</Title>
-      <ListContainer>
-        {items.map((item, index) => (
-          <ListItem key={index} data-number={getNumberSymbol(index)}>
-            {item}
-          </ListItem>
-        ))}
-      </ListContainer>
-      <ButtonContainer>
-        <Button arrow={true} as={Link} to="/valeurs">
-          Découvrir
-        </Button>
-      </ButtonContainer>
+
+      {typeof renderTitle === 'function' ? renderTitle(defaultTitleEl) : defaultTitleEl}
+
+      {paragraph ? (
+        <ParagraphContainer>
+          {typeof renderParagraph === 'function' ? (
+            renderParagraph(
+              <Paragraph className={`${classNamePrefix ? classNamePrefix + '-paragraph' : ''}`}>
+                {paragraph}
+              </Paragraph>
+            )
+          ) : (
+            <Paragraph className={`${classNamePrefix ? classNamePrefix + '-paragraph' : ''}`}>
+              {paragraph}
+            </Paragraph>
+          )}
+        </ParagraphContainer>
+      ) : (
+        <ListContainer>
+          {items.map((item, index) => {
+            const defaultItemEl = (
+              <ListItem key={index} className={`${classNamePrefix ? classNamePrefix + '-item-' + index : ''}`} data-number={getNumberSymbol(index)}>
+                {item}
+              </ListItem>
+            );
+            return typeof renderItem === 'function' ? renderItem(defaultItemEl, index) : defaultItemEl;
+          })}
+        </ListContainer>
+      )}
+
+      {!hideDiscoverButton && (
+        <ButtonContainer>
+          <Button arrow={true} as={Link} to="/valeurs">
+            Découvrir
+          </Button>
+        </ButtonContainer>
+      )}
     </CardContainer>
   );
 };

@@ -3,6 +3,7 @@ import styled, { keyframes } from 'styled-components';
 import Title from '../components/Title';
 import Article from '../components/Article';
 import ArticleRenderer from '../components/ArticleRenderer';
+import CoverImageDisplay from '../components/CoverImageDisplay';
 import axios from 'axios';
 import { API_BASE_URL } from '../App';
 import { useParams, useNavigate } from 'react-router-dom';
@@ -34,7 +35,7 @@ const SkeletonArticle = styled.div`
   background: linear-gradient(to right, #f6f7f8 8%, #edeef1 18%, #f6f7f8 33%);
   background-size: 800px 104px;
   animation: ${shimmer} 1.5s infinite linear;
-  border-radius: 4px;
+  border-radius: 0;
   padding: 1.5rem;
   height: 160px;
   position: relative;
@@ -149,8 +150,8 @@ const CategoryFilterTag = styled.button`
   background: ${({ active }) => active ? 'var(--color-primary)' : 'var(--color-quaternary)'};
   color: ${({ active }) => active ? 'white' : 'var(--color-secondary)'};
   border: 1px solid var(--color-quaternary);
-  border-radius: 0;
-  padding: 0.35em 1.1em;
+  border-radius: 12px;
+  padding: 0.25rem 0.75rem;
   font-size: 1em;
   font-weight: ${({ active }) => active ? 700 : 400};
   cursor: pointer;
@@ -164,13 +165,26 @@ const CategoryFilterTag = styled.button`
 `;
 
 const Articles = () => {
-  const [articles, setArticles] = useState([]);
+  const [articlesData, setArticlesData] = useState([]);
+  const [filteredArticles, setFilteredArticles] = useState([]);
+  const [selectedArticle, setSelectedArticle] = useState(null);
+  const [selectedCategories, setSelectedCategories] = useState([]);
+  const [allCategories, setAllCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [selectedArticle, setSelectedArticle] = useState(null);
-  const [selectedCategories, setSelectedCategories] = useState([]); // tableau de catégories sélectionnées
   const { id } = useParams();
   const navigate = useNavigate();
+
+  // Fonction utilitaire pour déterminer le statut en ligne de manière cohérente
+  const getOnlineStatus = (item) => {
+    return Boolean(
+      (item.is_online !== undefined && item.is_online !== null) 
+        ? item.is_online === 1 
+        : (item.isOnline !== undefined && item.isOnline !== null)
+          ? item.isOnline
+          : false
+    );
+  };
   
   useEffect(() => {
     const fetchArticles = async () => {
@@ -180,15 +194,29 @@ const Articles = () => {
         // Récupérer tous les articles
         const response = await axios.get(`${API_BASE_URL}/api/articles`);
         const articlesData = response.data;
-        setArticles(articlesData);
+        
+        // Filtrer pour n'afficher que les articles en ligne en public
+        const onlineArticles = articlesData.filter(article => {
+          // Si isOnline est défini, l'utiliser
+          if (article.isOnline !== undefined) {
+            return article.isOnline === true;
+          }
+          // Sinon utiliser is_online (0 = hors ligne, 1 = en ligne)
+          if (article.is_online !== undefined) {
+            return article.is_online === 1;
+          }
+          // Par défaut, considérer comme en ligne si aucun champ n'est défini
+          return true;
+        });
+        setArticlesData(onlineArticles);
         
         // Si un ID est spécifié dans l'URL, chercher l'article correspondant
         if (id) {
-          const article = articlesData.find(a => a.id == id || a.route == id);
+          const article = onlineArticles.find(a => a.id == id || a.route == id);
           if (article) {
             setSelectedArticle(article);
           } else {
-            setError(`Article avec l'identifiant "${id}" introuvable.`);
+            setError(`Article avec l'identifiant "${id}" introuvable ou non publié.`);
           }
         } else {
           setSelectedArticle(null);
@@ -198,7 +226,7 @@ const Articles = () => {
       } catch (err) {
         console.error('Erreur lors de la récupération des articles:', err);
         setError('Impossible de charger les articles. Veuillez réessayer plus tard.');
-        setArticles([]);
+        setArticlesData([]);
       } finally {
         setLoading(false);
       }
@@ -207,8 +235,25 @@ const Articles = () => {
     fetchArticles();
   }, [id]); // Réexécuter lorsque l'ID dans l'URL change
 
+  // useEffect pour gérer le filtrage des articles
+  useEffect(() => {
+    // Récupérer toutes les catégories uniques (array de string)
+    const calculatedCategories = Array.from(new Set(
+      articlesData.flatMap(a => Array.isArray(a.category) ? a.category : []).filter(Boolean)
+    ));
+    setAllCategories(calculatedCategories);
+
+    // Filtrer les articles selon les catégories sélectionnées
+    const currentFilteredArticles = selectedCategories.length > 0
+      ? articlesData.filter(a => Array.isArray(a.category) && a.category.some(cat => selectedCategories.includes(cat)))
+      : articlesData;
+
+    // Mettre à jour l'état des articles filtrés
+    setFilteredArticles(currentFilteredArticles);
+  }, [articlesData, selectedCategories]);
+
   const handleArticleClick = (id) => {
-    const article = articles.find(a => a.id === id);
+    const article = articlesData.find(a => a.id === id);
     if (article) {
       // Naviguer vers la page de l'article avec son ID
       navigate(`/articles/${article.id}`);
@@ -250,16 +295,6 @@ const Articles = () => {
       </SkeletonContainer>
     );
   };
-
-  // Récupérer toutes les catégories uniques (array de string)
-  const allCategories = Array.from(new Set(
-    articles.flatMap(a => Array.isArray(a.category) ? a.category : []).filter(Boolean)
-  ));
-
-  // Filtrer les articles selon les catégories sélectionnées
-  const filteredArticles = selectedCategories.length > 0
-    ? articles.filter(a => Array.isArray(a.category) && a.category.some(cat => selectedCategories.includes(cat)))
-    : articles;
 
   // Gestion du clic sur un tag
   const handleCategoryClick = (cat) => {
@@ -321,6 +356,14 @@ const Articles = () => {
             )}
           </DetailHeader>
           
+          {selectedArticle.cover_img_path && (
+            <img 
+              src={selectedArticle.cover_img_path}
+              alt=""
+              style={{ width: '100%', height: 'auto', marginBottom: '2rem' }}
+            />
+          )}
+          
           {selectedArticle.text_preview && (
             <p style={{ fontStyle: 'italic', color: 'var(--color-text-light)', marginBottom: '2rem' }}>
               {selectedArticle.text_preview}
@@ -359,7 +402,7 @@ const Articles = () => {
           </EmptyMessage>
         ) : (
           <ArticlesContainer>
-            {filteredArticles.map(article => {
+            {filteredArticles.map((article, index) => {
               let categories = Array.isArray(article.category) ? article.category : [];
               return (
                 <Article
@@ -369,7 +412,10 @@ const Articles = () => {
                   date={article.date || 'Date inconnue'}
                   description={article.text_preview || article.description || article.content || 'Aucune description'}
                   categories={categories}
-                  onEdit={(id) => navigate(`/articles/${id}`)}
+                  route={article.route || article.id}
+                  isOnline={getOnlineStatus(article)}
+                  contentType="articles"
+                  coverImage={article.cover_img_path || article.img_path || ''}
                 />
               );
             })}

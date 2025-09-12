@@ -63,7 +63,7 @@ function LinkPickerPopup({ show, onClose, onSelect }) {
         setActus(
           (actusRes.data || []).map(a => ({
             title: a.titre || a.title || 'Sans titre',
-            url: `/actus/${a.id}`
+            url: `/actualites/${a.id}`
           }))
         );
       })
@@ -133,8 +133,10 @@ const EditableBlock = ({
 
   // Update content when it changes
   useEffect(() => {
-    if (contentRef.current && contentRef.current.textContent !== content) {
-      contentRef.current.textContent = content;
+    if (contentRef.current && contentRef.current.innerHTML !== content) {
+      contentRef.current.innerHTML = content;
+      // Apply link styles after setting HTML content
+      applyLinkStyles(contentRef.current);
     }
   }, [content]);
   
@@ -158,7 +160,7 @@ const EditableBlock = ({
       // Apply text direction attribute to the element itself
       contentRef.current.setAttribute('dir', textDirection);
       
-      if (placeholder && contentRef.current.textContent === '') {
+      if (placeholder && contentRef.current.textContent.trim() === '') {
         contentRef.current.classList.add('is-empty');
       } else {
         contentRef.current.classList.remove('is-empty');

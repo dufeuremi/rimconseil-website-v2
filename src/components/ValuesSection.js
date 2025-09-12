@@ -50,33 +50,21 @@ const ValuesSection = () => {
       lottieFile: animation1,
       iconAlt: "Animation représentant des connexions sociales",
       type: "social",
-      items: [
-        "Placer l'humain au cœur du processus de transformation: (écoute, implication, co-construction, acteurs du changement)",
-        "Protéger des données individuelles"
-      ]
+      paragraph: "Placer l'humain au cœur du processus de transformation: (écoute, implication, co-construction, acteurs du changement). Protéger des données individuelles."
     },
     {
       title: "Valeurs écologiques",
       lottieFile: animation2,
       iconAlt: "Animation représentant les valeurs écologiques",
       type: "eco",
-      items: [
-        "Infrastructures et équipements responsables (longévité, réparabilité, évolutivité)",
-        "Gestion sobre des données (collecte optimisée, conservation raisonnée)",
-        "Optimisation des flux pour réduire l'empreinte énergétique",
-        "Conformité réglementaire sur la durée de vie des données"
-      ]
+      paragraph: "Infrastructures et équipements responsables (longévité, réparabilité, évolutivité). Gestion sobre des données (collecte optimisée, conservation raisonnée). Optimisation des flux pour réduire l'empreinte énergétique. Conformité réglementaire sur la durée de vie des données."
     },
     {
       title: "Innovation et pratiques agiles",
       lottieFile: animation3,
       iconAlt: "Animation représentant l'innovation",
       type: "innovation",
-      items: [
-        "Des architectures IT évolutives",
-        "Approches Data centric",
-        "Approches agiles et collaboratives"
-      ]
+      paragraph: "Des architectures IT évolutives. Approches Data centric. Approches agiles et collaboratives."
     }
   ];
 
@@ -96,7 +84,7 @@ const ValuesSection = () => {
             title={card.title}
             lottieFile={card.lottieFile}
             iconAlt={card.iconAlt}
-            items={card.items}
+            paragraph={card.paragraph}
             type={card.type}
           />
         ))}

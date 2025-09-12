@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { EnvelopeSimple, MapPin, Phone } from '@phosphor-icons/react';
 import axios from 'axios';
@@ -120,6 +120,33 @@ const Contact = () => {
   const [error, setError] = useState('');
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
+
+  // Charger le contenu éditable depuis l'API
+  useEffect(() => {
+    const loadEditableContent = async () => {
+      try {
+        const { data } = await axios.get(`${API_BASE_URL}/api/editable-content/contact`);
+        if (data?.elements?.length) {
+          data.elements.forEach(item => {
+            const element = document.querySelector(item.element_selector);
+            if (element) {
+              if (item.element_type === 'deleted') {
+                element.style.display = 'none';
+                return;
+              }
+              const target = element.querySelector('.editable-target') || element;
+              target.innerHTML = item.content_html;
+            }
+          });
+        }
+      } catch (error) {
+        console.warn('Could not load editable content for contact page:', error);
+      }
+    };
+
+    const timer = setTimeout(loadEditableContent, 300);
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -268,13 +295,7 @@ const Contact = () => {
             </InfoContent>
           </InfoCard>
 
-          <InfoCard>
-            <Phone />
-            <InfoContent>
-              <h3>Téléphone</h3>
-              <Text>+33 (0)2 99 00 00 00</Text>
-            </InfoContent>
-          </InfoCard>
+
         </ContactInfo>
       </ContactGrid>
 

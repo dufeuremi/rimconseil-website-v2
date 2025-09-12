@@ -1,29 +1,32 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import Text from './Text';
+import SuccessPopup from './SuccessPopup';
+
+
 
 const ArticleWrapper = styled.div`
   position: relative;
-  cursor: pointer;
-  padding: 1.5rem;
+  cursor: ${props => (props.route && props.isOnline) ? 'pointer' : 'default'};
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   border-radius: 0;
-  background: none;
-  box-shadow: none;
-  transition: none;
-  min-height: auto;
-  border-bottom: 1px solid var(--color-quaternary);
+  background-color: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  min-height: 160px;
+  overflow: hidden;
+  opacity: ${props => props.isOffline ? 0.6 : 1};
 
   &:hover {
-    transform: none;
-    box-shadow: none;
-    background-color: rgba(248, 248, 248, 0.5);
+    transform: ${props => (props.route && props.isOnline) ? 'translateY(-2px)' : 'none'};
+    box-shadow: ${props => (props.route && props.isOnline) ? '0 4px 16px rgba(0, 0, 0, 0.1)' : '0 2px 8px rgba(0, 0, 0, 0.05)'};
   }
   
-  &:last-child {
-    border-bottom: none;
+  @media (max-width: 768px) {
+    flex-direction: column;
+    min-height: auto;
   }
 `;
 
@@ -66,16 +69,96 @@ const DeleteButton = styled(ActionButton)`
 
 const EditButton = styled(ActionButton)``;
 
+const ToggleSwitch = styled.div`
+  position: relative;
+  width: 40px;
+  height: 20px;
+  background-color: ${props => props.isOnline ? 'var(--color-primary)' : '#6c757d'};
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  
+  &:hover {
+    transform: scale(1.02);
+  }
+`;
+
+const ToggleSlider = styled.div`
+  position: absolute;
+  top: 2px;
+  left: ${props => props.isOnline ? '22px' : '2px'};
+  width: 16px;
+  height: 16px;
+  background-color: white;
+  border-radius: 50%;
+  transition: left 0.3s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+`;
+
+const ToggleLabel = styled.span`
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: ${props => props.isOnline ? 'var(--color-primary)' : '#6c757d'};
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+`;
+
+const StatusContainer = styled.div`
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  z-index: 2;
+`;
+
 const ImageContainer = styled.div`
-  flex: 0 0 300px;
-  height: 200px;
-  background-color: #f0f0f0;
+  flex: 0 0 200px;
+  min-height: 160px;
+  height: 100%;
+  background-color: #f8f9fa;
   overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-right: 1px solid #e9ecef;
+  position: relative;
   
   img {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    position: relative;
+    z-index: 0;
+    display: block;
+  }
+  
+  .placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    min-height: 160px;
+    background: url('/images/article-illustration.svg') no-repeat center center;
+    background-size: 60px;
+    background-color: #f8f9fa;
+    border: 1px solid #e9ecef;
+    position: relative;
+    z-index: 0;
+  }
+  
+  @media (max-width: 768px) {
+    flex: 0 0 120px;
+    min-height: 120px;
+    height: 120px;
+    
+    .placeholder {
+      min-height: 120px;
+      background-size: 40px;
+    }
   }
 `;
 
@@ -84,17 +167,22 @@ const ContentContainer = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
+  padding: 1.5rem;
+  
+  @media (max-width: 768px) {
+    padding: 1rem;
+  }
 `;
 
 const Title = styled.h3`
   font-size: 1.25rem;
   color: var(--color-secondary);
-  margin: 0;
-  font-weight: 500;
+  margin: 0 0 0.75rem 0;
   display: flex;
-  justify-content: flex-start;
-  align-items: center;
+  align-items: flex-start;
+  flex-wrap: wrap;
   text-align: left;
+  line-height: 1.3;
 `;
 
 const TitleText = styled.span`
@@ -119,31 +207,96 @@ const Path = styled.span`
 
 const Description = styled.p`
   color: var(--color-text);
-  margin-top: 0.75rem;
+  margin: 0 0 1rem 0;
   font-size: 0.9rem;
   line-height: 1.6;
   text-align: left;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 `;
 
 const Categories = styled.div`
   display: flex;
   gap: 0.5rem;
-  margin-bottom: 1.5rem;
+  margin-bottom: 0.75rem;
+  flex-wrap: wrap;
 `;
 
 const Category = styled.span`
-  padding: 0.5rem 1rem;
+  padding: 0.25rem 0.75rem;
   font-size: 0.875rem;
   color: var(--color-text);
   border: 1px solid var(--color-quaternary);
+  border-radius: 12px;
   
   &:first-child {
     background-color: var(--color-quaternary);
   }
 `;
 
-const Article = ({ title, path, description, categories = [], id, onDelete, onEdit, date, route }) => {
+const Article = ({ 
+  title, 
+  path, 
+  description, 
+  categories = [],
+  route,
+  date,
+  onEdit, 
+  onDelete,
+  onToggleStatus,
+  id,
+  isOnline = true,
+  showStatusToggle = false,
+  contentType = "articles",
+  isDashboard = false,
+  coverImage = ''
+}) => {
   const navigate = useNavigate();
+  const [showPopup, setShowPopup] = useState(false);
+  const [popupMessage, setPopupMessage] = useState('');
+  const [imageError, setImageError] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(false);
+
+  // Process the image URL to handle relative paths
+  const getImageUrl = (imagePath) => {
+    if (!imagePath) return '';
+    
+    // If it's already an absolute URL or Data URL, return as is
+    if (imagePath.startsWith('http://') || imagePath.startsWith('https://') || imagePath.startsWith('/') || imagePath.startsWith('data:')) {
+      return imagePath;
+    }
+    
+    // If it's a relative path, prefix with /images/
+    return `/images/${imagePath}`;
+  };
+
+  // Handle image loading and error
+  const handleImageLoad = () => {
+    setImageLoaded(true);
+    setImageError(false);
+  };
+
+  const handleImageError = () => {
+    setImageError(true);
+    setImageLoaded(false);
+  };
+
+  // Reset image states when coverImage changes
+  useEffect(() => {
+    if (coverImage) {
+      setImageError(false);
+      // For Data URLs, mark as loaded immediately since they're already encoded
+      if (coverImage.startsWith('data:')) {
+        setImageLoaded(true);
+      } else {
+        setImageLoaded(false);
+      }
+    }
+  }, [coverImage, title]);
+
+  const processedImageUrl = getImageUrl(coverImage);
 
   // Format the date in French
   const formatDateInFrench = (dateString) => {
@@ -167,91 +320,161 @@ const Article = ({ title, path, description, categories = [], id, onDelete, onEd
       return dateString;
     }
   };
-  
-  const frenchDate = formatDateInFrench(date);
 
-  const handleClick = (e) => {
-    // Empêche la navigation si on clique sur les boutons d'action
-    if (e.target.closest('.article-action-button')) return;
-    
-    // If we have a route prop and we're not in dashboard (no onDelete)
-    if (route && !onDelete) {
-      navigate(`/articles/${route}`);
-      return;
-    }
-    
-    // Trigger edit on main click if onEdit is provided
-    if (typeof onEdit === 'function') {
-      onEdit(id);
+  const handleClick = () => {
+    // Only allow navigation if the article is online
+    if (route && isOnline) {
+      // Navigate to the correct URL based on content type
+      const baseUrl = contentType === 'actualites' ? '/actualites' : '/articles';
+      navigate(`${baseUrl}/${route}`);
     }
   };
-  
-  const handleEdit = (e) => {
-    e.stopPropagation(); // Empêche le clic de se propager au wrapper
-    // Use the passed onEdit function
-    if (typeof onEdit === 'function') {
-      onEdit(id);
-    } else {
-      // Fallback or error handling if onEdit is not provided
-      console.warn("onEdit prop not provided to Article component for ID:", id);
-      // navigate(`/dashboard/articles/${id}/edit`); // Example fallback
+
+  const handleToggleStatus = (e) => {
+    e.stopPropagation();
+    const newStatus = !isOnline;
+    const statusText = newStatus ? 'en ligne' : 'hors ligne';
+    
+    if (onToggleStatus) {
+      onToggleStatus(id, newStatus);
     }
+    
+    setPopupMessage(`Document mis ${statusText} avec succès`);
+    setShowPopup(true);
+  };
+
+  const handleEdit = (e) => {
+    e.stopPropagation();
+    if (onEdit) onEdit(id);
   };
 
   const handleDelete = (e) => {
-    e.stopPropagation(); // Empêche le clic de se propager au wrapper
-    onDelete(id);
+    e.stopPropagation();
+    if (onDelete) onDelete(id);
   };
 
-  // Si categories n'est pas un tableau, convertir ou initialiser
+  const frenchDate = formatDateInFrench(date);
+
+  // Convert categories to array if it's a string
   const categoryArray = Array.isArray(categories) ? categories : 
-                       (categories ? [categories] : []);
+                       (typeof categories === 'string' ? [categories] : []);
+
+  // Determine if we should show action buttons (edit/delete)
+  // In dashboard: always show edit button if onEdit is provided
+  // In public pages: hide edit button if the article is online
+  const showEditButton = onEdit && (isDashboard || !isOnline);
+  const showDeleteButton = onDelete;
 
   return (
-    <ArticleWrapper onClick={handleClick}>
-      {/* N'afficher les boutons d'action que si onDelete est fourni */}
-      {onDelete && (
-        <ActionButtonsContainer>
-          <EditButton 
-            className="article-action-button edit-article-button" 
-            onClick={handleEdit} 
-            title="Modifier l'article"
-          >
-            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M11 4H4C3.46957 4 2.96086 4.21071 2.58579 4.58579C2.21071 4.96086 2 5.46957 2 6V20C2 20.5304 2.21071 21.0391 2.58579 21.4142C2.96086 21.7893 3.46957 22 4 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M18.5 2.50001C18.8978 2.10219 19.4374 1.87869 20 1.87869C20.5626 1.87869 21.1022 2.10219 21.5 2.50001C21.8978 2.89784 22.1213 3.4374 22.1213 4.00001C22.1213 4.56262 21.8978 5.10219 21.5 5.50001L12 15L8 16L9 12L18.5 2.50001Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </EditButton>
-          <DeleteButton 
-            className="article-action-button delete-article-button" 
-            onClick={handleDelete} 
-            title="Supprimer l'article"
-          >
-            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M3 6H5H21M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </DeleteButton>
-        </ActionButtonsContainer>
-      )}
+    <>
+      <SuccessPopup
+        message={popupMessage}
+        show={showPopup}
+        onHide={() => setShowPopup(false)}
+        duration={2000}
+      />
       
-      {/* Affichage des catégories au-dessus du titre */}
-      {categoryArray.length > 0 && (
-        <Categories>
-          {categoryArray.map((category, index) => (
-            <Category key={index}>{category}</Category>
-          ))}
-        </Categories>
-      )}
+      <ArticleWrapper 
+        onClick={handleClick} 
+        isOffline={!isOnline}
+        route={route}
+        isOnline={isOnline}
+      >
+        <ImageContainer>
+          {processedImageUrl && !imageError ? (
+            <>
+              {!imageLoaded && (
+                <div style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  background: '#f8f9fa',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  zIndex: 1,
+                  fontSize: '0.75rem',
+                  color: 'var(--color-tertiary)'
+                }}>
+                  Chargement...
+                </div>
+              )}
+              <img 
+                src={processedImageUrl} 
+                alt=""
+                onLoad={handleImageLoad}
+                onError={handleImageError}
+                style={{
+                  opacity: imageLoaded ? 1 : 0,
+                  transition: 'opacity 0.3s ease',
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
+                  display: 'block',
+                  position: 'relative',
+                  zIndex: 0
+                }}
+              />
+            </>
+          ) : (
+            <div className="placeholder">
+            </div>
+          )}
+        </ImageContainer>
+        
+        <ContentContainer>
+          {showStatusToggle && (
+            <StatusContainer>
+              <ToggleSwitch isOnline={isOnline} onClick={handleToggleStatus}>
+                <ToggleSlider isOnline={isOnline} />
+              </ToggleSwitch>
+              <ToggleLabel isOnline={isOnline}>
+                {isOnline ? 'En ligne' : 'Hors ligne'}
+              </ToggleLabel>
+            </StatusContainer>
+          )}
+          
+          {(showEditButton || showDeleteButton) && (
+            <ActionButtonsContainer>
+              {showEditButton && (
+                <EditButton onClick={handleEdit} title="Modifier">
+                  <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+                  </svg>
+                </EditButton>
+              )}
+              {showDeleteButton && (
+                <DeleteButton onClick={handleDelete} title="Supprimer">
+                  <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+                  </svg>
+                </DeleteButton>
+              )}
+            </ActionButtonsContainer>
+          )}
+          
+          {/* Affichage des catégories au-dessus du titre */}
+          {categoryArray.length > 0 && (
+            <Categories>
+              {categoryArray.map((category, index) => (
+                <Category key={index}>{category}</Category>
+              ))}
+            </Categories>
+          )}
 
-      <Title>
-        <TitleText>
-          {title}
-          <Path>{path}</Path>
-        </TitleText>
-        {frenchDate && <DateLabel>{frenchDate}</DateLabel>}
-      </Title>
-      <Text variant="body-small">{description}</Text>
-    </ArticleWrapper>
+          <Title>
+            <TitleText>
+              {title}
+              <Path>{path}</Path>
+            </TitleText>
+            {frenchDate && <DateLabel>{frenchDate}</DateLabel>}
+          </Title>
+          <Description>{description}</Description>
+        </ContentContainer>
+      </ArticleWrapper>
+    </>
   );
 };
 

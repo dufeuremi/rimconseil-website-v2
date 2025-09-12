@@ -1,48 +1,18 @@
 import React, { useState, useRef, useEffect } from 'react';
 import styled from 'styled-components';
 import { RiArrowRightLine, RiCloseLine } from 'react-icons/ri';
+import { Link } from 'react-router-dom';
 import Button from './Button';
 
 const CardContainer = styled.div`
   display: flex;
-flex-direction: column;
-align-items: center;
-text-align: center;
-padding: 1.5rem;
-background: linear-gradient(to bottom, transparent,rgba(255, 255, 255, 0.06));
-position: relative;
-overflow: hidden;
-`;
-
-const ImageContainer = styled.div`
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 1.5rem;
+  background: linear-gradient(to bottom, transparent, rgba(255, 255, 255, 0.06));
   position: relative;
-  width: 80px;
-  height: 80px;
-  margin-bottom: 1.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  background-color:rgba(244, 249, 255, 0.04);
   overflow: hidden;
-`;
-
-const Image = styled.img`
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-`;
-
-const ImageFallback = styled.div`
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.5rem;
-  font-weight: 600;
-    color: var(--color-text-light);
-  background-color: ${props => props.theme.colors.lightBg};
 `;
 
 const Title = styled.h3`
@@ -167,26 +137,11 @@ const PopupButtonContainer = styled.div`
   justify-content: flex-end;
 `;
 
-const EnjeuxCard = ({ data, title: propTitle, description: propDescription, image: propImage, link: propLink, index = 0, details = [] }) => {
+const EnjeuxCard = ({ data, title: propTitle, description: propDescription, link: propLink, index = 0, details = [], classNamePrefix = '', renderTitle, renderDescription, renderButton, renderDetail, ctaLinks = {}, showLinkPicker, setShowLinkPicker, saveLink }) => {
   const title = propTitle || (data && data.title) || '';
   const description = propDescription || (data && data.description) || '';
-  const image = propImage || (data && data.image) || '';
   const link = propLink || (data && data.link) || '';
-  const [imageError, setImageError] = useState(false);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
-  
-  const handleImageError = () => {
-    setImageError(true);
-  };
-  
-  const getInitials = () => {
-    return title
-      .split(' ')
-      .map(word => word[0])
-      .join('')
-      .substring(0, 2)
-      .toUpperCase();
-  };
   
   // Générer les symboles pour les numéros de liste
   const getNumberSymbol = (index) => {
@@ -196,15 +151,14 @@ const EnjeuxCard = ({ data, title: propTitle, description: propDescription, imag
   
   const openPopup = () => {
     setIsPopupOpen(true);
-    document.body.style.overflow = 'hidden'; // Empêcher le défilement du corps
+    document.body.style.overflow = 'hidden';
   };
   
   const closePopup = () => {
     setIsPopupOpen(false);
-    document.body.style.overflow = ''; // Restaurer le défilement du corps
+    document.body.style.overflow = '';
   };
 
-  // Simuler des détails pour la popup si aucun n'est fourni
   const popupDetails = details.length > 0 ? details : [
     "Analyse des besoins spécifiques",
     "Définition de la stratégie appropriée",
@@ -212,44 +166,70 @@ const EnjeuxCard = ({ data, title: propTitle, description: propDescription, imag
     "Suivi et optimisation continue"
   ];
 
-  // Effet pour gérer la pression de la touche Escape pour fermer la popup
   useEffect(() => {
-    const handleEscapeKey = (e) => {
-      if (e.key === 'Escape' && isPopupOpen) {
-        closePopup();
-      }
-    };
-    
+    const handleEscapeKey = (e) => { if (e.key === 'Escape' && isPopupOpen) closePopup(); };
     window.addEventListener('keydown', handleEscapeKey);
-    return () => {
-      window.removeEventListener('keydown', handleEscapeKey);
-    };
+    return () => window.removeEventListener('keydown', handleEscapeKey);
   }, [isPopupOpen]);
+
+  const defaultTitleEl = (
+    <Title className={classNamePrefix ? `${classNamePrefix}-title` : undefined}>{title}</Title>
+  );
+  const defaultDescEl = (
+    <Description className={classNamePrefix ? `${classNamePrefix}-description` : undefined}>{description}</Description>
+  );
 
   return (
     <>
       <CardContainer>
-        <ImageContainer>
-          {!imageError ? (
-            <Image 
-              src={image} 
-              alt={title} 
-              onError={handleImageError}
-            />
-          ) : (
-            <ImageFallback>
-              {getInitials()}
-            </ImageFallback>
-          )}
-        </ImageContainer>
-        <Title>{title}</Title>
-        <Description>{description}</Description>
+        {renderTitle ? renderTitle(defaultTitleEl) : defaultTitleEl}
+        {renderDescription ? renderDescription(defaultDescEl) : defaultDescEl}
         <ButtonContainer>
-
           {link && (
-            <Button to={link} arrow={true} style={{ marginLeft: '0.5rem' }}>
-              Découvrir
-            </Button>
+            <div style={{ position: 'relative', display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
+              <Button 
+                as={Link}
+                to={ctaLinks[`.enjeu-${index}-cta`] || link} 
+                arrow={true} 
+                style={{ marginLeft: '0.5rem' }}
+                onClick={(e) => {
+                  // Empêcher la redirection si on clique sur le texte éditable
+                  if (e.target.closest('.editable')) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                  }
+                }}
+              >
+                {renderButton ? renderButton(<span className={`enjeu-${index}-cta`}>Découvrir</span>) : <span className={`enjeu-${index}-cta`}>Découvrir</span>}
+              </Button>
+              
+              {/* Indicateur de lien au survol */}
+              {showLinkPicker && setShowLinkPicker && (
+                <div 
+                  className="link-indicator"
+                  style={{
+                    position: 'absolute',
+                    right: '-2rem',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    opacity: 0,
+                    transition: 'opacity 0.2s',
+                    cursor: 'pointer',
+                    fontSize: '0.8rem',
+                    color: 'var(--color-primary)',
+                    background: 'white',
+                    padding: '0.25rem',
+                    borderRadius: '4px',
+                    boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                    zIndex: 10
+                  }}
+                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShowLinkPicker({ key: `.enjeu-${index}-cta` }); }}
+                  title={ctaLinks[`.enjeu-${index}-cta`] ? `Lien: ${ctaLinks[`.enjeu-${index}-cta`]}` : 'Cliquer pour choisir un lien'}
+                >
+                  🔗
+                </div>
+              )}
+            </div>
           )}
         </ButtonContainer>
       </CardContainer>
@@ -264,16 +244,19 @@ const EnjeuxCard = ({ data, title: propTitle, description: propDescription, imag
           <PopupDescription>{description}</PopupDescription>
           
           <ListContainer>
-            {popupDetails.map((item, index) => (
-              <ListItem key={index} data-number={getNumberSymbol(index)}>
-                {item}
-              </ListItem>
-            ))}
+            {popupDetails.map((item, detailIndex) => {
+              const defaultDetailEl = (
+                <ListItem key={detailIndex} className={`${classNamePrefix ? classNamePrefix + '-detail-' + detailIndex : ''}`} data-number={getNumberSymbol(detailIndex)}>
+                  {item}
+                </ListItem>
+              );
+              return typeof renderDetail === 'function' ? renderDetail(defaultDetailEl, detailIndex) : defaultDetailEl;
+            })}
           </ListContainer>
           
           <PopupButtonContainer>
             {link && (
-              <Button to={link} arrow={true}>
+              <Button as={Link} to={ctaLinks[`.enjeu-${index}-cta`] || link} arrow={true}>
                 Découvrir
               </Button>
             )}
@@ -284,4 +267,16 @@ const EnjeuxCard = ({ data, title: propTitle, description: propDescription, imag
   );
 };
 
-export default EnjeuxCard; 
+export default EnjeuxCard;
+
+// CSS global pour les indicateurs de lien
+const GlobalStyles = () => (
+  <style jsx global>{`
+    .link-indicator {
+      opacity: 0 !important;
+    }
+    div:hover .link-indicator {
+      opacity: 1 !important;
+    }
+  `}</style>
+); 

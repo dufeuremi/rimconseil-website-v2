@@ -54,28 +54,30 @@
 .image-preview {
   position: relative;
   width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
 }
 
 .image-preview img {
   width: 100%;
   height: auto;
+  max-height: 300px;
   display: block;
-  border-radius: 0;
-  border: none;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+  object-fit: cover;
 }
 
 .change-image-button {
-  position: absolute;
-  bottom: 1rem;
-  right: 1rem;
-  padding: 0.5rem 1rem;
+  padding: 0.35rem 0.75rem;
   background-color: var(--color-primary);
   color: white;
   border: none;
-  border-radius: 0;
+  border-radius: 4px;
   cursor: pointer;
-  font-size: 0.875rem;
+  font-size: 0.75rem;
   transition: background-color 0.2s ease;
+  white-space: nowrap;
 }
 
 .change-image-button:hover {
@@ -86,4 +88,29 @@
   margin-top: 0.5rem;
   font-style: italic;
   color: var(--color-tertiary);
+}
+
+.image-preview-buttons {
+  position: absolute;
+  bottom: 1rem;
+  right: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.remove-image-button {
+  padding: 0.35rem 0.75rem;
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.75rem;
+  transition: background-color 0.2s ease;
+  white-space: nowrap;
+}
+
+.remove-image-button:hover {
+  background-color: #c82333;
 } 

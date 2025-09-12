@@ -84,11 +84,11 @@ const expertiseData = [
 
 const ExpertiseSection = () => {
   return (
-    <SectionContainer>
+    <SectionContainer className="home-expertise-section">
       <TitleContainer>
-        <Title level={1} align="center" variant="page-title">Nos savoir-faire</Title>
+        <Title level={1} align="center" variant="page-title" className="home-expertise-title">Nos savoir-faire</Title>
       </TitleContainer>
-      <Description>
+      <Description className="home-expertise-description">
         Innovation, respect de l'humain et de l'environnement au cœur de notre approche.
       </Description>
       
@@ -101,6 +101,9 @@ const ExpertiseSection = () => {
             iconAlt={expertise.iconAlt}
             items={expertise.items}
             type={expertise.type}
+            titleClassName={`home-expertise-card-${index}-title`}
+            itemClassNamePrefix={`home-expertise-card-${index}`}
+            ctaClassName={`home-expertise-card-${index}-cta`}
           />
         ))}
       </CardsContainer>

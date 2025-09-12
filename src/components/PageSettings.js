@@ -1,16 +1,20 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import Input from './Input';
-import Button from './Button';
-import Text from './Text';
-import Dropdown from './Dropdown';
-import Block from './blocks/Block';
-import EditableBlock from './blocks/EditableBlock';
-import ImageBlock from './blocks/ImageBlock';
-import ConfirmationDialog from './ConfirmationDialog';
-import SuccessPopup from './SuccessPopup';
+import styled from 'styled-components';
 import axios from 'axios';
 import { API_BASE_URL } from '../App';
+import Button from './Button';
+import Input from './Input';
+import Text from './Text';
+import Textarea from './Textarea';
+import StatusToggle from './StatusToggle';
+import Dropdown from './Dropdown';
+import ConfirmationDialog from './ConfirmationDialog';
+import SuccessPopup from './SuccessPopup';
+import EditableBlock from './blocks/EditableBlock';
+import ImageBlock from './blocks/ImageBlock';
+import CoverImageBlock from './CoverImageBlock';
+import Block from './blocks/Block';
 import './PageSettings.css';
 
 const BLOCK_TYPES = [
@@ -185,7 +189,6 @@ const PageSettings = ({ onSave, initialData, contentType = 'pages' }) => {
     titre: initialData?.titre || '',
     text_preview: initialData?.text_preview || '',
     img_path: initialData?.img_path || '',
-    route: initialData?.route || '',
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -197,6 +200,7 @@ const PageSettings = ({ onSave, initialData, contentType = 'pages' }) => {
   const [successMessage, setSuccessMessage] = useState('');
   const [showErrorMessage, setShowErrorMessage] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [isOnline, setIsOnline] = useState(initialData?.isOnline ?? true);
   const [contentJsonStructure, setContentJsonStructure] = useState({
     metadata: {
       type: contentType,
@@ -253,10 +257,21 @@ const PageSettings = ({ onSave, initialData, contentType = 'pages' }) => {
             category: data.category || '',
             text_preview: data.text_preview || '',
             img_path: data.img_path || '',
-            route: data.route || '',
+            cover_img_path: data.cover_img_path || '',
           };
           
           setFormData(formattedData);
+          
+          // Update online status from backend data
+          const onlineStatus = Boolean(
+            (data.is_online !== undefined && data.is_online !== null) 
+              ? data.is_online === 1 
+              : (data.isOnline !== undefined && data.isOnline !== null)
+                ? data.isOnline
+                : true // default to online if no status found
+          );
+          setIsOnline(onlineStatus);
+          console.log(`Set isOnline status to: ${onlineStatus} (from backend data:`, data.is_online || data.isOnline, ')');
           
           // Parse JSON content if it exists
           if (data.content_json) {
@@ -343,16 +358,20 @@ const PageSettings = ({ onSave, initialData, contentType = 'pages' }) => {
           ...(formData.titre && { titre: formData.titre }),
           ...(formData.text_preview && { text_preview: formData.text_preview }),
           ...(formData.path && { path: formData.path }),
+          ...(formData.img_path && { img_path: formData.img_path }),
+          ...(formData.cover_img_path && { cover_img_path: formData.cover_img_path }),
           // Ajout du champ category (toujours array)
           category: Array.isArray(formData.category) ? formData.category : (formData.category ? [formData.category] : []),
-          content_json: contentJsonStructure // Pas besoin de JSON.stringify selon la doc API
+          content_json: contentJsonStructure, // Pas besoin de JSON.stringify selon la doc API
+          is_online: isOnline ? 1 : 0
         };
       } else if (contentType === 'actus') {
         // Structure pour les actualités
         saveData = {
           ...formData,
           category: Array.isArray(formData.category) ? formData.category : (formData.category ? [formData.category] : []),
-          content_json: JSON.stringify(contentJsonStructure)
+          content_json: JSON.stringify(contentJsonStructure),
+          is_online: isOnline ? 1 : 0
         };
         // S'assurer que le champ 'titre' est utilisé
         saveData.titre = formData.titre || formData.title;
@@ -360,24 +379,92 @@ const PageSettings = ({ onSave, initialData, contentType = 'pages' }) => {
         // Structure pour les autres types de contenu
         saveData = {
           ...formData,
-          content_json: JSON.stringify(contentJsonStructure)
+          content_json: JSON.stringify(contentJsonStructure),
+          is_online: isOnline ? 1 : 0
         };
       }
       
       console.log(`Saving ${contentType} data:`, saveData);
       
       let response;
+      
       if (id) {
         // Update existing content
-        const headers = { 'Content-Type': 'application/json' };
-        response = await axios.patch(`${API_BASE_URL}/api/${contentType}/${id}`, saveData, { headers });
+        if (contentType === 'articles' || contentType === 'actus') {
+          // Use FormData for articles and actualités according to new API
+          const formData = new FormData();
+          
+          // Add all fields to FormData
+          if (saveData.date) formData.append('date', saveData.date);
+          if (saveData.titre) formData.append('titre', saveData.titre);
+          if (saveData.text_preview) formData.append('text_preview', saveData.text_preview);
+          if (saveData.path) formData.append('path', saveData.path);
+          
+          // Handle content_json
+          if (saveData.content_json) {
+            formData.append('content_json', typeof saveData.content_json === 'string' ? saveData.content_json : JSON.stringify(saveData.content_json));
+          }
+          
+          // Handle category
+          if (saveData.category) {
+            formData.append('category', JSON.stringify(saveData.category));
+          }
+          
+          // Handle online status
+          if (saveData.is_online !== undefined) {
+            formData.append('is_online', saveData.is_online.toString());
+          }
+          
+          // Add existing image paths if they exist
+          if (saveData.img_path) formData.append('img_path', saveData.img_path);
+          if (saveData.cover_img_path) formData.append('cover_img_path', saveData.cover_img_path);
+          
+          response = await axios.patch(`${API_BASE_URL}/api/${contentType}/${id}`, formData);
+        } else {
+          // Use JSON for other content types
+          const headers = { 'Content-Type': 'application/json' };
+          response = await axios.patch(`${API_BASE_URL}/api/${contentType}/${id}`, saveData, { headers });
+        }
+        
         console.log(`Updated ${contentType}/${id}:`, response.data);
+        
         setSuccessMessage('Contenu sauvegardé avec succès !');
         setShowSuccessPopup(true);
       } else {
         // Create new content
-        response = await axios.post(`${API_BASE_URL}/api/${contentType}`, saveData);
+        if (contentType === 'articles' || contentType === 'actus') {
+          // Use FormData for articles and actualités according to new API
+          const formData = new FormData();
+          
+          // Add all fields to FormData
+          if (saveData.date) formData.append('date', saveData.date);
+          if (saveData.titre) formData.append('titre', saveData.titre);
+          if (saveData.text_preview) formData.append('text_preview', saveData.text_preview);
+          if (saveData.path) formData.append('path', saveData.path);
+          
+          // Handle content_json
+          if (saveData.content_json) {
+            formData.append('content_json', typeof saveData.content_json === 'string' ? saveData.content_json : JSON.stringify(saveData.content_json));
+          }
+          
+          // Handle category
+          if (saveData.category) {
+            formData.append('category', JSON.stringify(saveData.category));
+          }
+          
+          // Handle online status
+          if (saveData.is_online !== undefined) {
+            formData.append('is_online', saveData.is_online.toString());
+          }
+          
+          response = await axios.post(`${API_BASE_URL}/api/${contentType}`, formData);
+        } else {
+          // Use JSON for other content types
+          response = await axios.post(`${API_BASE_URL}/api/${contentType}`, saveData);
+        }
+        
         console.log(`Created ${contentType}:`, response.data);
+        
         setSuccessMessage('Nouveau contenu créé avec succès !');
         setShowSuccessPopup(true);
       }
@@ -387,11 +474,8 @@ const PageSettings = ({ onSave, initialData, contentType = 'pages' }) => {
         onSave(saveData);
       }
 
-      // Navigate back to the dashboard list after a delay
-      setTimeout(() => {
-        const dashboardPath = contentType === 'actus' ? '/dashboard/actualites' : `/dashboard/${contentType}`;
-        navigate(dashboardPath);
-      }, 2500); // Navigate after the success popup has had time to show
+      // Don't navigate automatically - let the user stay on the current page
+      // The parent component will handle refreshing the list if needed
     } catch (err) {
       console.error(`Error saving ${contentType}:`, err);
       
@@ -424,6 +508,98 @@ const PageSettings = ({ onSave, initialData, contentType = 'pages' }) => {
     // Fix the dashboard path for actus to use actualites in the URL
     const dashboardPath = contentType === 'actus' ? '/dashboard/actualites' : `/dashboard/${contentType}`;
     navigate(dashboardPath);
+  };
+
+  const handleToggleStatus = async (itemId, newStatus) => {
+    if (!id) {
+      // Si c'est un nouveau contenu pas encore sauvegardé, juste mettre à jour l'état local
+      setIsOnline(newStatus);
+      return;
+    }
+
+    try {
+      // Optimistic update
+      setIsOnline(newStatus);
+
+      // Préparer les données de mise à jour comme dans les dashboards
+      if (contentType === 'articles' || contentType === 'actus') {
+        // Use FormData for articles and actualités according to new API
+        const formDataUpdate = new FormData();
+        
+        if (contentType === 'articles') {
+          formDataUpdate.append('date', formData.date || new Date().toISOString().split('T')[0]);
+          formDataUpdate.append('titre', formData.titre || formData.title || 'Sans titre');
+          formDataUpdate.append('text_preview', formData.text_preview || '');
+          formDataUpdate.append('path', formData.path || '');
+          
+          const categoryData = Array.isArray(formData.category) ? formData.category : (formData.category ? [formData.category] : []);
+          formDataUpdate.append('category', JSON.stringify(categoryData));
+          
+          formDataUpdate.append('content_json', JSON.stringify(contentJsonStructure));
+        } else if (contentType === 'actus') {
+          formDataUpdate.append('titre', formData.titre || formData.title || 'Sans titre');
+          formDataUpdate.append('text_preview', formData.text_preview || '');
+          formDataUpdate.append('date', formData.date || new Date().toISOString().split('T')[0]);
+          
+          const categoryData = Array.isArray(formData.category) ? formData.category : (formData.category ? [formData.category] : []);
+          formDataUpdate.append('category', JSON.stringify(categoryData));
+          
+          formDataUpdate.append('content_json', JSON.stringify(contentJsonStructure));
+          
+          // Add existing image paths if they exist
+          if (formData.img_path) {
+            formDataUpdate.append('img_path', formData.img_path);
+          }
+          if (formData.cover_img_path) {
+            formDataUpdate.append('cover_img_path', formData.cover_img_path);
+          }
+        }
+        
+        formDataUpdate.append('is_online', newStatus ? '1' : '0');
+        
+        const response = await axios.patch(`${API_BASE_URL}/api/${contentType}/${id}`, formDataUpdate);
+      } else {
+        // Use JSON for other content types
+        const updateData = {
+          ...formData,
+          content_json: JSON.stringify(contentJsonStructure),
+          is_online: newStatus ? 1 : 0
+        };
+        
+        const headers = { 'Content-Type': 'application/json' };
+        const response = await axios.patch(`${API_BASE_URL}/api/${contentType}/${id}`, updateData, { headers });
+      }
+      
+      // Show success message
+      setSuccessMessage(`${contentType === 'articles' ? 'Article' : contentType === 'actus' ? 'Actualité' : 'Contenu'} mis ${newStatus ? 'en ligne' : 'hors ligne'} avec succès`);
+      setShowSuccessPopup(true);
+      
+    } catch (error) {
+      console.error('Error updating status:', error);
+      
+      // Revert optimistic update on error
+      setIsOnline(!newStatus);
+      
+      let errorDetails = `Erreur lors de la mise à jour du statut:\n\n`;
+      
+      if (error.response) {
+        errorDetails += `Code d'erreur: ${error.response.status}\n`;
+        errorDetails += `Message: ${error.response.data?.message || error.response.statusText}\n`;
+        errorDetails += `URL: ${error.response.config?.url}\n`;
+        if (error.response.data?.details) {
+          errorDetails += `Détails: ${JSON.stringify(error.response.data.details, null, 2)}`;
+        }
+      } else if (error.request) {
+        errorDetails += `Erreur réseau: Impossible de contacter le serveur\n`;
+        errorDetails += `URL tentée: ${API_BASE_URL}/api/${contentType}/${id}\n`;
+        errorDetails += `Vérifiez que le serveur backend est démarré sur le port 4000`;
+      } else {
+        errorDetails += `Erreur inattendue: ${error.message}`;
+      }
+      
+      setErrorMessage(errorDetails);
+      setShowErrorMessage(true);
+    }
   };
 
   const handleAddBlock = (blockType) => {
@@ -665,6 +841,12 @@ const PageSettings = ({ onSave, initialData, contentType = 'pages' }) => {
           </Text>
         </div>
         <div className="header-actions" style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
+          <StatusToggle 
+            isOnline={isOnline}
+            onToggle={handleToggleStatus}
+            id={id || 'new'}
+            description=""
+          />
           {id && (
             <button 
               className="delete-text-button" 
@@ -765,18 +947,7 @@ const PageSettings = ({ onSave, initialData, contentType = 'pages' }) => {
             />
           )}
           
-          {/* Add path field for articles */}
-          {contentType === 'articles' && (
-          <Input
-            label="Route de l'article (URL)"
-            value={formData.route || formData.path || ''}
-            onChange={(e) => handleChange('route', e.target.value)}
-            placeholder="Exemple: article-slug-name"
-            required
-          />
-          )}
-          
-          {(contentType === 'actus' || contentType === 'articles') && (
+          {(contentType === 'articles' || contentType === 'actus') && (
             <>
           <Input
             label="Date"
@@ -795,15 +966,33 @@ const PageSettings = ({ onSave, initialData, contentType = 'pages' }) => {
             </>
           )}
           
-          {contentType === 'actus' && (
-            <Input
-              label="Image URL"
-              value={formData.img_path}
-              onChange={(e) => handleChange('img_path', e.target.value)}
-              placeholder="Chemin relatif ou URL complète"
-            />
+          {/* Separate implementation for articles */}
+          {contentType === 'articles' && (
+            <div style={{ marginBottom: '1.5rem' }}>
+              <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500', color: 'var(--color-text)' }}>
+                Image de couverture
+              </label>
+              <CoverImageBlock
+                initialImage={formData.cover_img_path || ''}
+                onChange={(imageData) => handleChange('cover_img_path', imageData)}
+              />
+            </div>
           )}
-          
+
+          {/* Separate implementation for actualités */}
+          {contentType === 'actus' && (
+            <div style={{ marginBottom: '1.5rem' }}>
+              <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500', color: 'var(--color-text)' }}>
+                Image de couverture
+              </label>
+              <CoverImageBlock
+                initialImage={formData.img_path || ''}
+                onChange={(imageData) => handleChange('img_path', imageData)}
+              />
+            </div>
+          )}
+
+          {/* Categories section */}
           {(contentType === 'articles' || contentType === 'actus') && (
             <TagsInput
               label="Catégories"

@@ -38,6 +38,9 @@ const PageTitle = () => {
     } else if (location.pathname.startsWith('/articles/')) {
       // Pour les articles individuels
       document.title = `Article - Rim'conseil`;
+    } else if (location.pathname.startsWith('/actualites/')) {
+      // Pour les actualités individuelles
+      document.title = `Actualité - Rim'conseil`;
     } else {
       // Sinon, on affiche "Nom de page - Rim'conseil"
       const pageTitle = pageTitles[location.pathname] || 'Page';

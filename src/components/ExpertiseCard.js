@@ -74,6 +74,10 @@ const ListItem = styled.li`
     left: 0;
     color: var(--color-primary);
   }
+
+  &:empty {
+    display: none;
+  }
 `;
 
 const ButtonContainer = styled.div`
@@ -84,7 +88,7 @@ const ButtonContainer = styled.div`
   justify-content: center;
 `;
 
-const ExpertiseCard = ({ title, lottieFile, iconAlt, items, type }) => {
+const ExpertiseCard = ({ title, lottieFile, iconAlt, items, type, titleClassName, itemClassNamePrefix, ctaClassName }) => {
   const [isHovered, setIsHovered] = useState(false);
   const lottieRef = useRef(null);
   
@@ -109,8 +113,7 @@ const ExpertiseCard = ({ title, lottieFile, iconAlt, items, type }) => {
 
   // Générer les symboles pour les numéros de liste
   const getNumberSymbol = (index) => {
-    const symbols = ['①', '②', '③', '④', '⑤'];
-    return symbols[index] || `${index + 1}`;
+    return '»';
   };
 
   return (
@@ -140,17 +143,17 @@ const ExpertiseCard = ({ title, lottieFile, iconAlt, items, type }) => {
           </IconFallback>
         )}
       </IconContainer>
-      <Title>{title}</Title>
+      <Title className={titleClassName}>{title}</Title>
       <ListContainer>
         {items.map((item, index) => (
-          <ListItem key={index} data-number={getNumberSymbol(index)}>
+          <ListItem key={index} data-number={getNumberSymbol(index)} className={itemClassNamePrefix ? `${itemClassNamePrefix}-item-${index}` : undefined}>
             {item}
           </ListItem>
         ))}
       </ListContainer>
       <ButtonContainer>
         <Button arrow={true} as={Link} to="/expertises">
-          Découvrir
+          <span className={ctaClassName || undefined}>Découvrir</span>
         </Button>
       </ButtonContainer>
     </CardContainer>
