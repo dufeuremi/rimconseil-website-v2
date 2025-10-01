@@ -1,6 +1,6 @@
 class EditableAPI {
   constructor() {
-    this.baseUrl = 'http://localhost:4000';
+    this.baseUrl = 'https://backend.rimconseil.com';
     this.token = localStorage.getItem('token');
   }
   
