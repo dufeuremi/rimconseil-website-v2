@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import styled from 'styled-components';
 import ValueCard from './ValueCard';
 import Title from './Title';
+import { API_BASE_URL } from '../App';
 
 // Import des animations Lottie
 import animation1 from '../assets/animations/animation2.json';
@@ -68,12 +69,56 @@ const ValuesSection = () => {
     }
   ];
 
+  useEffect(() => {
+    const loadContent = async () => {
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/editable-content/valeurs`);
+        if (!res.ok) return;
+        const data = await res.json();
+        if (data?.elements?.length) {
+          // Load saved paragraph content
+          data.elements.forEach(item => {
+            const m = item.element_selector && item.element_selector.match(/\.valeur-(\d+)-paragraph/);
+            if (m && item.element_type === 'paragraph') {
+              const vIdx = parseInt(m[1], 10);
+              const el = document.querySelector(item.element_selector);
+              if (el) {
+                el.textContent = item.content_html;
+              }
+            }
+          });
+        }
+        data.elements?.forEach(item => {
+          const el = document.querySelector(item.element_selector);
+          if (el) {
+            if (item.element_type === 'deleted') {
+              el.style.display = 'none';
+              return;
+            }
+            
+            if (item.element_type === 'link') {
+              const anchor = el.closest('a') || el;
+              if (anchor && typeof item.content_html === 'string') {
+                anchor.setAttribute('href', item.content_html);
+              }
+            } else {
+              const target = el.querySelector('.editable-target') || el;
+              target.innerHTML = item.content_html;
+            }
+          }
+        });
+      } catch {}
+    };
+    const t = setTimeout(loadContent, 300);
+    return () => clearTimeout(t);
+  }, []);
+
   return (
     <SectionContainer>
       <TitleContainer>
-        <Title level={1} align="center" variant="page-title">Nos valeurs</Title>
+        <Title level={1} align="center" variant="page-title" className="valeurs-title">Nos valeurs</Title>
       </TitleContainer>
-      <Description>
+      <Description className="valeurs-description">
         L'objectif, c'est de fournir du conseil pour des solutions IT responsables qui allient:
       </Description>
       
@@ -86,6 +131,7 @@ const ValuesSection = () => {
             iconAlt={card.iconAlt}
             paragraph={card.paragraph}
             type={card.type}
+            classNamePrefix={`valeur-${index}`}
           />
         ))}
       </CardsContainer>
