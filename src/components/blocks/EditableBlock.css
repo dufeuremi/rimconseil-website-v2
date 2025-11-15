@@ -508,4 +508,97 @@
   max-height: 66vh;
   overflow-y: auto;
   padding-right: 4px;
+}
+
+/* Styles optimisés pour les images dans les articles */
+.article-image-container {
+  position: relative;
+  display: block;
+  margin: 1.5rem auto;
+  max-width: 100%;
+  text-align: center;
+}
+
+.article-image {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 0 auto;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: opacity 0.3s ease, transform 0.2s ease;
+}
+
+.article-image:hover {
+  transform: scale(1.01);
+}
+
+.article-image.loading {
+  opacity: 0;
+}
+
+.article-image.loaded {
+  opacity: 1;
+}
+
+.article-image-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  background-color: #f8f9fa;
+  border: 2px dashed #dee2e6;
+  border-radius: 8px;
+  color: #6c757d;
+  margin: 1.5rem auto;
+  max-width: 100%;
+}
+
+.article-image-placeholder-icon {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.article-image-loading {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  min-height: 200px;
+  z-index: 1;
+  color: #6c757d;
+}
+
+.article-image-caption {
+  font-size: 0.875rem;
+  color: #6c757d;
+  font-style: italic;
+  margin-top: 0.5rem;
+  text-align: center;
+}
+
+/* Style responsive pour les images */
+@media (max-width: 768px) {
+  .article-image {
+    border-radius: 4px;
+  }
+  
+  .article-image-placeholder {
+    min-height: 150px;
+    border-radius: 4px;
+  }
+}
+
+/* Optimisation pour les images base64 très longues */
+.article-image[src^="data:"] {
+  /* Peut aider avec les performances pour les images base64 */
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: optimize-contrast;
 } 

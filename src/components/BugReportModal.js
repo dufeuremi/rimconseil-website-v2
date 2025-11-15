@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
 import Modal from './Modal';
 import Button from './Button';
-import axios from 'axios';
-import { API_BASE_URL } from '../App';
 import SuccessPopup from './SuccessPopup';
 import './BugReportModal.css';
 
@@ -28,28 +26,42 @@ const BugReportModal = ({ isOpen, onClose }) => {
     setError(null);
 
     try {
-      const token = localStorage.getItem('token');
-      await axios.post(`${API_BASE_URL}/api/send-email`, 
-        { texte: formData.message },
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          }
-        }
+      // Récupérer les informations utilisateur
+      const userEmail = localStorage.getItem('userEmail') || 'utilisateur-inconnu';
+      const userName = localStorage.getItem('userName') || 'Utilisateur';
+      
+      // Créer le contenu de l'email
+      const subject = encodeURIComponent('⚠️ Rapport de panne - Dashboard Rimconseil');
+      const body = encodeURIComponent(
+        `Rapport de panne envoyé depuis le dashboard Rimconseil\n\n` +
+        `📅 Date: ${new Date().toLocaleString('fr-FR')}\n` +
+        `👤 Utilisateur: ${userName} (${userEmail})\n` +
+        `🔗 Page: ${window.location.href}\n\n` +
+        `📝 Description du problème:\n${formData.message}\n\n` +
+        `---\n` +
+        `Cet email a été généré automatiquement depuis le système de rapport de panne.`
       );
+      
+      // Ouvrir le client email par défaut
+      window.location.href = `mailto:rdufeu@taskalys.fr?subject=${subject}&body=${body}`;
       
       // Réinitialiser le formulaire
       setFormData({ message: '' });
+      
       // Afficher la popup de succès
       setShowSuccessPopup(true);
+      
       // Fermer la modale après un court délai
       setTimeout(() => {
         onClose();
         setShowSuccessPopup(false);
       }, 2000);
+      
     } catch (err) {
-      setError(err.response?.data?.message || 'Une erreur est survenue lors de l\'envoi du rapport.');
+      console.error('Erreur:', err);
+      const errorMessage = err.message || 'Erreur lors de l\'ouverture du client email';
+      alert(`Erreur: ${errorMessage}`);
+      setError(errorMessage);
     } finally {
       setIsSubmitting(false);
     }
@@ -59,11 +71,6 @@ const BugReportModal = ({ isOpen, onClose }) => {
     <>
       <Modal isOpen={isOpen} onClose={onClose} title="Signaler une panne">
         <form className="bug-report-form" onSubmit={handleSubmit}>
-          {error && (
-            <div className="error-message" style={{ color: 'red', marginBottom: '1rem' }}>
-              {error}
-            </div>
-          )}
           <div className="form-group">
             <textarea 
               id="message" 
@@ -96,7 +103,7 @@ const BugReportModal = ({ isOpen, onClose }) => {
       </Modal>
 
       <SuccessPopup
-        message="Votre rapport a été envoyé avec succès"
+        message="Votre client email va s'ouvrir pour envoyer le rapport"
         show={showSuccessPopup}
         onHide={() => setShowSuccessPopup(false)}
         duration={2000}

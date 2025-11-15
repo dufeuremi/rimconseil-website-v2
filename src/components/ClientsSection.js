@@ -4,34 +4,49 @@ import Title from './Title';
 import client1 from '../assets/images/client1.svg';
 import client2 from '../assets/images/client2.png';
 import client2white from '../assets/images/client2white.png';
-import excelcioLogoWhite from '../assets/images/excelcio_logo_white.png';
 
 const SectionContainer = styled.section`
-  background-color: #303947;
-  background-image: url(${require('../assets/images/texturewaves.jpg')});
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-blend-mode: multiply;
-  filter: brightness(0.8);
+  background-color: #4a5464;
+  filter: brightness(0.92) contrast(0.88);
   width: 100vw;
   margin-left: calc(-50vw + 50%);
   padding: 0 2rem;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding-bottom: 8rem;
-  padding-top: 5rem;
+  padding-bottom: 6rem;
+  padding-top: 6rem;
   position: relative;
   margin-top: 0;
   margin-bottom: 0;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: url(${require('../assets/images/texturewaves.jpg')});
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    opacity: 0.3;
+    z-index: 0;
+  }
+  
+  > * {
+    position: relative;
+    z-index: 1;
+  }
 `;
 
 const SectionTitle = styled.h2`
   font-size: 2rem;
   font-weight: 600;
   color: var(--color-white);
-  margin-bottom: 3rem;
+  margin-bottom: 2rem;
+  margin-top: 0;
   text-align: center;
 `;
 
@@ -77,9 +92,6 @@ const ClientsSection = ({ useWhiteLogo = false }) => {
         <ClientsLogosRow>
           <img src={client1} alt="Client 1" style={{ height: '80px', width: 'auto' }} />
           <img src={useWhiteLogo ? client2white : client2} alt="Client 2" style={{ height: '80px', width: 'auto' }} />
-          {useWhiteLogo && (
-            <img src={excelcioLogoWhite} alt="Excelcio" style={{ height: '80px', width: 'auto' }} />
-          )}
         </ClientsLogosRow>
         <FallbackText className={imageError ? 'visible' : ''}>
           Nos clients incluent des entreprises de divers secteurs qui nous font confiance

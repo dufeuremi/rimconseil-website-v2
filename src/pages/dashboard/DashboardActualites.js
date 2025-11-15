@@ -576,7 +576,7 @@ Détails: ${JSON.stringify(errorData, null, 2)}
                 showStatusToggle={true}
                 contentType="actualites"
                 isDashboard={true}
-                coverImage={actusItem.cover_img_path || actusItem.img_path || ''}
+                coverImage={actusItem.img_path || actusItem.cover_img_path || ''}
               />
             );
           })}

@@ -1,7 +1,12 @@
 import React from 'react';
 import styled from 'styled-components';
 import Title from './Title';
-import partenairesImage from '../assets/images/partenaires.png';
+import excelcioLogo from '../assets/images/excelcio_logo.png';
+import bevoakLogo from '../assets/images/partenaires/bevoak.jpg';
+import parteamLogo from '../assets/images/partenaires/parteam.avif';
+import blocnetLogo from '../assets/images/partenaires/blocnet.png';
+import polynomLogo from '../assets/images/partenaires/polynom.png';
+import colibeeLogo from '../assets/images/partenaires/colibee.png';
 
 const SectionContainer = styled.section`
   width: 100%;
@@ -31,20 +36,32 @@ const PartnersContainer = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
+  gap: 3rem;
+  flex-wrap: wrap;
   margin: 0 auto;
   max-width: 100%;
 `;
 
-const PartnersImage = styled.img`
-  max-width: 80%;
-  height: auto;
-  margin: 0 auto;
-  display: block;
+const PartnerLogo = styled.img`
+  height: 80px;
+  width: auto;
+  object-fit: contain;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+  
+  &:hover {
+    transform: scale(1.05);
+    opacity: 0.8;
+  }
   
   /* Fallback pour les images qui ne se chargent pas */
   &.error {
     display: none;
   }
+`;
+
+const PartnerLink = styled.a`
+  display: inline-block;
+  text-decoration: none;
 `;
 
 const FallbackText = styled.div`
@@ -65,6 +82,15 @@ const PartnersSection = () => {
     setImageError(true);
   };
 
+  const partners = [
+    { name: 'Bevoak', logo: bevoakLogo, url: 'https://bevoak.com/' },
+    { name: 'Parteam', logo: parteamLogo, url: 'https://www.parteam.fr/' },
+    { name: 'Excelcio', logo: excelcioLogo, url: 'https://excelcio.com/' },
+    { name: 'Blocnet', logo: blocnetLogo, url: 'https://www.blocnet.fr/' },
+    { name: 'Polynom', logo: polynomLogo, url: 'https://www.polynom.io/fr' },
+    { name: 'Colibee', logo: colibeeLogo, url: 'https://www.colibee.com/' }
+  ];
+
   return (
     <SectionContainer>
       <TitleContainer>
@@ -77,15 +103,24 @@ const PartnersSection = () => {
       </SectionDescription>
       
       <PartnersContainer>
-        <PartnersImage 
-          src={partenairesImage} 
-          alt="Nos partenaires: Parteam, Bevoak, Blocnet, Polynom, Colibee, IBM" 
-          className={imageError ? 'error' : ''}
-          onError={handleImageError}
-        />
+        {partners.map((partner, index) => (
+          <PartnerLink 
+            key={index}
+            href={partner.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            title={`Visitez ${partner.name}`}
+          >
+            <PartnerLogo 
+              src={partner.logo} 
+              alt={partner.name}
+              onError={handleImageError}
+            />
+          </PartnerLink>
+        ))}
+        
         <FallbackText className={imageError ? 'visible' : ''}>
-          Nos partenaires incluent Parteam, Bevoak, Blocnet, Polynom, Colibee et IBM, qui nous permettent
-          d'offrir une gamme complète de services informatiques et stratégiques.
+          Nos partenaires nous permettent d'offrir une gamme complète de services informatiques et stratégiques.
         </FallbackText>
       </PartnersContainer>
     </SectionContainer>

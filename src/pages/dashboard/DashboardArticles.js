@@ -295,15 +295,16 @@ Détails: ${JSON.stringify(errorData, null, 2)}
     }
   };
 
+  // Nouvelle version inspirée de l'ajout d'actus
   const handleAddNewArticle = async () => {
-    console.log('Création d\'un nouvel article');
+    console.log("Création d'un nouvel article");
     try {
-      // Préparer les données selon la documentation API
+      // Préparer les données minimales pour un nouvel article vide
       const newArticleData = {
-        date: new Date().toISOString().split('T')[0], // Format: YYYY-MM-DD
         titre: "Nouvel article",
+        date: new Date().toISOString().split('T')[0], // Format: YYYY-MM-DD
         text_preview: "Aperçu du nouvel article",
-        content_json: {
+        content_json: JSON.stringify({
           metadata: {
             type: "articles",
             created_at: new Date().toISOString(),
@@ -316,49 +317,29 @@ Détails: ${JSON.stringify(errorData, null, 2)}
               order: 0
             }
           }
-        },
-        path: "nouvel-article-" + Math.floor(Math.random() * 1000) // Optionnel selon la doc API
+        }),
+        path: "nouvel-article-" + Math.floor(Math.random() * 1000)
       };
-      
-      console.log('Données à envoyer:', newArticleData);
-      
-      // Créer le nouvel article via l'API
+
       setLoading(true);
-      const response = await axios.post(`${API_BASE_URL}/api/articles`, newArticleData, {
-        headers: {
-          'Content-Type': 'application/json',
-          // L'Authorization token est déjà géré globalement par Axios
-        }
-      });
+      // Envoi direct en JSON (comme actus)
+      const response = await axios.post(`${API_BASE_URL}/api/articles`, newArticleData);
       console.log('Nouvel article créé:', response.data);
-      
-      // Afficher un message de succès
+
       setSuccessMessage('Article créé avec succès');
       setShowSuccessPopup(true);
-      
+
       // Récupérer l'ID du nouvel article
       const newArticleId = response.data.id;
-      
+
       // Rafraîchir la liste des articles pour afficher le nouvel article
       fetchArticles();
     } catch (err) {
       console.error('Erreur lors de la création de l\'article:', err);
-      
-      // Déterminer le message d'erreur en fonction du code d'erreur (selon la doc API)
-      let errorMsg = 'Impossible de créer le nouvel article.';
-      if (err.response) {
-        if (err.response.status === 400) {
-          errorMsg = 'Données invalides: certains champs obligatoires sont manquants.';
-        } else if (err.response.status === 401) {
-          errorMsg = 'Non authentifié. Veuillez vous reconnecter.';
-        }
-      }
-      
-      setErrorDialogMessage(errorMsg);
+      setErrorDialogMessage('Impossible de créer le nouvel article. Veuillez réessayer.');
       setShowErrorDialog(true);
       setLoading(false);
     } finally {
-      // Ensure loading is reset if navigation doesn't happen
       if (window.location.pathname.indexOf('/dashboard/articles/edit/') === -1) {
         setLoading(false);
       }
@@ -619,7 +600,7 @@ Détails: ${JSON.stringify(errorData, null, 2)}
                 showStatusToggle={true}
                 contentType="articles"
                 isDashboard={true}
-                coverImage={article.cover_img_path || article.img_path || ''}
+                coverImage={article.img_path || article.cover_img_path || ''}
               />
             );
           })}

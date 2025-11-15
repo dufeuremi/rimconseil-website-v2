@@ -3,9 +3,6 @@ import styled from 'styled-components';
 import Title from '../components/Title';
 import Text from '../components/Text';
 import ZoneIntervention from '../components/ZoneIntervention';
-import clientsImage from '../assets/images/clients.png';
-import client1 from '../assets/images/client1.svg';
-import client2 from '../assets/images/client2.png';
 import procederSvg from '../assets/images/proceder.svg';
 import { API_BASE_URL } from '../App';
 
@@ -169,42 +166,8 @@ const SubPointText = styled(Text)`
   }
 `;
 
-// Nouveaux composants pour la section des clients
-const ClientsSection = styled.section`
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  text-align: center;
-  padding: 2rem 0;
-`;
-
-const ClientsTitle = styled.h2`
-  font-size: 2rem;
-  font-weight: 600;
-  color: var(--color-secondary);
-  margin-bottom: 3rem;
-  text-align: center;
-`;
-
-const ClientsImage = styled.img`
-  max-width: 80%;
-  height: auto;
-  margin: 0 auto;
-  display: block;
-`;
-
 const ZoneInterventionWrapper = styled.div`
   margin: 5rem 0;
-`;
-
-const ClientsLogosRow = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 3rem;
-  width: 100%;
-  margin: 0 auto;
 `;
 
 const IntroRow = styled.div`
@@ -377,11 +340,6 @@ const Services = () => {
       <ZoneInterventionWrapper>
         <ZoneIntervention />
       </ZoneInterventionWrapper>
-      
-      <ClientsSection>
-        <ClientsTitle className="clients-title">Nos clients</ClientsTitle>
-        <ClientsImage src={clientsImage} alt="Nos clients" />
-      </ClientsSection>
     </PageContainer>
   );
 };

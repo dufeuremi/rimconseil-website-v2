@@ -86,9 +86,15 @@ button {
 /* Utility Classes */
 .container {
   width: 100%;
-  max-width: 1200px;
+  max-width: 1664px;
   margin: 0 auto;
-  padding: 0 1rem;
+  padding: 0 5rem;
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 0 2rem;
+  }
 }
 
 .text-center {
@@ -105,18 +111,6 @@ button {
 
 /* Responsive Breakpoints */
 @media (max-width: 1024px) {
-  .container {
-    max-width: 960px;
-  }
-}
-
-@media (max-width: 768px) {
-  .container {
-    max-width: 720px;
-  }
-}
-
-@media (max-width: 640px) {
   .container {
     max-width: 100%;
   }

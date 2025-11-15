@@ -13,6 +13,7 @@ const SectionContainer = styled.section`
   width: 100%;
   max-width: 1200px;
   padding: 0 2rem;
+  padding-top: 2rem;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
@@ -22,6 +23,8 @@ const SectionContainer = styled.section`
 const TitleContainer = styled.div`
   text-align: center;
   margin-bottom: 1rem;
+  margin-top: 0;
+  padding-top: 0;
 `;
 
 const Description = styled.p`

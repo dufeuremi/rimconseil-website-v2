@@ -356,13 +356,35 @@ const Articles = () => {
             )}
           </DetailHeader>
           
-          {selectedArticle.cover_img_path && (
-            <img 
-              src={selectedArticle.cover_img_path}
-              alt=""
-              style={{ width: '100%', height: 'auto', marginBottom: '2rem' }}
-            />
-          )}
+          {(() => {
+            const API_BASE = process.env.REACT_APP_API_BASE_URL || 'http://localhost:4000';
+            let imgSrc = '';
+            if (selectedArticle.cover_img_path && typeof selectedArticle.cover_img_path === 'string' && selectedArticle.cover_img_path.startsWith('/uploads/')) {
+              imgSrc = API_BASE + selectedArticle.cover_img_path;
+            } else if (selectedArticle.img_path && typeof selectedArticle.img_path === 'string' && selectedArticle.img_path.startsWith('/uploads/')) {
+              imgSrc = API_BASE + selectedArticle.img_path;
+            } else if (selectedArticle.cover_img_path && typeof selectedArticle.cover_img_path === 'string' && selectedArticle.cover_img_path.startsWith('http')) {
+              imgSrc = selectedArticle.cover_img_path;
+            } else if (selectedArticle.img_path && typeof selectedArticle.img_path === 'string' && selectedArticle.img_path.startsWith('http')) {
+              imgSrc = selectedArticle.img_path;
+            } else {
+              imgSrc = '/images/placeholder.jpg';
+            }
+            return (
+              <img
+                src={imgSrc}
+                alt={selectedArticle.titre || selectedArticle.title || ''}
+                style={{
+                  width: '100%',
+                  height: 'auto',
+                  marginBottom: '2rem',
+                  borderRadius: '8px',
+                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
+                }}
+                onError={e => { e.target.src = '/images/placeholder.jpg'; }}
+              />
+            );
+          })()}
           
           {selectedArticle.text_preview && (
             <p style={{ fontStyle: 'italic', color: 'var(--color-text-light)', marginBottom: '2rem' }}>
@@ -415,7 +437,7 @@ const Articles = () => {
                   route={article.route || article.id}
                   isOnline={getOnlineStatus(article)}
                   contentType="articles"
-                  coverImage={article.cover_img_path || article.img_path || ''}
+                  coverImage={article.img_path || article.cover_img_path || ''}
                 />
               );
             })}

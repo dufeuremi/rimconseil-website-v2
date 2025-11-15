@@ -1,31 +1,89 @@
 import React, { useState, useRef, useEffect } from 'react';
+import imageCompression from 'browser-image-compression';
+import { processImageUrl } from '../utils/imageUtils';
 import './blocks/ImageBlock.css';
 
 const CoverImageBlock = ({ initialImage, onChange }) => {
-  const [image, setImage] = useState(initialImage || '');
+  // Gérer le cas où initialImage est soit une string (URL), soit un objet { preview, file }
+  const getImageUrl = (img) => {
+    if (!img) return '';
+    if (typeof img === 'object' && img.preview) return img.preview;
+    if (typeof img === 'string') return processImageUrl(img);
+    return '';
+  };
+
+  const [image, setImage] = useState(getImageUrl(initialImage));
   const [isUploading, setIsUploading] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(false);
+  const [imageError, setImageError] = useState(false);
   const fileInputRef = useRef(null);
   const uniqueId = useRef(`cover-image-${Math.random().toString(36).substr(2, 9)}`).current;
 
   // Sync internal state with prop changes
   useEffect(() => {
-    setImage(initialImage || '');
+    setImage(getImageUrl(initialImage));
+    setImageLoaded(false);
+    setImageError(false);
   }, [initialImage]);
 
-  const handleImageChange = (e) => {
+  const handleImageChange = async (e) => {
     if (e.target.files && e.target.files[0]) {
       setIsUploading(true);
       const file = e.target.files[0];
-      const reader = new FileReader();
       
-      reader.onloadend = () => {
-        const imageData = reader.result;
-        setImage(imageData);
-        onChange(imageData);
+      // Vérifier la taille du fichier (max 10 MB selon le backend, mais on compresse à 5 MB)
+      const maxSize = 10 * 1024 * 1024; // 10 MB
+      const fileSizeInMB = file.size / (1024 * 1024);
+      
+      console.log(`📸 Image sélectionnée: ${file.name}`);
+      console.log(`📊 Taille: ${fileSizeInMB.toFixed(2)} MB`);
+      
+      if (file.size > maxSize) {
+        alert('❌ Fichier trop volumineux (> 10 MB). Veuillez choisir une image plus petite.');
         setIsUploading(false);
-      };
+        return;
+      }
       
-      reader.readAsDataURL(file);
+      // Vérifier le type
+      if (!file.type.startsWith('image/')) {
+        alert('❌ Veuillez sélectionner une image.');
+        setIsUploading(false);
+        return;
+      }
+      
+      try {
+        // Options de compression - max 5MB pour l'envoi au serveur
+        const options = {
+          maxSizeMB: 5,
+          maxWidthOrHeight: 1920,
+          useWebWorker: true,
+          fileType: file.type
+        };
+        
+        console.log(`📸 Image originale: ${file.name} (${fileSizeInMB.toFixed(2)} MB)`);
+        
+        // Compresser l'image si nécessaire
+        const compressedFile = await imageCompression(file, options);
+        const compressedSizeMB = compressedFile.size / (1024 * 1024);
+        
+        console.log(`✅ Image compressée: ${compressedFile.name} (${compressedSizeMB.toFixed(2)} MB)`);
+        
+        // Créer une preview locale avec URL.createObjectURL
+        const previewUrl = URL.createObjectURL(compressedFile);
+        setImage(previewUrl);
+        // Passer à la fois la preview ET le fichier compressé
+        onChange({
+          preview: previewUrl,
+          file: compressedFile,
+          fileName: compressedFile.name,
+          fileSize: compressedFile.size
+        });
+      } catch (error) {
+        console.error('Erreur lors du traitement de l\'image:', error);
+        alert('Erreur lors du traitement de l\'image. Veuillez réessayer avec une autre image.');
+      } finally {
+        setIsUploading(false);
+      }
     }
   };
 
@@ -39,23 +97,33 @@ const CoverImageBlock = ({ initialImage, onChange }) => {
   const handleRemoveImage = (e) => {
     e.preventDefault();
     setImage('');
-    onChange('');
+    // Indiquer qu'on veut supprimer l'image (chaîne vide selon la doc backend)
+    onChange({ 
+      preview: '', 
+      file: null, 
+      remove: true  // Flag pour indiquer la suppression
+    });
   };
 
   return (
     <div className="image-block">
       {image ? (
-        <div className="image-preview">
-          <img src={image} alt="Image de couverture" />
+        <div className="image-preview" style={{ position: 'relative' }}>
+          <img
+            src={image}
+            alt="Image de couverture"
+            style={{ width: '100%', height: 'auto', objectFit: 'cover' }}
+            onError={e => { e.target.onerror = null; e.target.src = '/images/placeholder.jpg'; }}
+          />
           <div className="image-preview-buttons">
-            <button 
+            <button
               className="change-image-button"
               onClick={handleButtonClick}
               type="button"
             >
               Changer l'image
             </button>
-            <button 
+            <button
               className="remove-image-button"
               onClick={handleRemoveImage}
               type="button"
@@ -73,7 +141,7 @@ const CoverImageBlock = ({ initialImage, onChange }) => {
             <p>Cliquez pour ajouter une image</p>
             {isUploading && <p className="uploading-text">Chargement en cours...</p>}
           </div>
-          <button 
+          <button
             className="upload-button"
             onClick={handleButtonClick}
             type="button"

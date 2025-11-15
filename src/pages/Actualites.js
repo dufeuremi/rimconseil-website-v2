@@ -380,11 +380,35 @@ const Actualites = () => {
             )}
           </DetailHeader>
           
-          {selectedActu.img_path && (
-            <CoverImageDisplay
-              src={selectedActu.img_path}
-            />
-          )}
+          {(() => {
+            const API_BASE = process.env.REACT_APP_API_BASE_URL || 'http://localhost:4000';
+            let imgSrc = '';
+            if (selectedActu.cover_img_path && typeof selectedActu.cover_img_path === 'string' && selectedActu.cover_img_path.startsWith('/uploads/')) {
+              imgSrc = API_BASE + selectedActu.cover_img_path;
+            } else if (selectedActu.img_path && typeof selectedActu.img_path === 'string' && selectedActu.img_path.startsWith('/uploads/')) {
+              imgSrc = API_BASE + selectedActu.img_path;
+            } else if (selectedActu.cover_img_path && typeof selectedActu.cover_img_path === 'string' && selectedActu.cover_img_path.startsWith('http')) {
+              imgSrc = selectedActu.cover_img_path;
+            } else if (selectedActu.img_path && typeof selectedActu.img_path === 'string' && selectedActu.img_path.startsWith('http')) {
+              imgSrc = selectedActu.img_path;
+            } else {
+              imgSrc = '/images/placeholder.jpg';
+            }
+            return (
+              <img
+                src={imgSrc}
+                alt={selectedActu.titre || selectedActu.title || ''}
+                style={{
+                  width: '100%',
+                  height: 'auto',
+                  marginBottom: '2rem',
+                  borderRadius: '8px',
+                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
+                }}
+                onError={e => { e.target.src = '/images/placeholder.jpg'; }}
+              />
+            );
+          })()}
           
           {selectedActu.text_preview && (
             <p style={{ fontStyle: 'italic', color: 'var(--color-text-light)', marginBottom: '2rem' }}>
@@ -436,7 +460,7 @@ const Actualites = () => {
                   route={actu.route || actu.id}
                   isOnline={getOnlineStatus(actu)}
                   contentType="actualites"
-                  coverImage={actu.cover_img_path || actu.img_path || ''}
+                  coverImage={actu.img_path || actu.cover_img_path || ''}
                 />
               );
             })}

@@ -53,7 +53,7 @@ import DashboardPersonnalisation from './pages/dashboard/DashboardPersonnalisati
 import EditablePage from './components/EditablePage';
 
 // Configuration globale
-export const API_BASE_URL = 'https://backend.rimconseil.com';
+export const API_BASE_URL = 'http://localhost:4000';
 
 // Ajouter le token JWT aux headers par défaut s'il existe
 const token = localStorage.getItem('token');

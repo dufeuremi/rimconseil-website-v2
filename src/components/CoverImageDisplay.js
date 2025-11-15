@@ -6,6 +6,7 @@ const CoverImageContainer = styled.div`
   text-align: center;
   max-width: 800px;
   margin: 0 auto 2rem auto;
+  position: relative;
 `;
 
 const CoverImage = styled.img`
@@ -29,10 +30,14 @@ const CoverImage = styled.img`
 
 const CoverImageDisplay = ({ src, alt = "", className }) => {
   if (!src) return null;
-  
   return (
     <CoverImageContainer className={className}>
-      <CoverImage src={src} alt={alt} />
+      <CoverImage
+        src={src}
+        alt={alt}
+        onError={e => { e.target.onerror = null; e.target.src = '/images/placeholder.jpg'; }}
+        style={{ width: '100%', height: 'auto', objectFit: 'cover' }}
+      />
     </CoverImageContainer>
   );
 };

@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
+import { API_BASE_URL } from '../App';
+import { getDisplayImage, processImageUrl, getImageWithFallback } from '../utils/imageUtils';
 import Text from './Text';
 import SuccessPopup from './SuccessPopup';
 
@@ -256,47 +258,22 @@ const Article = ({
   const navigate = useNavigate();
   const [showPopup, setShowPopup] = useState(false);
   const [popupMessage, setPopupMessage] = useState('');
-  const [imageError, setImageError] = useState(false);
-  const [imageLoaded, setImageLoaded] = useState(false);
 
-  // Process the image URL to handle relative paths
-  const getImageUrl = (imagePath) => {
-    if (!imagePath) return '';
-    
-    // If it's already an absolute URL or Data URL, return as is
-    if (imagePath.startsWith('http://') || imagePath.startsWith('https://') || imagePath.startsWith('/') || imagePath.startsWith('data:')) {
-      return imagePath;
-    }
-    
-    // If it's a relative path, prefix with /images/
-    return `/images/${imagePath}`;
-  };
+  // Affichage public : priorité cover_img_path > img_path > placeholder, jamais base64
+  let processedImageUrl = '';
+  if (coverImage && typeof coverImage === 'string' && coverImage.startsWith('/uploads/')) {
+    processedImageUrl = `${API_BASE_URL}${coverImage}`;
+  } else if (coverImage && typeof coverImage === 'string' && coverImage.startsWith('http')) {
+    processedImageUrl = coverImage;
+  } else if (coverImage && typeof coverImage === 'string' && coverImage.startsWith('data:')) {
+    processedImageUrl = '/images/placeholder.jpg';
+  } else if (coverImage && typeof coverImage === 'string' && coverImage.length > 0) {
+    processedImageUrl = coverImage;
+  } else {
+    processedImageUrl = '/images/placeholder.jpg';
+  }
 
-  // Handle image loading and error
-  const handleImageLoad = () => {
-    setImageLoaded(true);
-    setImageError(false);
-  };
 
-  const handleImageError = () => {
-    setImageError(true);
-    setImageLoaded(false);
-  };
-
-  // Reset image states when coverImage changes
-  useEffect(() => {
-    if (coverImage) {
-      setImageError(false);
-      // For Data URLs, mark as loaded immediately since they're already encoded
-      if (coverImage.startsWith('data:')) {
-        setImageLoaded(true);
-      } else {
-        setImageLoaded(false);
-      }
-    }
-  }, [coverImage, title]);
-
-  const processedImageUrl = getImageUrl(coverImage);
 
   // Format the date in French
   const formatDateInFrench = (dateString) => {
@@ -381,47 +358,12 @@ const Article = ({
         isOnline={isOnline}
       >
         <ImageContainer>
-          {processedImageUrl && !imageError ? (
-            <>
-              {!imageLoaded && (
-                <div style={{
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  background: '#f8f9fa',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  zIndex: 1,
-                  fontSize: '0.75rem',
-                  color: 'var(--color-tertiary)'
-                }}>
-                  Chargement...
-                </div>
-              )}
-              <img 
-                src={processedImageUrl} 
-                alt=""
-                onLoad={handleImageLoad}
-                onError={handleImageError}
-                style={{
-                  opacity: imageLoaded ? 1 : 0,
-                  transition: 'opacity 0.3s ease',
-                  width: '100%',
-                  height: '100%',
-                  objectFit: 'cover',
-                  display: 'block',
-                  position: 'relative',
-                  zIndex: 0
-                }}
-              />
-            </>
-          ) : (
-            <div className="placeholder">
-            </div>
-          )}
+          <img
+            src={processedImageUrl}
+            /* alt removed to avoid blinking alt text */
+            onError={e => { e.target.onerror = null; e.target.src = '/images/placeholder.jpg'; }}
+            style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', position: 'relative', zIndex: 0 }}
+          />
         </ImageContainer>
         
         <ContentContainer>

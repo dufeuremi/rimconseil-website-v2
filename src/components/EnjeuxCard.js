@@ -19,14 +19,14 @@ const Title = styled.h3`
   font-size: 1.25rem;
   font-weight: 600;
   margin-bottom: 0.75rem;
-  color: #fff;
+  color: #ffffff;
   line-height: 1.4;
 `;
 
 const Description = styled.p`
   font-size: 1rem;
   line-height: 1.6;
-  color: rgba(255, 255, 255, 0.95);
+  color: #ffffff;
   margin: 0;
 `;
 

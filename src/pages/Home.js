@@ -9,7 +9,6 @@ import EnjeuxSection from '../components/EnjeuxSection';
 import ValuesSection from '../components/ValuesSection';
 import ClientsSection from '../components/ClientsSection';
 import PartnersSection from '../components/PartnersSection';
-import ZoneIntervention from '../components/ZoneIntervention';
 import ActualitesSection from '../components/ActualitesSection';
 import Lottie from 'lottie-react';
 import maskAnimation from '../assets/animations/mask.json';
@@ -49,10 +48,14 @@ const SectionContainer = styled.div`
 `;
 
 const ContentContainer = styled.div`
-  max-width: 1200px;
+  max-width: 1664px;
   width: 100%;
   margin: 0 auto;
-  padding: 0 2rem;
+  padding: 0 5rem;
+
+  @media (max-width: 768px) {
+    padding: 0 2rem;
+  }
 `;
 
 const BackgroundContainer = styled.div`
@@ -93,7 +96,7 @@ const LottieMaskOverlay = styled.div`
 `;
 
 const HeroSection = styled.div`
-  max-width: 1280px;
+  max-width: 1664px;
   width: 100%;
   padding: 96px 5rem 0 5rem;
   text-align: left;
@@ -142,7 +145,9 @@ const Home = () => {
   const [homeExpertiseData, setHomeExpertiseData] = useState({
     0: 'Alignement IT et évolution de l\'activité. Référentiels et gouvernance. Transformation organisationnelle. Digitalisation des process.',
     1: "Architecture d'entreprise, applicative et de données. Onprem / Cloud / Hybrid. Move to Cloud. Migration et modernisation.",
-    2: 'Audit applicatif. Analyse des flux. Définition de Référentiel MDM. Modélisation Data.'
+    2: 'Audit applicatif. Analyse des flux. Définition de Référentiel MDM. Modélisation Data.',
+    3: 'Gestion de projet et accompagnement au changement. Méthodologies agiles et traditionnelles.',
+    4: 'Sécurité des systèmes d\'information. Conformité RGPD. Audit de sécurité.'
   });
 
   // Charger contenu éditable du backend pour la home
@@ -155,7 +160,9 @@ const Home = () => {
           const expertiseData = { 
             0: 'Alignement IT et évolution de l\'activité. Référentiels et gouvernance. Transformation organisationnelle. Digitalisation des process.',
             1: "Architecture d'entreprise, applicative et de données. Onprem / Cloud / Hybrid. Move to Cloud. Migration et modernisation.",
-            2: 'Audit applicatif. Analyse des flux. Définition de Référentiel MDM. Modélisation Data.'
+            2: 'Audit applicatif. Analyse des flux. Définition de Référentiel MDM. Modélisation Data.',
+            3: 'Gestion de projet et accompagnement au changement. Méthodologies agiles et traditionnelles.',
+            4: 'Sécurité des systèmes d\'information. Conformité RGPD. Audit de sécurité.'
           };
           
           data.elements.forEach(item => {
@@ -275,42 +282,6 @@ const Home = () => {
           </Button>
         </HeroSection>
       </SectionContainer>
-      
-      <SectionContainer className="mt-medium">
-        <ContentContainer>
-          <div style={{ textAlign: 'center', marginBottom: '1rem' }}>
-            <Title level={1} align="center" variant="page-title" className="home-expertise-title">Nos savoir-faire</Title>
-          </div>
-          <p className="home-expertise-description" style={{ fontSize: '1rem', color: 'var(--color-text)', textAlign: 'center', maxWidth: 700, margin: '0 auto 3rem auto', lineHeight: 1.6 }}>
-            Innovation, respect de l'humain et de l'environnement au cœur de notre approche.
-          </p>
-          <div className="home-expertise-section">
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem' }}>
-              {[0,1,2].map((index) => (
-                <div key={index}>
-                  <h3 className={`home-expertise-card-${index}-title`} style={{ color: 'var(--color-secondary)', fontSize: '1.25rem', fontWeight: 600, marginBottom: '1.5rem', textAlign: 'center' }}>
-                    {index === 0 ? 'Stratégie IT' : index === 1 ? 'Architecture IT' : 'Analyse de donnée'}
-                  </h3>
-                  <div style={{ textAlign: 'left', width: '100%', marginBottom: '1rem' }}>
-                    <p className={`home-expertise-card-${index}-paragraph`} style={{ color: 'var(--color-text)', fontSize: '1rem', lineHeight: 1.6, margin: 0, padding: 0 }}>
-                      {homeExpertiseData[index] || ''}
-                    </p>
-                  </div>
-                  <div style={{ display: 'flex', justifyContent: 'center', marginTop: '1rem' }}>
-                    <Button 
-                      arrow={true} 
-                      as={Link} 
-                      to={ctaLinks[`.home-expertise-card-${index}-cta`] || '/expertises'}
-                    >
-                      <span className={`home-expertise-card-${index}-cta`}>Découvrir</span>
-                    </Button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </ContentContainer>
-      </SectionContainer>
 
       <SectionContainer className="mt-large">
         <ContentContainer>
@@ -328,10 +299,6 @@ const Home = () => {
 
       <SectionContainer>
         <ClientsSection useWhiteLogo={true} />
-      </SectionContainer>
-
-      <SectionContainer>
-        <ZoneIntervention />
       </SectionContainer>
 
       <SectionContainer>

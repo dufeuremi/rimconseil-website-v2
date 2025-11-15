@@ -2,8 +2,11 @@ import React, { useState, useRef, useEffect } from 'react';
 import styled from 'styled-components';
 import Title from '../components/Title';
 import Text from '../components/Text';
+import Button from '../components/Button';
+import { Link } from 'react-router-dom';
 import Lottie from 'lottie-react';
 import approcheSvg from '../assets/images/approche.svg'; // Import de l'image SVG
+import axios from 'axios';
 
 // Import des animations Lottie
 import clearAAnimation from '../assets/animations/clearA.json';
@@ -12,10 +15,7 @@ import clearCAnimation from '../assets/animations/clearC.json';
 
 // Import de l'image des partenaires
 import partenairesImage from '../assets/images/clients.png';
-import client1 from '../assets/images/client1.svg';
-import client2 from '../assets/images/client2.png';
 import { API_BASE_URL } from '../App';
-import excelcioLogo from '../assets/images/excelcio_logo.png';
 
 // Styled Components
 const PageContainer = styled.div`
@@ -383,6 +383,16 @@ const Expertises = () => {
     1: "Architecture d'entreprise, applicative et de données. Nous concevons des architectures robustes qui alignent systèmes informatiques, processus métiers et stratégie globale, garantissant cohérence et performance de votre écosystème IT. Onprem / Cloud / Hybrid. Nous vous guidons dans le choix et l'implémentation de solutions adaptées à vos besoins, qu'elles soient sur site, dans le cloud ou hybrides, en tenant compte des contraintes de sécurité, performance et coût. Move to Cloud. Nous orchestrons votre migration vers le cloud en minimisant les risques et perturbations, tout en maximisant les bénéfices liés à la flexibilité, l'évolutivité et l'optimisation des coûts.",
     2: "Audit applicatif. Nous évaluons en profondeur vos applications existantes pour identifier les forces, faiblesses et opportunités d'amélioration, vous aidant à prendre des décisions éclairées sur l'évolution de votre patrimoine applicatif. Analyse des flux. Nous cartographions et optimisons les flux de données entre vos systèmes pour éliminer les redondances, réduire les latences et améliorer la fiabilité de vos échanges d'information. Définition de Référentiel MDM. Nous établissons une gestion centralisée de vos données de référence (Master Data Management) pour garantir leur unicité, cohérence et fiabilité à travers tous vos systèmes. Modélisation Data. Nous concevons des modèles de données adaptés à vos besoins métiers, facilitant l'exploitation et l'analyse de vos données, tout en préparant le terrain pour l'intelligence artificielle et le machine learning. Analyse des Pain Points. Nous identifions et adressons les points de friction dans vos processus et systèmes pour améliorer l'expérience utilisateur et l'efficacité opérationnelle."
   });
+  
+  const [savoirFaireData, setSavoirFaireData] = useState({
+    0: 'Alignement IT et évolution de l\'activité. Référentiels et gouvernance. Transformation organisationnelle. Digitalisation des process.',
+    1: "Architecture d'entreprise, applicative et de données. Onprem / Cloud / Hybrid. Move to Cloud. Migration et modernisation.",
+    2: 'Audit applicatif. Analyse des flux. Définition de Référentiel MDM. Modélisation Data.',
+    3: 'Gestion de projet et accompagnement au changement. Méthodologies agiles et traditionnelles.',
+    4: 'Sécurité des systèmes d\'information. Conformité RGPD. Audit de sécurité.'
+  });
+  
+  const [ctaLinks, setCtaLinks] = useState({});
 
   useEffect(() => {
     const loadContent = async () => {
@@ -394,9 +404,15 @@ const Expertises = () => {
         console.log('🔍 API Data loaded:', data); // Debug
         
         if (data?.elements?.length) {
+          const links = {};
           
           data.elements?.forEach(item => {
             console.log('📝 Processing element:', item.element_selector, item.element_type); // Debug
+            
+            // Charger les liens CTA pour savoir-faire
+            if (item.element_type === 'link' && item.element_selector && item.element_selector.includes('-expertise-card-')) {
+              links[item.element_selector] = item.content_html;
+            }
             
             const el = document.querySelector(item.element_selector);
             if (el) {
@@ -422,7 +438,7 @@ const Expertises = () => {
               }
             }
             
-            // Load paragraph content
+            // Load paragraph content for expertise
             const m = item.element_selector && item.element_selector.match(/\.expertise-(\d+)-paragraph/);
             if (m && item.element_type === 'paragraph') {
               const eIdx = parseInt(m[1], 10);
@@ -430,8 +446,18 @@ const Expertises = () => {
                 setExpertiseData(prev => ({ ...prev, [eIdx]: item.content_html }));
               }
             }
+            
+            // Load paragraph content for savoir-faire cards
+            const mSf = item.element_selector && item.element_selector.match(/\.expertise-savoir-faire-card-(\d+)-paragraph/);
+            if (mSf && item.element_type === 'paragraph') {
+              const sfIdx = parseInt(mSf[1], 10);
+              if (sfIdx >= 0 && sfIdx < 5) {
+                setSavoirFaireData(prev => ({ ...prev, [sfIdx]: item.content_html }));
+              }
+            }
           });
           
+          setCtaLinks(links);
         }
       } catch (error) {
         console.warn('Could not load editable content for expertises:', error);
@@ -459,6 +485,61 @@ const Expertises = () => {
       </Section>
 
       <Section>
+        <SectionTitle level={1} className="expertises-savoir-faire-title">Nos savoir-faire</SectionTitle>
+        <ApproachText className="expertises-savoir-faire-description" style={{ textAlign: 'center', maxWidth: '700px', margin: '0 auto 3rem auto' }}>
+          Innovation, respect de l'humain et de l'environnement au cœur de notre approche.
+        </ApproachText>
+        <div className="expertise-savoir-faire-section">
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '2rem', marginBottom: '2rem' }}>
+            {[0,1,2].map((index) => (
+              <div key={index}>
+                <h3 className={`expertise-savoir-faire-card-${index}-title`} style={{ color: 'var(--color-secondary)', fontSize: '1.25rem', fontWeight: 600, marginBottom: '1.5rem', textAlign: 'center' }}>
+                  {index === 0 ? 'Stratégie IT' : index === 1 ? 'Architecture IT' : 'Analyse de donnée'}
+                </h3>
+                <div style={{ textAlign: 'left', width: '100%', marginBottom: '1rem' }}>
+                  <p className={`expertise-savoir-faire-card-${index}-paragraph`} style={{ color: 'var(--color-text)', fontSize: '1rem', lineHeight: 1.6, margin: 0, padding: 0 }}>
+                    {savoirFaireData[index] || ''}
+                  </p>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'center', marginTop: '1rem' }}>
+                  <Button 
+                    arrow={true} 
+                    as={Link} 
+                    to={ctaLinks[`.expertise-savoir-faire-card-${index}-cta`] || '/expertises'}
+                  >
+                    <span className={`expertise-savoir-faire-card-${index}-cta`}>Découvrir</span>
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '2rem', maxWidth: 'calc(66.666% + 1rem)', margin: '0 auto' }}>
+            {[3,4].map((index) => (
+              <div key={index}>
+                <h3 className={`expertise-savoir-faire-card-${index}-title`} style={{ color: 'var(--color-secondary)', fontSize: '1.25rem', fontWeight: 600, marginBottom: '1.5rem', textAlign: 'center' }}>
+                  {index === 3 ? 'Gestion de projet' : 'Sécurité IT'}
+                </h3>
+                <div style={{ textAlign: 'left', width: '100%', marginBottom: '1rem' }}>
+                  <p className={`expertise-savoir-faire-card-${index}-paragraph`} style={{ color: 'var(--color-text)', fontSize: '1rem', lineHeight: 1.6, margin: 0, padding: 0 }}>
+                    {savoirFaireData[index] || ''}
+                  </p>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'center', marginTop: '1rem' }}>
+                  <Button 
+                    arrow={true} 
+                    as={Link} 
+                    to={ctaLinks[`.expertise-savoir-faire-card-${index}-cta`] || '/expertises'}
+                  >
+                    <span className={`expertise-savoir-faire-card-${index}-cta`}>Découvrir</span>
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </Section>
+
+      <Section>
         <SectionTitle level={1} className="expertises-section-title">Nos domaines d'expertise</SectionTitle>
         <ExpertiseGrid>
           {[0, 1, 2].map((index) => (
@@ -478,15 +559,6 @@ const Expertises = () => {
           ))}
         </ExpertiseGrid>
       </Section>
-
-      <PartnersSection>
-        <PartnersTitle className="expertises-partners-title">Ils approuvent notre expertise</PartnersTitle>
-        <ClientsLogosRow>
-          <img src={client1} alt="Client 1" style={{ height: '80px', width: 'auto' }} />
-          <img src={client2} alt="Client 2" style={{ height: '80px', width: 'auto' }} />
-          <img src={excelcioLogo} alt="Excelcio" style={{ height: '80px', width: 'auto' }} />
-        </ClientsLogosRow>
-      </PartnersSection>
     </PageContainer>
   );
 };

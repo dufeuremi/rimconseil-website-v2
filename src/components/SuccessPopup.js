@@ -34,13 +34,13 @@ const PopupContainer = styled.div`
 const PopupContent = styled.div`
   padding: 10px 20px;
   margin-top: 20px;
-  background-color: var(--color-primary);
+  background-color: ${props => props.$isError ? '#dc3545' : 'var(--color-primary)'};
   color: white;
   border-radius: 0;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   font-weight: 500;
   max-width: 90%;
-  animation: ${slideDown} ${props => props.duration + 500}ms ease-in-out forwards;
+  animation: ${slideDown} ${props => props.$duration + 500}ms ease-in-out forwards;
   display: flex;
   align-items: center;
 `;
@@ -57,8 +57,9 @@ const SuccessIcon = styled.span`
  * @param {boolean} props.show - Whether to show the popup
  * @param {function} props.onHide - Callback when popup is hidden
  * @param {number} props.duration - Duration to show in ms (default: 2000)
+ * @param {boolean} props.isError - Whether this is an error message (default: false)
  */
-const SuccessPopup = ({ message, show, onHide, duration = 2000 }) => {
+const SuccessPopup = ({ message, show, onHide, duration = 2000, isError = false }) => {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
@@ -81,8 +82,8 @@ const SuccessPopup = ({ message, show, onHide, duration = 2000 }) => {
 
   return (
     <PopupContainer>
-      <PopupContent duration={duration}>
-        <SuccessIcon>✓</SuccessIcon>
+      <PopupContent $duration={duration} $isError={isError}>
+        <SuccessIcon>{isError ? '✕' : '✓'}</SuccessIcon>
         {message}
       </PopupContent>
     </PopupContainer>

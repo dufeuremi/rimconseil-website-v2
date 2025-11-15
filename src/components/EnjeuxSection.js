@@ -7,29 +7,45 @@ import axios from 'axios';
 import { API_BASE_URL } from '../App';
 
 const SectionContainer = styled.section`
-  background-color: #303947;
-  background-image: url(${require('../assets/images/texturewaves.jpg')});
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-blend-mode: multiply;
-  filter: brightness(0.8);
+  background-color: #4a5464;
+  filter: brightness(0.92) contrast(0.88);
   width: 100vw;
+  min-height: 100vh;
   margin-left: calc(-50vw + 50%);
   padding: 0 2rem;
   display: flex;
   flex-direction: column;
   justify-content: center;
   padding-bottom: 8rem;
-  padding-top: 5rem;
+  padding-top: 3rem;
   position: relative;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: url(${require('../assets/images/texturewaves.jpg')});
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    opacity: 0.3;
+    z-index: 0;
+  }
+  
+  > * {
+    position: relative;
+    z-index: 1;
+  }
 `;
 
 const TitleContainer = styled.div`
   text-align: center;
   margin-bottom: 1rem;
-  margin-top: 3.5rem;
-  padding-top: 2.5rem;
+  margin-top: 1rem;
+  padding-top: 0.5rem;
 
   h2, h1, h3, h4, h5, h6, .title, .page-title {
     color: #fff !important;
@@ -48,20 +64,32 @@ const SectionDescription = styled.p`
 const CarouselContainer = styled.div`
   position: relative;
   margin: 0 auto;
+  max-width: 1400px;
+  width: 100%;
+`;
+
+const CardsWrapper = styled.div`
+  overflow: hidden;
+  padding: 0 60px;
+  
+  @media (max-width: 768px) {
+    padding: 0 50px;
+  }
 `;
 
 const CardsContainer = styled.div`
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  display: flex;
   gap: 2rem;
-  overflow: hidden;
-  
-  @media (max-width: 992px) {
-    grid-template-columns: repeat(2, 1fr);
-  }
+  transition: transform 0.5s ease-in-out;
+  transform: translateX(${props => props.$offset}px);
+`;
+
+const CardWrapper = styled.div`
+  min-width: calc((100% - 4rem) / 2.5);
+  flex-shrink: 0;
   
   @media (max-width: 768px) {
-    grid-template-columns: 1fr;
+    min-width: 100%;
   }
 `;
 
@@ -69,24 +97,25 @@ const NavigationButton = styled.button`
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  background-color: var(--color-white);
+  background-color: rgba(255, 255, 255, 0.95);
   color: var(--color-primary);
-  width: 40px;
-  height: 40px;
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  border: 1px solid var(--color-quaternary);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   z-index: 10;
   transition: all 0.3s ease;
-  opacity: 0.2;
+  opacity: 1;
   
   &:hover {
     background-color: var(--color-primary);
     color: var(--color-white);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
   }
   
   &:focus {
@@ -94,26 +123,21 @@ const NavigationButton = styled.button`
   }
   
   &:disabled {
-    opacity: 0.5;
+    opacity: 0.3;
     cursor: not-allowed;
   }
   
   &.prev {
-    left: -20px;
+    left: 0;
   }
   
   &.next {
-    right: -20px;
+    right: 0;
   }
   
   @media (max-width: 768px) {
-    &.prev {
-      left: 0;
-    }
-    
-    &.next {
-      right: 0;
-    }
+    width: 40px;
+    height: 40px;
   }
 `;
 
@@ -196,20 +220,33 @@ const EnjeuxSection = ({ ctaLinks = {} }) => {
   ];
 
   const [currentPage, setCurrentPage] = useState(0);
-  const cardsPerPage = 3; // Nombre de cartes visibles à la fois
-  const maxPages = Math.ceil(enjeuxData.length / cardsPerPage);
+  const [cardWidth, setCardWidth] = useState(0);
+  
+  useEffect(() => {
+    const updateCardWidth = () => {
+      const container = document.querySelector('.cards-wrapper');
+      if (container) {
+        const width = container.offsetWidth;
+        // Largeur d'une carte = (largeur totale - gaps) / 2.5
+        const calculatedWidth = (width - 60) / 2.5 + 32; // +32 pour le gap
+        setCardWidth(calculatedWidth);
+      }
+    };
+    
+    updateCardWidth();
+    window.addEventListener('resize', updateCardWidth);
+    return () => window.removeEventListener('resize', updateCardWidth);
+  }, []);
   
   const handlePrevPage = () => {
     setCurrentPage(prev => Math.max(0, prev - 1));
   };
   
   const handleNextPage = () => {
-    setCurrentPage(prev => Math.min(maxPages - 1, prev + 1));
+    setCurrentPage(prev => Math.min(enjeuxData.length - 1, prev + 1));
   };
   
-  // Calculer les cartes à afficher sur la page actuelle
-  const startIndex = currentPage * cardsPerPage;
-  const visibleCards = enjeuxData.slice(startIndex, startIndex + cardsPerPage);
+  const offset = -currentPage * cardWidth;
 
   // Inject editable content from API for home section
   useEffect(() => {
@@ -268,31 +305,34 @@ const EnjeuxSection = ({ ctaLinks = {} }) => {
           disabled={currentPage === 0}
           aria-label="Carte précédente"
         >
-          <RiArrowLeftSLine size={24} />
+          <RiArrowLeftSLine size={28} />
         </NavigationButton>
         
-        <CardsContainer>
-          {visibleCards.map((enjeu, index) => (
-            <EnjeuxCard 
-              key={startIndex + index}
-              title={enjeu.title}
-              description={enjeu.description}
-              link={enjeu.link}
-              details={enjeu.details}
-              index={startIndex + index}
-              classNamePrefix={`enjeu-${startIndex + index}`}
-              ctaLinks={localCtaLinks}
-            />
-          ))}
-        </CardsContainer>
+        <CardsWrapper className="cards-wrapper">
+          <CardsContainer $offset={offset}>
+            {enjeuxData.map((enjeu, index) => (
+              <CardWrapper key={index}>
+                <EnjeuxCard 
+                  title={enjeu.title}
+                  description={enjeu.description}
+                  link={enjeu.link}
+                  details={enjeu.details}
+                  index={index}
+                  classNamePrefix={`enjeu-${index}`}
+                  ctaLinks={localCtaLinks}
+                />
+              </CardWrapper>
+            ))}
+          </CardsContainer>
+        </CardsWrapper>
         
         <NavigationButton 
           className="next" 
           onClick={handleNextPage} 
-          disabled={currentPage >= maxPages - 1}
+          disabled={currentPage >= enjeuxData.length - 1}
           aria-label="Carte suivante"
         >
-          <RiArrowRightSLine size={24} />
+          <RiArrowRightSLine size={28} />
         </NavigationButton>
       </CarouselContainer>
     </SectionContainer>

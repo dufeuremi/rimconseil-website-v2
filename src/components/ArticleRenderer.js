@@ -1,4 +1,6 @@
 import React from 'react';
+import { API_BASE_URL } from '../App';
+import { processImageUrl } from '../utils/imageUtils';
 import './blocks/EditableBlock.css';
 
 // Helper function to safely parse HTML content
@@ -38,20 +40,35 @@ const TextBlock = ({ content, variant = '' }) => {
   return <div className={className} dangerouslySetInnerHTML={{ __html: cleanHtmlContent(content) }} />;
 };
 
-const ImageBlock = ({ content, alt }) => (
-  <img 
-    src={content} 
-    alt={alt || 'Article image'} 
-    className="max-width-100 display-block margin-auto"
-    style={{ 
-      maxWidth: '100%',
-      height: 'auto',
-      display: 'block',
-      margin: '1rem auto',
-      borderRadius: '4px'
-    }}
-  />
-);
+const ImageBlock = ({ content, alt }) => {
+  const [imageLoaded, setImageLoaded] = React.useState(false);
+  const [imageError, setImageError] = React.useState(false);
+  
+  const processedUrl = processImageUrl(content);
+  
+  if (!processedUrl) {
+    return (
+      <div className="article-image-placeholder">
+        <div className="article-image-placeholder-icon">📷</div>
+        <div>Image non disponible</div>
+      </div>
+    );
+  }
+  return (
+    <div className="article-image-container">
+      <img
+        src={processedUrl}
+        alt={alt || "Image de l'article"}
+        className="article-image"
+        style={{ width: '100%', height: 'auto', objectFit: 'cover' }}
+        onError={e => { e.target.onerror = null; e.target.src = '/images/placeholder.jpg'; }}
+      />
+      {alt && (
+        <div className="article-image-caption">{alt}</div>
+      )}
+    </div>
+  );
+};
 
 const AnnotationBlock = ({ content }) => (
   <div className="editable-block annotation" dangerouslySetInnerHTML={{ __html: cleanHtmlContent(content) }} />
@@ -76,7 +93,7 @@ const BlockWrapper = ({ children }) => (
 );
 
 // ArticleRenderer component
-const ArticleRenderer = ({ contentJson }) => {
+const ArticleRenderer = ({ contentJson, isEdit = false, isDashboard = false }) => {
   // Parse content if it's a string
   let parsedContent;
   if (typeof contentJson === 'string') {
@@ -106,8 +123,11 @@ const ArticleRenderer = ({ contentJson }) => {
     <div style={{ textAlign: 'left' }} className="is-rendering">
       {blocksArray.map((block, index) => {
         const { type, content, alt, name } = block;
+        // On retire les images de corps de texte en mode édition/dashboard
+        if ((isEdit || isDashboard) && type === 'Image') {
+          return null;
+        }
         const BlockComponent = BLOCK_COMPONENTS[type] || TextBlock;
-        
         return (
           <BlockWrapper key={name || `block-${index}`}>
             <BlockComponent content={content} alt={alt} />

@@ -8,23 +8,37 @@ import logoWhiteSrc from '../assets/images/logoWhite.svg';
 import linkedinLogo from '../assets/images/linkedin.svg';
 
 const HeaderWrapper = styled.div`
-  position: ${({ transparent }) => transparent ? 'fixed' : 'absolute'};
+  position: fixed;
   top: 0;
   left: 0;
   right: 0;
-background-color: ${({ transparent }) => transparent ? 'transparent' : 'rgba(255, 255, 255, 0.55)'};
-
+  background-color: ${({ scrollProgress }) => 
+    scrollProgress === 0 
+      ? 'transparent' 
+      : `rgba(255, 255, 255, ${Math.min(0.35, scrollProgress * 0.35)})`
+  };
+  backdrop-filter: ${({ scrollProgress }) => 
+    scrollProgress === 0 
+      ? 'none' 
+      : `blur(${Math.min(20, scrollProgress * 20)}px)`
+  };
+  -webkit-backdrop-filter: ${({ scrollProgress }) => 
+    scrollProgress === 0 
+      ? 'none' 
+      : `blur(${Math.min(20, scrollProgress * 20)}px)`
+  };
   z-index: 100;
-  transition: transform 0.3s ease, background-color 0.3s ease, border-bottom 0.3s ease, margin-bottom 0.3s ease;
+  transition: transform 0.3s ease, background-color 0.3s ease, backdrop-filter 0.3s ease, border-bottom 0.3s ease;
   transform: translateY(${({ visible }) => (visible ? '0' : '-100%')});
-  border-bottom: ${({ transparent }) => transparent ? 'none' : '1px solid var(--color-quaternary, #E5E7EB)'};
-  margin-bottom: ${({ transparent }) => transparent ? '0' : '2rem'};
-  height: ${({ visible }) => (visible ? 'auto' : '0')};
-  overflow: ${({ visible }) => (visible ? 'visible' : 'hidden')};
+  border-bottom: ${({ scrollProgress }) => 
+    scrollProgress === 0 
+      ? 'none' 
+      : '1px solid rgba(229, 231, 235, 0.4)'
+  };
 `;
 
 const HeaderContainer = styled.header`
-  max-width: 1280px;
+  max-width: 1664px;
   margin: 0 auto;
   padding: 1.5rem 5rem;
   display: flex;
@@ -154,7 +168,8 @@ const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [visible, setVisible] = useState(true);
   const prevScrollPos = useRef(window.pageYOffset);
-  const [transparent, setTransparent] = useState(false);
+  const [scrollProgress, setScrollProgress] = useState(0);
+  const [transparent, setTransparent] = useState(true);
   const location = useLocation();
   const isHomePage = location.pathname === '/';
 
@@ -162,31 +177,27 @@ const Header = () => {
     const handleScroll = () => {
       const currentScrollPos = window.pageYOffset;
       const windowHeight = window.innerHeight;
-      const halfWindowHeight = windowHeight / 2;
 
-      // Transparence (uniquement sur la home)
+      // Calcul du backdrop blur progressif (0 à 1 sur la première moitié de l'écran)
+      const blurProgress = Math.min(currentScrollPos / (windowHeight / 2), 1);
+      setScrollProgress(blurProgress);
+
+      // Transparence du texte/logo
       if (isHomePage) {
-        if (currentScrollPos < halfWindowHeight) {
-          setTransparent(true);
-          document.querySelector('.main-content')?.classList.add('header-transparent');
-        } else {
-          setTransparent(false);
-          document.querySelector('.main-content')?.classList.remove('header-transparent');
-        }
+        setTransparent(blurProgress < 0.3);
       } else {
         setTransparent(false);
-        document.querySelector('.main-content')?.classList.remove('header-transparent');
       }
 
-      // Masquage/affichage (toutes pages)
-      if (currentScrollPos > windowHeight) {
+      // Masquage/affichage au scroll (scroll down = masqué, scroll up = visible)
+      if (currentScrollPos > 100) { // Commence à masquer après 100px
         if (currentScrollPos < prevScrollPos.current) {
           setVisible(true); // scroll up
         } else if (currentScrollPos > prevScrollPos.current) {
           setVisible(false); // scroll down
         }
       } else {
-        setVisible(true);
+        setVisible(true); // Toujours visible en haut de page
       }
       prevScrollPos.current = currentScrollPos;
     };
@@ -198,7 +209,7 @@ const Header = () => {
 
   return (
     <>
-      <HeaderWrapper visible={visible} transparent={transparent}>
+      <HeaderWrapper visible={visible} scrollProgress={scrollProgress}>
         <HeaderContainer>
           <Logo to="/">
             <LogoImage src={transparent ? logoWhiteSrc : logoSrc} alt="Logo Rim Conseil" />
@@ -208,7 +219,7 @@ const Header = () => {
           </Logo>
           <HeaderActions>
             <LinkedInIcon
-              href="https://www.linkedin.com/company/rimconseil/"sur 
+              href="https://www.linkedin.com/company/rimconseil/"
               target="_blank"
               rel="noopener noreferrer"
               transparent={transparent}

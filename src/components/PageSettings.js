@@ -23,7 +23,6 @@ const BLOCK_TYPES = [
   'Texte',
   'Texte 2 col.',
   'Texte 3 col.',
-  'Image',
   'Annotation'
 ];
 
@@ -189,6 +188,9 @@ const PageSettings = ({ onSave, initialData, contentType = 'pages' }) => {
     titre: initialData?.titre || '',
     text_preview: initialData?.text_preview || '',
     img_path: initialData?.img_path || '',
+    cover_img_path: initialData?.cover_img_path || '',
+    img_file: null,  // Fichier File pour l'image principale
+    cover_img_file: null,  // Fichier File pour l'image de couverture
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -336,15 +338,50 @@ const PageSettings = ({ onSave, initialData, contentType = 'pages' }) => {
   }, [lastAddedBlockId]);
 
   const handleChange = (name, value) => {
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    setFormData(prev => {
+      const updated = { ...prev, [name]: value };
+      
+      // Si c'est une image avec un fichier File, stocker séparément
+      if (name === 'cover_img_path' && value && typeof value === 'object') {
+        if (value.file) {
+          // Nouveau fichier uploadé
+          updated.cover_img_file = value.file;
+          updated.cover_img_path = value.preview; // Pour l'affichage
+        } else if (value.remove) {
+          // Suppression demandée
+          updated.cover_img_file = null;
+          updated.cover_img_path = ''; // Chaîne vide = suppression
+        }
+      }
+      
+      if (name === 'img_path' && value && typeof value === 'object') {
+        if (value.file) {
+          // Nouveau fichier uploadé
+          updated.img_file = value.file;
+          updated.img_path = value.preview; // Pour l'affichage
+        } else if (value.remove) {
+          // Suppression demandée
+          updated.img_file = null;
+          updated.img_path = ''; // Chaîne vide = suppression
+        }
+      }
+      
+      return updated;
+    });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSaving(true);
+    
+    console.log('🚀 Début de la sauvegarde');
+    console.log('📋 État formData:', {
+      titre: formData.titre,
+      img_path: typeof formData.img_path === 'object' ? 'objet' : formData.img_path?.substring(0, 50),
+      cover_img_path: typeof formData.cover_img_path === 'object' ? 'objet' : formData.cover_img_path?.substring(0, 50),
+      img_file: formData.img_file ? `File: ${formData.img_file.name} (${(formData.img_file.size / 1024).toFixed(0)} KB)` : 'null',
+      cover_img_file: formData.cover_img_file ? `File: ${formData.cover_img_file.name} (${(formData.cover_img_file.size / 1024).toFixed(0)} KB)` : 'null'
+    });
     
     try {
       // Préparer les données en fonction du type de contenu
@@ -391,35 +428,105 @@ const PageSettings = ({ onSave, initialData, contentType = 'pages' }) => {
       if (id) {
         // Update existing content
         if (contentType === 'articles' || contentType === 'actus') {
-          // Use FormData for articles and actualités according to new API
-          const formData = new FormData();
+          // Check if we have new image files to upload
+          const hasNewImages = formData.img_file || formData.cover_img_file;
           
-          // Add all fields to FormData
-          if (saveData.date) formData.append('date', saveData.date);
-          if (saveData.titre) formData.append('titre', saveData.titre);
-          if (saveData.text_preview) formData.append('text_preview', saveData.text_preview);
-          if (saveData.path) formData.append('path', saveData.path);
-          
-          // Handle content_json
-          if (saveData.content_json) {
-            formData.append('content_json', typeof saveData.content_json === 'string' ? saveData.content_json : JSON.stringify(saveData.content_json));
+          if (hasNewImages) {
+            // Use FormData for articles/actualités WITH new images
+            console.log('📤 Envoi avec FormData (nouvelles images détectées)');
+            const uploadFormData = new FormData();
+            
+            // Add all fields to FormData
+            if (saveData.date) uploadFormData.append('date', saveData.date);
+            if (saveData.titre) uploadFormData.append('titre', saveData.titre);
+            if (saveData.text_preview) uploadFormData.append('text_preview', saveData.text_preview);
+            if (saveData.path) uploadFormData.append('path', saveData.path);
+            
+            // Handle content_json
+            if (saveData.content_json) {
+              const contentJsonStr = typeof saveData.content_json === 'string' ? saveData.content_json : JSON.stringify(saveData.content_json);
+              uploadFormData.append('content_json', contentJsonStr);
+              
+              // Valider que c'est du JSON valide
+              try {
+                JSON.parse(contentJsonStr);
+                console.log('✅ content_json est valide');
+              } catch (e) {
+                console.error('❌ content_json invalide:', e);
+                throw new Error('Le contenu JSON est invalide');
+              }
+            }
+            
+            // Handle category
+            if (saveData.category) {
+              uploadFormData.append('category', JSON.stringify(saveData.category));
+            }
+            
+            // Handle online status
+            if (saveData.is_online !== undefined) {
+              uploadFormData.append('is_online', saveData.is_online.toString());
+            }
+            
+            // Add image files if present (using correct field names per backend docs)
+            if (formData.img_file) {
+              uploadFormData.append('image', formData.img_file);
+              console.log(`✅ Ajout image principale: ${formData.img_file.name} (${(formData.img_file.size / 1024 / 1024).toFixed(2)} MB)`);
+            }
+            
+            if (formData.cover_img_file) {
+              uploadFormData.append('coverImage', formData.cover_img_file);
+              console.log(`✅ Ajout image de couverture: ${formData.cover_img_file.name} (${(formData.cover_img_file.size / 1024 / 1024).toFixed(2)} MB)`);
+            }
+            
+            // Calculate total size
+            const totalSize = ((formData.img_file?.size || 0) + (formData.cover_img_file?.size || 0)) / 1024 / 1024;
+            console.log('📏 Taille totale des images:', {
+              img_file: formData.img_file ? `${(formData.img_file.size / 1024 / 1024).toFixed(2)} MB` : 'aucune',
+              cover_img_file: formData.cover_img_file ? `${(formData.cover_img_file.size / 1024 / 1024).toFixed(2)} MB` : 'aucune',
+              total: `${totalSize.toFixed(2)} MB`
+            });
+            
+            // Debug: afficher tous les champs du FormData
+            console.log('📦 Contenu du FormData:');
+            for (let pair of uploadFormData.entries()) {
+              if (pair[1] instanceof File) {
+                console.log(`  ${pair[0]}: [File] ${pair[1].name} (${(pair[1].size / 1024).toFixed(1)} KB)`);
+              } else {
+                console.log(`  ${pair[0]}: ${typeof pair[1] === 'string' && pair[1].length > 100 ? pair[1].substring(0, 100) + '...' : pair[1]}`);
+              }
+            }
+            
+            console.log(`🔄 Envoi PATCH FormData vers ${API_BASE_URL}/api/${contentType}/${id}`);
+            
+            const token = localStorage.getItem('token');
+            response = await axios.patch(`${API_BASE_URL}/api/${contentType}/${id}`, uploadFormData, {
+              headers: {
+                'Content-Type': 'multipart/form-data',
+                'Authorization': `Bearer ${token}`
+              }
+            });
+          } else {
+            // Use regular JSON for articles/actualités WITHOUT new images
+            console.log('📤 Envoi avec JSON (pas de nouvelles images)');
+            
+            // Validate content_json before sending
+            if (saveData.content_json) {
+              const contentJsonStr = typeof saveData.content_json === 'string' ? saveData.content_json : JSON.stringify(saveData.content_json);
+              try {
+                JSON.parse(contentJsonStr);
+                console.log('✅ content_json est valide');
+              } catch (e) {
+                console.error('❌ content_json invalide:', e);
+                throw new Error('Le contenu JSON est invalide');
+              }
+              saveData.content_json = contentJsonStr;
+            }
+            
+            console.log(`🔄 Envoi PATCH JSON vers ${API_BASE_URL}/api/${contentType}/${id}`);
+            console.log('📦 Données JSON:', saveData);
+            
+            response = await axios.patch(`${API_BASE_URL}/api/${contentType}/${id}`, saveData);
           }
-          
-          // Handle category
-          if (saveData.category) {
-            formData.append('category', JSON.stringify(saveData.category));
-          }
-          
-          // Handle online status
-          if (saveData.is_online !== undefined) {
-            formData.append('is_online', saveData.is_online.toString());
-          }
-          
-          // Add existing image paths if they exist
-          if (saveData.img_path) formData.append('img_path', saveData.img_path);
-          if (saveData.cover_img_path) formData.append('cover_img_path', saveData.cover_img_path);
-          
-          response = await axios.patch(`${API_BASE_URL}/api/${contentType}/${id}`, formData);
         } else {
           // Use JSON for other content types
           const headers = { 'Content-Type': 'application/json' };
@@ -434,30 +541,41 @@ const PageSettings = ({ onSave, initialData, contentType = 'pages' }) => {
         // Create new content
         if (contentType === 'articles' || contentType === 'actus') {
           // Use FormData for articles and actualités according to new API
-          const formData = new FormData();
+          const uploadFormData = new FormData();
           
           // Add all fields to FormData
-          if (saveData.date) formData.append('date', saveData.date);
-          if (saveData.titre) formData.append('titre', saveData.titre);
-          if (saveData.text_preview) formData.append('text_preview', saveData.text_preview);
-          if (saveData.path) formData.append('path', saveData.path);
+          if (saveData.date) uploadFormData.append('date', saveData.date);
+          if (saveData.titre) uploadFormData.append('titre', saveData.titre);
+          if (saveData.text_preview) uploadFormData.append('text_preview', saveData.text_preview);
+          if (saveData.path) uploadFormData.append('path', saveData.path);
           
           // Handle content_json
           if (saveData.content_json) {
-            formData.append('content_json', typeof saveData.content_json === 'string' ? saveData.content_json : JSON.stringify(saveData.content_json));
+            uploadFormData.append('content_json', typeof saveData.content_json === 'string' ? saveData.content_json : JSON.stringify(saveData.content_json));
           }
           
           // Handle category
           if (saveData.category) {
-            formData.append('category', JSON.stringify(saveData.category));
+            uploadFormData.append('category', JSON.stringify(saveData.category));
           }
           
           // Handle online status
           if (saveData.is_online !== undefined) {
-            formData.append('is_online', saveData.is_online.toString());
+            uploadFormData.append('is_online', saveData.is_online.toString());
           }
           
-          response = await axios.post(`${API_BASE_URL}/api/${contentType}`, formData);
+          // Handle image files for new content
+          if (formData.img_file) {
+            console.log('📸 Ajout image principale:', formData.img_file.name);
+            uploadFormData.append('image', formData.img_file);
+          }
+          
+          if (formData.cover_img_file) {
+            console.log('📸 Ajout image de couverture:', formData.cover_img_file.name);
+            uploadFormData.append('coverImage', formData.cover_img_file);
+          }
+          
+          response = await axios.post(`${API_BASE_URL}/api/${contentType}`, uploadFormData);
         } else {
           // Use JSON for other content types
           response = await axios.post(`${API_BASE_URL}/api/${contentType}`, saveData);
@@ -479,16 +597,96 @@ const PageSettings = ({ onSave, initialData, contentType = 'pages' }) => {
     } catch (err) {
       console.error(`Error saving ${contentType}:`, err);
       
-      // Gestion des erreurs spécifiques pour les articles selon la doc API
-      let errorMsg = `Erreur lors de la sauvegarde: ${err.message}`;
-      if (contentType === 'articles' && err.response) {
+      // Créer un message d'erreur détaillé
+      let errorMsg = `Erreur lors de la sauvegarde\n\n`;
+      
+      if (err.response) {
+        // Le serveur a répondu avec un code d'erreur
+        errorMsg += `📊 Réponse du serveur:\n`;
+        errorMsg += `Code HTTP: ${err.response.status}\n`;
+        errorMsg += `Message: ${err.response.data?.message || err.response.statusText || 'Aucun message'}\n`;
+        errorMsg += `URL: ${err.response.config?.url || 'N/A'}\n`;
+        
+        if (err.response.data?.error) {
+          errorMsg += `Erreur détaillée: ${err.response.data.error}\n`;
+        }
+        
+        if (err.response.data?.details) {
+          errorMsg += `\nDétails supplémentaires:\n${JSON.stringify(err.response.data.details, null, 2)}\n`;
+        }
+        
+        // Messages spécifiques selon le code d'erreur
         if (err.response.status === 401) {
-          errorMsg = 'Non authentifié. Veuillez vous reconnecter.';
+          errorMsg += `\n⚠️ Authentification requise. Veuillez vous reconnecter.`;
         } else if (err.response.status === 404) {
-          errorMsg = 'Article non trouvé.';
+          errorMsg += `\n⚠️ ${contentType} non trouvé(e) sur le serveur.`;
+        } else if (err.response.status === 400) {
+          errorMsg += `\n⚠️ Données invalides envoyées au serveur.`;
+        } else if (err.response.status === 413) {
+          errorMsg += `\n⚠️ Fichier trop volumineux. Les images sont probablement trop grandes.`;
+          errorMsg += `\nSolution: Utilisez des images de taille réduite (< 1 MB recommandé).`;
+        } else if (err.response.status === 500) {
+          errorMsg += `\n⚠️ Erreur interne du serveur. Contactez l'administrateur.`;
+        }
+        
+      } else if (err.request) {
+        // La requête a été envoyée mais aucune réponse reçue
+        errorMsg += `🌐 Erreur réseau:\n`;
+        errorMsg += `Type: Network Error\n`;
+        errorMsg += `Cause probable: Le serveur backend n'est pas accessible OU la requête est trop volumineuse\n`;
+        errorMsg += `URL tentée: ${API_BASE_URL}/api/${contentType}${id ? `/${id}` : ''}\n`;
+        
+        // Détecter si le problème vient probablement des images
+        // Vérifier les fichiers File (pas les strings base64)
+        const imgFileSize = formData.img_file ? formData.img_file.size : 0;
+        const coverFileSize = formData.cover_img_file ? formData.cover_img_file.size : 0;
+        const totalImageSize = imgFileSize + coverFileSize;
+        
+        console.log('📊 Taille des images:', {
+          img_file: imgFileSize ? `${(imgFileSize / 1024 / 1024).toFixed(2)} MB` : 'aucune',
+          cover_img_file: coverFileSize ? `${(coverFileSize / 1024 / 1024).toFixed(2)} MB` : 'aucune',
+          total: `${(totalImageSize / 1024 / 1024).toFixed(2)} MB`
+        });
+        
+        // Si au moins une image > 5 MB ou total > 8 MB
+        if (imgFileSize > 5 * 1024 * 1024 || coverFileSize > 5 * 1024 * 1024 || totalImageSize > 8 * 1024 * 1024) {
+          errorMsg += `\n🖼️ PROBLÈME DÉTECTÉ: Images trop volumineuses\n`;
+          errorMsg += `Taille des images:\n`;
+          if (imgFileSize > 0) {
+            errorMsg += `• Image principale: ${(imgFileSize / 1024 / 1024).toFixed(2)} MB\n`;
+          }
+          if (coverFileSize > 0) {
+            errorMsg += `• Image de couverture: ${(coverFileSize / 1024 / 1024).toFixed(2)} MB\n`;
+          }
+          errorMsg += `• Total: ${(totalImageSize / 1024 / 1024).toFixed(2)} MB\n`;
+          errorMsg += `\n✅ Solutions:\n`;
+          errorMsg += `1. Utilisez des images plus petites (< 3 MB chacune)\n`;
+          errorMsg += `2. Compressez vos images avec un outil externe\n`;
+          errorMsg += `3. Réduisez la résolution (1200px de largeur max)\n`;
+          errorMsg += `4. Convertissez les PNG en JPEG\n`;
+        } else {
+          errorMsg += `\n⚠️ Vérifications à effectuer:\n`;
+          errorMsg += `• Le serveur backend est-il démarré?\n`;
+          errorMsg += `• Vérifiez qu'il tourne sur le port 4000\n`;
+          errorMsg += `• Vérifiez votre connexion internet\n`;
+          errorMsg += `• Vérifiez les paramètres CORS du serveur\n`;
+          if (totalImageSize > 0) {
+            errorMsg += `\nNote: Tailles des images OK (${(totalImageSize / 1024 / 1024).toFixed(2)} MB total)\n`;
+          }
+        }
+        
+      } else {
+        // Erreur lors de la préparation de la requête
+        errorMsg += `❌ Erreur inattendue:\n`;
+        errorMsg += `Message: ${err.message || 'Erreur inconnue'}\n`;
+        errorMsg += `Type: ${err.name || 'N/A'}\n`;
+        
+        if (err.stack) {
+          errorMsg += `\nStack trace:\n${err.stack.split('\n').slice(0, 3).join('\n')}`;
         }
       }
       
+      console.error('Détails complets de l\'erreur:', errorMsg);
       setErrorMessage(errorMsg);
       setShowErrorMessage(true);
     } finally {
@@ -900,8 +1098,23 @@ const PageSettings = ({ onSave, initialData, contentType = 'pages' }) => {
         title="Erreur"
         confirmText="OK"
         cancelText={null}
+        danger={true}
       >
-        <p>{errorMessage}</p>
+        <div style={{ 
+          maxHeight: '500px', 
+          overflowY: 'auto', 
+          whiteSpace: 'pre-wrap', 
+          fontFamily: 'monospace',
+          fontSize: '0.85rem',
+          padding: '1rem',
+          backgroundColor: '#f8f9fa',
+          borderRadius: '4px',
+          border: '1px solid #dee2e6',
+          textAlign: 'left',
+          lineHeight: '1.5'
+        }}>
+          {errorMessage}
+        </div>
       </ConfirmationDialog>
 
       {/* Delete confirmation dialog */}
