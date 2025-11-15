@@ -381,7 +381,7 @@ const Actualites = () => {
           </DetailHeader>
           
           {(() => {
-            const API_BASE = process.env.REACT_APP_API_BASE_URL || 'http://localhost:4000';
+            const API_BASE = process.env.REACT_APP_API_BASE_URL || 'https://backend.rimconseil.com';
             let imgSrc = '';
             if (selectedActu.cover_img_path && typeof selectedActu.cover_img_path === 'string' && selectedActu.cover_img_path.startsWith('/uploads/')) {
               imgSrc = API_BASE + selectedActu.cover_img_path;

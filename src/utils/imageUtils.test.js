@@ -36,11 +36,11 @@ import { getDisplayImage, processImageUrl, getImageWithFallback } from './src/ut
 
 // Test 1: Article avec cover_img_path et img_path
 console.log('Test 1:', getDisplayImage(exempleArticle1));
-// Résultat attendu: "http://localhost:4000/uploads/coverImage-1763228534114-795577317"
+// Résultat attendu: "https://backend.rimconseil.com/uploads/coverImage-1763228534114-795577317"
 
 // Test 2: Article avec seulement img_path
 console.log('Test 2:', getDisplayImage(exempleArticle2));
-// Résultat attendu: "http://localhost:4000/uploads/image-1763228534114-795577316"
+// Résultat attendu: "https://backend.rimconseil.com/uploads/image-1763228534114-795577316"
 
 // Test 3: Article avec image base64
 console.log('Test 3:', getDisplayImage(exempleArticle3));

@@ -33,7 +33,7 @@ const article = {
 };
 
 const imageUrl = getDisplayImage(article);
-// Résultat: "http://localhost:4000/uploads/cover-123.jpg"
+// Résultat: "https://backend.rimconseil.com/uploads/cover-123.jpg"
 ```
 
 ### `processImageUrl(imagePath)`
@@ -41,7 +41,7 @@ Traite une URL d'image pour gérer les différents formats.
 
 ```javascript
 processImageUrl("/uploads/image-123.jpg")  
-// → "http://localhost:4000/uploads/image-123.jpg"
+// → "https://backend.rimconseil.com/uploads/image-123.jpg"
 
 processImageUrl("data:image/png;base64,...")  
 // → "data:image/png;base64,..." (inchangé)
@@ -93,7 +93,7 @@ function ArticlesList() {
   const [articles, setArticles] = useState([]);
 
   useEffect(() => {
-    fetch('http://localhost:4000/api/articles')
+    fetch('https://backend.rimconseil.com/api/articles')
       .then(r => r.json())
       .then(setArticles);
   }, []);
@@ -126,7 +126,7 @@ function ArticleDetail({ articleId }) {
   const [article, setArticle] = useState(null);
 
   useEffect(() => {
-    fetch(`http://localhost:4000/api/articles/${articleId}`)
+    fetch(`https://backend.rimconseil.com/api/articles/${articleId}`)
       .then(r => r.json())
       .then(setArticle);
   }, [articleId]);
@@ -201,7 +201,7 @@ Pour tester que tout fonctionne :
 
 ```javascript
 // Dans la console du navigateur
-fetch('http://localhost:4000/api/articles')
+fetch('https://backend.rimconseil.com/api/articles')
   .then(r => r.json())
   .then(articles => {
     console.log('Premier article:', articles[0]);
@@ -234,7 +234,7 @@ Pour migrer vos composants existants :
 ## 📞 Support
 
 En cas de problème :
-1. Vérifier que `API_BASE_URL` pointe vers `http://localhost:4000`
+1. Vérifier que `API_BASE_URL` pointe vers `https://backend.rimconseil.com`
 2. Vérifier que les images existent sur le serveur
 3. Utiliser les outils de développement pour inspecter les requêtes réseau
 4. Consulter `imageUtils.test.js` pour des exemples de test

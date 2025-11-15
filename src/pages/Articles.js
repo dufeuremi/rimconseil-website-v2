@@ -357,7 +357,7 @@ const Articles = () => {
           </DetailHeader>
           
           {(() => {
-            const API_BASE = process.env.REACT_APP_API_BASE_URL || 'http://localhost:4000';
+            const API_BASE = process.env.REACT_APP_API_BASE_URL || 'https://backend.rimconseil.com';
             let imgSrc = '';
             if (selectedArticle.cover_img_path && typeof selectedArticle.cover_img_path === 'string' && selectedArticle.cover_img_path.startsWith('/uploads/')) {
               imgSrc = API_BASE + selectedArticle.cover_img_path;
